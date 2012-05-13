@@ -10,7 +10,7 @@ class Utils
         // TODO String lambda syntax: 'a => a*a'
         if ($closure === null) {
             if ($default === null)
-                throw new \InvalidArgumentException;
+                throw new \InvalidArgumentException('closure must not be null');
             return $default; /*Functions::$identity*/
         }
         if ($closure instanceof \Closure)
@@ -19,9 +19,7 @@ class Utils
             return $closure;
         /*return function() use($closure)
           { return call_user_func_array($closure, func_get_args()); };*/
-        if ($default === null)
-            throw new \InvalidArgumentException;
-        return $default;
+        throw new \InvalidArgumentException('closure must be callable');
     }
 
     public static function compare ($a, $b)
