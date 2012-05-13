@@ -13,6 +13,7 @@ spl_autoload_register(function($class)
 class Enumerable implements \IteratorAggregate
 {
     const ERROR_NO_ELEMENTS = 'Sequence contains no elements.';
+    const ERROR_NO_KEY = 'Sequence does not contain this key.';
 
     private $getIterator;
 
@@ -40,6 +41,8 @@ class Enumerable implements \IteratorAggregate
     public static function from ($obj)
     {
         $it = null;
+        if ($obj instanceof Enumerable)
+            return $obj;
         if (is_array($obj))
             $it = new \ArrayIterator($obj);
         elseif ($obj instanceof \Iterator)
@@ -116,6 +119,8 @@ class Enumerable implements \IteratorAggregate
                 });
         });
     }
+
+    #region Aggregation
 
     /**
      * <p>aggregate (func {{accum, value => result}) => result
@@ -292,6 +297,87 @@ class Enumerable implements \IteratorAggregate
         return $enum->aggregate(function ($a, $b) use ($comparer)
         { return call_user_func($comparer, $a, $b) > 0 ? $a : $b; });
     }
+
+    /**
+     * <p>sum () => result
+     * <p>sum (selector {{value => result}) => result
+     * <p>sum (selector {{value, key => result}) => result
+     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * @return number
+     */
+    public function sum ($selector = null)
+    {
+        $enum = $this;
+        if ($selector !== null)
+            $enum = $enum->select($selector);
+        return $enum->aggregateOrDefault(function ($a, $b)
+        { return $a + $b; }, 0);
+    }
+
+    #endregion
+
+    #region Pagination
+
+    /**
+     * @param mixed $key
+     * @throws \InvalidArgumentException If sequence does not contain element with specified key.
+     * @return mixed
+     */
+    public function elementAt ($key)
+    {
+        /** @var $it \Iterator|\ArrayAccess */
+        $it = $this->getIterator();
+
+        if ($it instanceof \ArrayAccess) {
+            if (!$it->offsetExists($key))
+                throw new \InvalidArgumentException(self::ERROR_NO_KEY);
+            return $it->offsetGet($key);
+        }
+
+        foreach ($it as $k => $v) {
+            if ($k === $key)
+                return $v;
+        }
+        throw new \InvalidArgumentException(self::ERROR_NO_KEY);
+    }
+
+    /**
+     * @param mixed $key
+     * @param mixed $default Value to return if sequence does not contain element with specified key.
+     * @return mixed
+     */
+    public function elementAtOrDefault ($key, $default = null)
+    {
+        /** @var $it \Iterator|\ArrayAccess */
+        $it = $this->getIterator();
+
+        if ($it instanceof \ArrayAccess)
+            return $it->offsetExists($key) ? $it->offsetGet($key) : $default;
+
+        foreach ($it as $k => $v) {
+            if ($k === $key)
+                return $v;
+        }
+        return $default;
+    }
+
+    // TODO Pagination
+
+    #endregion
+
+    #region Conversion
+
+    public function toArray ()
+    {
+        $array = array();
+        foreach ($this as $k => $v)
+            $array[$k] = $v;
+        return $array;
+    }
+
+    // TODO Conversion
+
+    #endregion
 }
 
 $enum = Enumerable::from(array('a', 'bbb', 'c', 1, 'a' => 2, '10' => 3))
