@@ -2,7 +2,6 @@
 
 namespace YaLinqo;
 use YaLinqo;
-use YaLinqo\exceptions as e;
 
 spl_autoload_register(function($class)
 {
@@ -15,11 +14,11 @@ class Enumerable implements \IteratorAggregate
 {
     const ERROR_NO_ELEMENTS = 'Sequence contains no elements.';
 
-    private $iterator;
+    private $getIterator;
 
     public function __construct ($iterator)
     {
-        $this->iterator = $iterator;
+        $this->getIterator = $iterator;
     }
 
     /**
@@ -28,31 +27,32 @@ class Enumerable implements \IteratorAggregate
     public function getIterator ()
     {
         /** @var $it \Iterator */
-        $it = call_user_func($this->iterator);
+        $it = call_user_func($this->getIterator);
         $it->rewind();
         return $it;
     }
 
     /**
-     * @param mixed $obj
-     * @throws \Exception
+     * @param array|\Iterator|\IteratorAggregate $obj
+     * @throws \InvalidArgumentException If obj is not array or Traversible (Iterator or IteratorAggregate).
      * @return \YaLinqo\Enumerable
      */
     public static function from ($obj)
     {
-        if ($obj instanceof \Iterator) {
-            return new Enumerable(function () use ($obj)
+        $it = null;
+        if (is_array($obj))
+            $it = new \ArrayIterator($obj);
+        elseif ($obj instanceof \Iterator)
+            $it = $obj;
+        elseif ($obj instanceof \IteratorAggregate)
+            $it = $obj->getIterator();
+        if ($it !== null) {
+            return new Enumerable(function () use ($it)
             {
-                return $obj;
+                return $it;
             });
         }
-        if (is_array($obj)) {
-            return new Enumerable(function () use ($obj)
-            {
-                return new \ArrayIterator($obj);
-            });
-        }
-        throw new \Exception;
+        throw new \InvalidArgumentException('obj must be array or Traversable (Iterator or IteratorAggregate).');
     }
 
     /**
@@ -153,8 +153,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>aggregate (func {{accum, value => result}, default) => result
-     * <p>aggregate (func {{accum, value, key => result}, default) => result
+     * <p>aggregateOrDefault (func {{accum, value => result}, default) => result
+     * <p>aggregateOrDefault (func {{accum, value, key => result}, default) => result
      * @param Closure|array|string $func {accum, value => result} | {accum, value, key => result}
      * @param mixed $default Value to return if sequence is empty.
      * @return mixed

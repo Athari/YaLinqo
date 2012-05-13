@@ -2,7 +2,6 @@
 
 namespace YaLinqo;
 use YaLinqo;
-use YaLinqo\exceptions as e;
 
 class Enumerator implements \Iterator
 {
