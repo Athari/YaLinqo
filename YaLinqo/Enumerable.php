@@ -61,7 +61,7 @@ class Enumerable implements \IteratorAggregate
     public function select ($selector)
     {
         $self = $this;
-        $selector = Utils::createLambda($selector, Functions::$identity);
+        $selector = Utils::createLambda($selector);
 
         return new Enumerable(function () use ($self, $selector)
         {
@@ -129,18 +129,70 @@ class Enumerable implements \IteratorAggregate
             $result = call_user_func($func, $result, $v, $k);
         return $result;
     }
+
+    /**
+     * <p>average () => result
+     * <p>average (selector {{value => result}) => result
+     * <p>average (selector {{value, key => result}) => result
+     * @param Closure|array|string $selector
+     */
+    public function average ($selector = null)
+    {
+        $selector = Utils::createLambda($selector, Functions::$identity);
+        $sum = $count = 0;
+
+        foreach ($this as $k => $v) {
+            $sum += call_user_func($selector, $v, $k);
+            $count++;
+        }
+        return $count === 0 ? NAN : $sum / $count;
+    }
+
+    /**
+     * <p>count () => num
+     * <p>count (selector {{value => result}) => num
+     * <p>count (selector {{value, key => result}) => num
+     * @param Closure|array|string $selector
+     */
+    public function count ($selector = null)
+    {
+        $it = $this->getIterator();
+
+        if ($it instanceof \Countable)
+            return count($it);
+
+        $selector = Utils::createLambda($selector, Functions::$identity);
+        $count = 0;
+
+        foreach ($this as $k => $v)
+            if (call_user_func($selector, $v, $k))
+                $count++;
+        return $count;
+    }
 }
 
-$enum = Enumerable::from(array('a', 'b', 'c', 1, 'a' => 2, '100' => 3))
+$enum = Enumerable::from(array('a', 'b', 'c', 1, 'a' => 2, '10' => 3))
         ->where(
     function($v, $k)
     { return is_numeric($k); })
         ->select(
     function($v, $k)
-    { return "$k: $v"; });
+    { return "$v($k)"; });
 
 foreach ($enum as $k => $v)
     echo "($k): ($v)\n";
 
 var_dump($enum->aggregate(function($a, $b)
-{ return $a . $b; }));
+{ return $a . '|' . $b; }, 'ooo'));
+
+var_dump($enum->average(function($v, $k)
+{ return $v + $k; }));
+var_dump($enum->average(function($v, $k)
+{ return $k; }));
+var_dump($enum->average());
+var_dump(Enumerable::from(new \EmptyIterator)->average());
+
+var_dump($enum->count(function($v)
+{ return intval($v) != 0; }));
+var_dump($enum->count());
+var_dump(Enumerable::from(new \EmptyIterator)->count());
