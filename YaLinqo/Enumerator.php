@@ -2,8 +2,9 @@
 
 namespace YaLinqo;
 use YaLinqo;
+use YaLinqo\exceptions as e;
 
-class Enumerator
+class Enumerator implements \Iterator
 {
     const STATE_BEFORE = 0;
     const STATE_RUNNING = 1;
@@ -12,53 +13,93 @@ class Enumerator
     /** @var Closure */
     private $funNext;
     /** @var Closure */
-    private $funInit;
-    /** @var Closure */
     private $funYield;
-    private $state = self::STATE_BEFORE;
-    public $current = null;
+    private $state = self::STATE_RUNNING;
+    private $valid = true;
+    public $currentValue = null;
+    public $currentKey = null;
 
-    public function __construct ($funNext, $funInit = null, $funStop = null)
+    public function __construct ($funNext)
     {
         $this->funNext = Utils::createLambda($funNext);
-        $this->funInit = Utils::createLambda($funInit, Functions::$blank);
         $self = $this;
-        $this->funYield = function ($value) use ($self)
+        $this->funYield = function ($value, $key) use ($self)
         {
-            $self->current = $value;
+            /** @var $self Enumerator */
+            $self->currentValue = $value;
+            $self->currentKey = $key;
             return true;
         };
+        $this->next();
     }
 
-    public function current ()
-    {
-        return $this->current;
-    }
-
-    public function moveNext ()
+    /**
+     * Move forward to next element.
+     * @link http://php.net/manual/en/iterator.next.php
+     * @throws \Exception
+     * @return void Any returned value is ignored.
+     */
+    public function next ()
     {
         try {
-            if ($this->state == self::STATE_BEFORE) {
-                $this->state = self::STATE_RUNNING;
-                call_user_func($this->funInit);
-            }
             if ($this->state == self::STATE_RUNNING) {
                 if (call_user_func($this->funNext, $this->funYield)) {
-                    return true;
+                    $this->valid = true;
                 }
                 else {
                     $this->state = self::STATE_AFTER;
-                    return false;
+                    $this->valid = false;
                 }
             }
-            if ($this->state == self::STATE_AFTER) {
-                return false;
+            elseif ($this->state == self::STATE_AFTER) {
+                $this->valid = false;
             }
         }
         catch (\Exception $e) {
             $this->state = self::STATE_AFTER;
             throw $e;
         }
-        throw new \Exception;
+    }
+
+    /**
+     * Return the current element.
+     * @link http://php.net/manual/en/iterator.current.php
+     * @return mixed Can return any type.
+     */
+    public function current ()
+    {
+        return $this->currentValue;
+    }
+
+    /**
+     * Return the key of the current element.
+     * @link http://php.net/manual/en/iterator.key.php
+     * @return mixed scalar on success, or null on failure.
+     */
+    public function key ()
+    {
+        return $this->currentKey;
+    }
+
+    /**
+     * Checks if current position is valid.
+     * @link http://php.net/manual/en/iterator.valid.php
+     * @return boolean The return value will be casted to boolean and then evaluated.
+     * Returns true on success or false on failure.
+     */
+    public function valid ()
+    {
+        return $this->valid;
+    }
+
+    /**
+     * Rewind the Iterator to the first element.
+     * @link http://php.net/manual/en/iterator.rewind.php
+     * @throws \YaLinqo\exceptions\NotSupportedException
+     * @return void Any returned value is ignored.
+     */
+    public function rewind ()
+    {
+        //throw new e\NotSupportedException;
     }
 }

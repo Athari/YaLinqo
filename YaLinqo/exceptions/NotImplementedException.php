@@ -1,7 +1,7 @@
 <?php
 
-namespace YaLinqo;
-use YaLinqo;
+namespace YaLinqo\exceptions;
+use YaLinqo\exceptions;
 
 class NotImplementedException extends \RuntimeException
 {

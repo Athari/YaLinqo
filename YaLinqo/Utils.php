@@ -28,4 +28,19 @@ class Utils
         else
             return -1;
     }
+
+    /**
+     * @param \Iterator $enum
+     * @return bool
+     */
+    public static function next (\Iterator $enum)
+    {
+        $valid = $enum->valid();
+        $key = null;
+        $value = null;
+        if ($valid) {
+            $enum->next();
+        }
+        return $valid;
+    }
 }

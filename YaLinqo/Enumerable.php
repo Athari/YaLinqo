@@ -2,6 +2,7 @@
 
 namespace YaLinqo;
 use YaLinqo;
+use YaLinqo\exceptions as e;
 
 spl_autoload_register(function($class)
 {
@@ -10,21 +11,23 @@ spl_autoload_register(function($class)
         require_once($file);
 });
 
-class Enumerable
+class Enumerable implements \IteratorAggregate
 {
-    private $enumerator;
+    private $iterator;
 
-    public function __construct ($enumerator)
+    public function __construct ($iterator)
     {
-        $this->enumerator = $enumerator;
+        $this->iterator = $iterator;
     }
 
     /**
      * @return \YaLinqo\Enumerator
      */
-    public function getEnumerator ()
+    public function getIterator ()
     {
-        return call_user_func($this->enumerator);
+        $it = call_user_func($this->iterator);
+        $it->rewind();
+        return $it;
     }
 
     /**
@@ -34,48 +37,110 @@ class Enumerable
      */
     public static function from ($obj)
     {
+        if ($obj instanceof \Iterator) {
+            return new Enumerable(function () use ($obj)
+            {
+                return $obj;
+            });
+        }
         if (is_array($obj)) {
             return new Enumerable(function () use ($obj)
             {
-                $i = 0;
-                return new Enumerator(function ($yield) use (&$i, $obj)
-                {
-                    return $i < count($obj) ? $yield($obj[$i++]) : false;
-                });
+                return new \ArrayIterator($obj);
             });
         }
         throw new \Exception;
     }
 
     /**
-     * @param $selector Closure|array|string
+     * <p>select (selector {{value => result}) => enum
+     * <p>select (selector {{value, key => result}) => enum
+     * @param Closure|array|string $selector {value => result} | {value, key => result}
      * @return \YaLinqo\Enumerable
      */
     public function select ($selector)
     {
         $self = $this;
         $selector = Utils::createLambda($selector, Functions::$identity);
+
         return new Enumerable(function () use ($self, $selector)
         {
-            $enum = null;
-            $i = 0;
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
             return new Enumerator(
-                function ($yield) use ($selector, &$enum, &$i)
+                function ($yield) use ($it, $selector)
                 {
-                    return $enum->moveNext() ? $yield(call_user_func($selector, $enum->current(), $i++)) : false;
-                },
-                function () use ($self, &$enum)
-                {
-                    /** @var $self Enumerable */
-                    $enum = $self->getEnumerator();
+                    /** @var $it \Iterator */
+                    if (!$it->valid())
+                        return false;
+                    $yield(call_user_func($selector, $it->current(), $it->key()), $it->key());
+                    $it->next();
+                    return true;
                 });
         });
     }
+
+    /**
+     * <p>where (predicate {{value => result}) => enum
+     * <p>where (predicate {{value, key => result}) => enum
+     * @param Closure|array|string $predicate {value => result} | {value, key => result}
+     * @return \YaLinqo\Enumerable
+     */
+    public function where ($predicate)
+    {
+        $self = $this;
+        $predicate = Utils::createLambda($predicate);
+
+        return new Enumerable(function () use ($self, $predicate)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            return new Enumerator(
+                function ($yield) use ($it, $predicate)
+                {
+                    /** @var $it \Iterator */
+                    if (!$it->valid())
+                        return false;
+                    do {
+                        if (call_user_func($predicate, $it->current(), $it->key())) {
+                            $yield($it->current(), $it->key());
+                            $it->next();
+                            return true;
+                        }
+                        $it->next();
+                    } while ($it->valid());
+                    return false;
+                });
+        });
+    }
+
+    /**
+     * <p>aggregate (func {{accum, value => result}, seed) => result
+     * <p>aggregate (func {{accum, value, key => result}, seed) => result
+     * @param Closure|array|string $func
+     * @param $seed mixed
+     */
+    public function aggregate ($func, $seed = null)
+    {
+        $func = Utils::createLambda($func);
+        $result = $seed;
+
+        foreach ($this as $k => $v)
+            $result = call_user_func($func, $result, $v, $k);
+        return $result;
+    }
 }
 
-$enum = Enumerable::from(array('a', 'b', 'c', 1, 2, 3))
-        ->select(function($i)
-{ return "value: $i"; })
-        ->getEnumerator();
-while ($enum->moveNext())
-    var_dump($enum->current());
+$enum = Enumerable::from(array('a', 'b', 'c', 1, 'a' => 2, '100' => 3))
+        ->where(
+    function($v, $k)
+    { return is_numeric($k); })
+        ->select(
+    function($v, $k)
+    { return "$k: $v"; });
+
+foreach ($enum as $k => $v)
+    echo "($k): ($v)\n";
+
+var_dump($enum->aggregate(function($a, $b)
+{ return $a . $b; }));
