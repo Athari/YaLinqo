@@ -14,8 +14,6 @@ class Enumerator
     /** @var Closure */
     private $funInit;
     /** @var Closure */
-    private $funStop;
-    /** @var Closure */
     private $funYield;
     private $state = self::STATE_BEFORE;
     public $current = null;
@@ -24,9 +22,8 @@ class Enumerator
     {
         $this->funNext = Utils::createLambda($funNext);
         $this->funInit = Utils::createLambda($funInit, Functions::$blank);
-        $this->funStop = Utils::createLambda($funStop, Functions::$blank);
         $self = $this;
-        $this->funYield = function ($value) use($self)
+        $this->funYield = function ($value) use ($self)
         {
             $self->current = $value;
             return true;
@@ -50,7 +47,7 @@ class Enumerator
                     return true;
                 }
                 else {
-                    $this->stop();
+                    $this->state = self::STATE_AFTER;
                     return false;
                 }
             }
@@ -59,17 +56,9 @@ class Enumerator
             }
         }
         catch (\Exception $e) {
-            $this->stop();
+            $this->state = self::STATE_AFTER;
             throw $e;
         }
         throw new \Exception;
-    }
-
-    public function stop ()
-    {
-        if ($this->state != self::STATE_RUNNING)
-            return;
-        $this->state = self::STATE_AFTER;
-        call_user_func($this->funStop);
     }
 }

@@ -68,10 +68,6 @@ class Enumerable
                 {
                     /** @var $self Enumerable */
                     $enum = $self->getEnumerator();
-                },
-                function () use (&$enum)
-                {
-                    $enum->stop();
                 });
         });
     }
