@@ -13,7 +13,10 @@ spl_autoload_register(function($class)
 class Enumerable implements \IteratorAggregate
 {
     const ERROR_NO_ELEMENTS = 'Sequence contains no elements.';
-    const ERROR_NO_KEY = 'Sequence does not contain this key.';
+    const ERROR_NO_MATCHES = 'Sequence contains no matching elements.';
+    const ERROR_NO_KEY = 'Sequence does not contain the key.';
+    const ERROR_MANY_ELEMENTS = 'Sequence contains more than one element.';
+    const ERROR_MANY_MATCHES = 'Sequence contains more than one matching element.';
 
     private $getIterator;
 
@@ -23,7 +26,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @return \YaLinqo\Enumerator
+     * Retrieve an external iterator.
+     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return \Iterator
      */
     public function getIterator ()
     {
@@ -375,6 +380,28 @@ class Enumerable implements \IteratorAggregate
         return $array;
     }
 
+    public function toSequental ()
+    {
+        $self = $this;
+
+        return new Enumerable(function () use ($self)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $i = 0;
+            return new Enumerator(
+                function ($yield) use ($it, &$i)
+                {
+                    /** @var $it \Iterator */
+                    if (!$it->valid())
+                        return false;
+                    $yield($it->current(), $i++);
+                    $it->next();
+                    return true;
+                });
+        });
+    }
+
     // TODO Conversion
 
     #endregion
@@ -433,3 +460,8 @@ var_dump($enum->min());
 
 var_dump($enum->maxBy(__NAMESPACE__ . '\compare_strlen', function($v, $k)
 { return $v . ' ' . $k; }));
+
+var_dump($enum->toArray());
+var_dump($enum->toSequental()->toArray());
+var_dump($enum->toSequental()->elementAt(2));
+var_dump($enum->toSequental()->elementAtOrDefault(-1, 666));
