@@ -109,7 +109,7 @@ class Enumerable implements \IteratorAggregate
                 return $it;
             });
         }
-        throw new \InvalidArgumentException('obj must be array or Traversable or Enumerable.');
+        throw new \InvalidArgumentException('source must be array or Traversable or Enumerable.');
     }
 
     #endregion
@@ -117,9 +117,8 @@ class Enumerable implements \IteratorAggregate
     #region Projection and filtering
 
     /**
-     * <p>select (selector {{value => result}) => enum
-     * <p>select (selector {{value, key => result}) => enum
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>select (selector {{value [, key] => result}) => enum
+     * @param Closure|array|string $selector {value [, key] => result}
      * @return \YaLinqo\Enumerable
      */
     public function select ($selector)
@@ -144,9 +143,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>where (predicate {{value => result}) => enum
-     * <p>where (predicate {{value, key => result}) => enum
-     * @param Closure|array|string $predicate {value => result} | {value, key => result}
+     * <p>where (predicate {{value [, key] => result}) => enum
+     * @param Closure|array|string $predicate {value [, key] => result}
      * @return \YaLinqo\Enumerable
      */
     public function where ($predicate)
@@ -181,11 +179,8 @@ class Enumerable implements \IteratorAggregate
     #region Aggregation
 
     /**
-     * <p>aggregate (func {{accum, value => result}) => result
-     * <p>aggregate (func {{accum, value, key => result}) => result
-     * <p>aggregate (func {{accum, value => result}, seed) => result
-     * <p>aggregate (func {{accum, value, key => result}, seed) => result
-     * @param Closure|array|string $func {accum, value => result} | {accum, value, key => result}
+     * <p>aggregate (func {{accum, value [, key] => result} [, seed]) => result
+     * @param Closure|array|string $func {accum, value [, key] => result}
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
      * @throws \InvalidOperationException If seed is null and sequence contains no elements.
      * @return mixed
@@ -216,9 +211,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>aggregateOrDefault (func {{accum, value => result}, default) => result
-     * <p>aggregateOrDefault (func {{accum, value, key => result}, default) => result
-     * @param Closure|array|string $func {accum, value => result} | {accum, value, key => result}
+     * <p>aggregateOrDefault (func {{accum, value [, key] => result}, default) => result
+     * @param Closure|array|string $func {accum, value [, key] => result}
      * @param mixed $default Value to return if sequence is empty.
      * @return mixed
      */
@@ -240,10 +234,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>average () => result
-     * <p>average (selector {{value => result}) => result
-     * <p>average (selector {{value, key => result}) => result
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>average ([selector {{value [, key] => result}]) => result
+     * @param Closure|array|string $selector {value [, key] => result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -260,10 +252,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>count () => num
-     * <p>count (selector {{value => result}) => num
-     * <p>count (selector {{value, key => result}) => num
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>count ([selector {{value [, key] => result}]) => result
+     * @param Closure|array|string $selector {value [, key] => result}
      * @return int
      */
     public function count ($selector = null)
@@ -283,10 +273,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>max () => result
-     * <p>max (selector {{value => result}) => result
-     * <p>max (selector {{value, key => result}) => result
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>max ([selector {{value [, key] => result}]) => result
+     * @param Closure|array|string $selector {value [, key] => result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -300,11 +288,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>maxBy (comparer {{a, b => diff}) => result
-     * <p>maxBy (comparer {{a, b => diff}, selector {{value => result}) => result
-     * <p>maxBy (comparer {{a, b => diff}, selector {{value, key => result}) => result
+     * <p>maxBy (comparer {{a, b => diff} [, selector {{value [, key] => result}]) => result
      * @param Closure|array|string $comparer {a, b => diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * @param Closure|array|string $selector {value [, key] => result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -320,10 +306,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>min () => result
-     * <p>min (selector {{value => result}) => result
-     * <p>min (selector {{value, key => result}) => result
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>min ([selector {{value [, key] => result}]) => result
+     * @param Closure|array|string $selector {value [, key] => result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -337,11 +321,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>minBy (comparer {{a, b => diff}) => result
-     * <p>minBy (comparer {{a, b => diff}, selector {{value => result}) => result
-     * <p>minBy (comparer {{a, b => diff}, selector {{value, key => result}) => result
+     * <p>minBy (comparer {{a, b => diff} [, selector {{value [, key] => result}]) => result
      * @param Closure|array|string $comparer {a, b => diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * @param Closure|array|string $selector {value [, key] => result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -357,10 +339,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>sum () => result
-     * <p>sum (selector {{value => result}) => result
-     * <p>sum (selector {{value, key => result}) => result
-     * @param Closure|array|string $selector {value => result} | {value, key => result}
+     * <p>sum ([selector {{value [, key] => result}]) => result
+     * @param Closure|array|string $selector {value [, key] => result}
      * @return number
      */
     public function sum ($selector = null)
