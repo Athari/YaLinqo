@@ -20,6 +20,9 @@ class Enumerable implements \IteratorAggregate
 
     private $getIterator;
 
+    /**
+     * @param Closure $iterator
+     */
     public function __construct ($iterator)
     {
         $this->getIterator = $iterator;
@@ -38,30 +41,80 @@ class Enumerable implements \IteratorAggregate
         return $it;
     }
 
+    #region Generation
+
     /**
-     * @param array|\Iterator|\IteratorAggregate $obj
-     * @throws \InvalidArgumentException If obj is not array or Traversible (Iterator or IteratorAggregate).
+     * Source keys are discarded.
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
+     * @throws \InvalidArgumentException If source contains no elements (checked during enumeration).
      * @return \YaLinqo\Enumerable
      */
-    public static function from ($obj)
+    public static function cycle ($source)
+    {
+        $source = Enumerable::from($source);
+
+        return new Enumerable(function () use ($source)
+        {
+            $it = new \EmptyIterator;
+            $i = 0;
+            return new Enumerator(function ($yield) use ($source, &$it, &$i)
+            {
+                /** @var $source Enumerable */
+                /** @var $it \Iterator */
+                if (!$it->valid()) {
+                    $it = $source->getIterator();
+                    if (!$it->valid())
+                        throw new \InvalidArgumentException(self::ERROR_NO_ELEMENTS);
+                }
+                $yield($it->current(), $i++);
+                $it->next();
+                return true;
+            });
+        });
+    }
+
+    public static function emptyEnum ()
+    {
+        return new Enumerable(function ()
+        {
+            return new \EmptyIterator;
+        });
+    }
+
+    public static function returnEnum ($element)
+    {
+        // TODO >>>
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
+     * @return \YaLinqo\Enumerable
+     */
+    public static function from ($source)
     {
         $it = null;
-        if ($obj instanceof Enumerable)
-            return $obj;
-        if (is_array($obj))
-            $it = new \ArrayIterator($obj);
-        elseif ($obj instanceof \Iterator)
-            $it = $obj;
-        elseif ($obj instanceof \IteratorAggregate)
-            $it = $obj->getIterator();
+        if ($source instanceof Enumerable)
+            return $source;
+        if (is_array($source))
+            $it = new \ArrayIterator($source);
+        elseif ($source instanceof \Iterator)
+            $it = $source;
+        elseif ($source instanceof \IteratorAggregate)
+            $it = $source->getIterator();
         if ($it !== null) {
             return new Enumerable(function () use ($it)
             {
                 return $it;
             });
         }
-        throw new \InvalidArgumentException('obj must be array or Traversable (Iterator or IteratorAggregate).');
+        throw new \InvalidArgumentException('obj must be array or Traversable or Enumerable.');
     }
+
+    #endregion
+
+    #region Projection and filtering
 
     /**
      * <p>select (selector {{value => result}) => enum
@@ -78,16 +131,15 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
-            return new Enumerator(
-                function ($yield) use ($it, $selector)
-                {
-                    /** @var $it \Iterator */
-                    if (!$it->valid())
-                        return false;
-                    $yield(call_user_func($selector, $it->current(), $it->key()), $it->key());
-                    $it->next();
-                    return true;
-                });
+            return new Enumerator(function ($yield) use ($it, $selector)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                $yield(call_user_func($selector, $it->current(), $it->key()), $it->key());
+                $it->next();
+                return true;
+            });
         });
     }
 
@@ -106,24 +158,25 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
-            return new Enumerator(
-                function ($yield) use ($it, $predicate)
-                {
-                    /** @var $it \Iterator */
-                    if (!$it->valid())
-                        return false;
-                    do {
-                        if (call_user_func($predicate, $it->current(), $it->key())) {
-                            $yield($it->current(), $it->key());
-                            $it->next();
-                            return true;
-                        }
-                        $it->next();
-                    } while ($it->valid());
+            return new Enumerator(function ($yield) use ($it, $predicate)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
                     return false;
-                });
+                do {
+                    if (call_user_func($predicate, $it->current(), $it->key())) {
+                        $yield($it->current(), $it->key());
+                        $it->next();
+                        return true;
+                    }
+                    $it->next();
+                } while ($it->valid());
+                return false;
+            });
         });
     }
+
+    #endregion
 
     #region Aggregation
 
@@ -368,6 +421,27 @@ class Enumerable implements \IteratorAggregate
 
     // TODO Pagination
 
+    public function take ($count)
+    {
+        $self = $this;
+
+        return new Enumerable(function () use ($self, $count)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $i = 0;
+            return new Enumerator(function ($yield) use ($it, &$i, $count)
+            {
+                /** @var $it \Iterator */
+                if ($i++ >= $count || !$it->valid())
+                    return false;
+                $yield($it->current(), $it->key());
+                $it->next();
+                return true;
+            });
+        });
+    }
+
     #endregion
 
     #region Conversion
@@ -389,16 +463,15 @@ class Enumerable implements \IteratorAggregate
             /** @var $self Enumerable */
             $it = $self->getIterator();
             $i = 0;
-            return new Enumerator(
-                function ($yield) use ($it, &$i)
-                {
-                    /** @var $it \Iterator */
-                    if (!$it->valid())
-                        return false;
-                    $yield($it->current(), $i++);
-                    $it->next();
-                    return true;
-                });
+            return new Enumerator(function ($yield) use ($it, &$i)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                $yield($it->current(), $i++);
+                $it->next();
+                return true;
+            });
         });
     }
 
@@ -465,3 +538,6 @@ var_dump($enum->toArray());
 var_dump($enum->toSequental()->toArray());
 var_dump($enum->toSequental()->elementAt(2));
 var_dump($enum->toSequental()->elementAtOrDefault(-1, 666));
+
+//var_dump(Enumerable::from(array(1, 2, 3))->take(2)->toArray());
+var_dump(Enumerable::cycle(array(1, 2, 3))->take(10)->toArray());

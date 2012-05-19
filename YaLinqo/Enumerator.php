@@ -18,6 +18,9 @@ class Enumerator implements \Iterator
     public $currentValue = null;
     public $currentKey = null;
 
+    /**
+     * @param Closure $funNext
+     */
     public function __construct ($funNext)
     {
         $this->funNext = Utils::createLambda($funNext);
