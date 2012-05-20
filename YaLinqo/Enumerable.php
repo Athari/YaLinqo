@@ -10,16 +10,19 @@ spl_autoload_register(function($class)
         require_once($file);
 });
 
+// TODO: string syntax: select("$.string")
 // TODO: linq.js now: SelectMany, (Order|Then)By[Descending], Join, GroupJoin, GroupBy
-// TODO: linq.js now: All, Any, Contains, Distinct, OfType, Do, ForEach (Run?)
-// TODO: linq.js now: (Skip|Take)While
-// TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf
-// TODO: linq.js now: Except, Intersect, Union
+// TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach (Run?)
+// TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToLookup, ToObject, ToDictionary, ToJSON, ToString, Write, WriteLine
+// TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
 // TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
+// TODO: MoreLinq: Batch, Pad, OrDefault+=OrFallback, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
+// TODO: EvenMoreLinq: OrderByDirection, Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
+// TODO: ToTable
 
 class Enumerable implements \IteratorAggregate
 {
