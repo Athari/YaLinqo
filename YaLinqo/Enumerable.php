@@ -10,6 +10,17 @@ spl_autoload_register(function($class)
         require_once($file);
 });
 
+// TODO: linq.js now: SelectMany, (Order|Then)By[Descending], Join, GroupJoin, GroupBy
+// TODO: linq.js now: All, Any, Contains, Distinct, OfType, Do, ForEach (Run?)
+// TODO: linq.js now: (Skip|Take)While
+// TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf
+// TODO: linq.js now: Except, Intersect, Union
+// TODO: linq.js now: ToLookup, ToObject, ToDictionary, ToJSON, ToString, Write, WriteLine
+// TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
+// TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
+// TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
+// TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
+
 class Enumerable implements \IteratorAggregate
 {
     const ERROR_NO_ELEMENTS = 'Sequence contains no elements.';
@@ -17,6 +28,7 @@ class Enumerable implements \IteratorAggregate
     const ERROR_NO_KEY = 'Sequence does not contain the key.';
     const ERROR_MANY_ELEMENTS = 'Sequence contains more than one element.';
     const ERROR_MANY_MATCHES = 'Sequence contains more than one matching element.';
+    const ERROR_COUNT_LESS_THAN_ZERO = 'count must have a non-negative value.';
 
     private $getIterator;
 
@@ -82,11 +94,6 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
-    public static function returnEnum ($element)
-    {
-        // TODO >>>
-    }
-
     /**
      * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
@@ -110,6 +117,125 @@ class Enumerable implements \IteratorAggregate
             });
         }
         throw new \InvalidArgumentException('source must be array or Traversable or Enumerable.');
+    }
+
+    public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
+    {
+        $funcValue = Utils::createLambda($funcValue);
+        $funcKey = Utils::createLambda($funcKey, false);
+
+        return new Enumerable(function () use ($funcValue, $funcKey, $seedValue, $seedKey)
+        {
+            $isFirst = true;
+            return new Enumerator(function ($yield) use ($funcValue, $funcKey, $seedValue, $seedKey, &$value, &$key, &$isFirst)
+            {
+                if ($isFirst) {
+                    $key = $seedKey === null ? ($funcKey ? call_user_func($funcKey, $seedValue, $seedKey) : 0) : $seedKey;
+                    $value = $seedValue === null ? call_user_func($funcValue, $seedValue, $seedKey) : $seedValue;
+                    $isFirst = false;
+                    return $yield($value, $key);
+                }
+                list($value, $key) = array(
+                    call_user_func($funcValue, $value, $key),
+                    $funcKey ? call_user_func($funcKey, $value, $key) : $key + 1,
+                );
+                return $yield($value, $key);
+            });
+        });
+    }
+
+    public static function toInfinity ($start = 0, $step = 1)
+    {
+        return new Enumerable(function () use ($start, $step)
+        {
+            $i = -1;
+            $value = $start - $step;
+
+            return new Enumerator(function ($yield) use ($step, &$value, &$i)
+            {
+                return $yield($value += $step, ++$i);
+            });
+        });
+    }
+
+    /**
+     * Searches subject for all matches to the regular expression given in pattern and enumerates them in the order specified by flags.
+     * After the first match is found, the subsequent searches are continued on from end of the last match.
+     * @param string $subject The input string.
+     * @param string $pattern The pattern to search for, as a string.
+     * @param int $flags Can be a combination of the following flags: PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_OFFSET_CAPTURE. Default: PREG_PATTERN_ORDER.
+     * @return \YaLinqo\Enumerable
+     * @see preg_match_all
+     */
+    public static function matches ($subject, $pattern, $flags = PREG_PATTERN_ORDER)
+    {
+        return new Enumerable(function () use ($subject, $pattern, $flags)
+        {
+            preg_match_all($pattern, $subject, $matches, $flags);
+            return Enumerable::from($matches)->getIterator();
+        });
+    }
+
+    public static function toNegativeInfinity ($start = 0, $step = 1)
+    {
+        return self::toInfinity($start, -$step);
+    }
+
+    public static function returnEnum ($element)
+    {
+        return self::repeat($element, 1);
+    }
+
+    public static function range ($start, $count, $step = 1)
+    {
+        return self::toInfinity($start, $step)->take($count);
+    }
+
+    public static function rangeDown ($start, $count, $step = 1)
+    {
+        return self::toInfinity($start, $count, -$step);
+    }
+
+    public static function rangeTo ($start, $end, $step = 1)
+    {
+        if ($start > $end)
+            $step = -$step;
+        return self::toInfinity($start, $step)->takeWhile(
+            function ($v) use ($end)
+            { return $v < $end; }
+        );
+    }
+
+    public static function repeat ($element, $count)
+    {
+        if ($count < 0)
+            throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
+        return new Enumerable(function () use ($element, $count)
+        {
+            $i = 0;
+            return new Enumerator(function ($yield) use ($element, $count, &$i)
+            {
+                if ($i++ >= $count)
+                    return false;
+                return $yield($element, $i);
+            });
+        });
+    }
+
+    /**
+     * Split the given string by a regular expression.
+     * @param string $subject The input string.
+     * @param string $pattern The pattern to search for, as a string.
+     * @param int $flags flags can be any combination of the following flags: PREG_SPLIT_NO_EMPTY, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_OFFSET_CAPTURE. Default: 0.
+     * @return \YaLinqo\Enumerable
+     * @see preg_split
+     */
+    public static function split ($subject, $pattern, $flags = 0)
+    {
+        return new Enumerable(function () use ($subject, $pattern, $flags)
+        {
+            return Enumerable::from(preg_split($pattern, $subject, -1, $flags))->getIterator();
+        });
     }
 
     #endregion
@@ -403,6 +529,9 @@ class Enumerable implements \IteratorAggregate
 
     public function take ($count)
     {
+        if ($count < 0)
+            throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
+
         $self = $this;
 
         return new Enumerable(function () use ($self, $count)
@@ -434,7 +563,28 @@ class Enumerable implements \IteratorAggregate
         return $array;
     }
 
-    public function toSequental ()
+    public function toKeys ()
+    {
+        $self = $this;
+
+        return new Enumerable(function () use ($self)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $i = 0;
+            return new Enumerator(function ($yield) use ($it, &$i)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                $yield($it->key(), $i++);
+                $it->next();
+                return true;
+            });
+        });
+    }
+
+    public function toValues ()
     {
         $self = $this;
 
@@ -515,9 +665,50 @@ var_dump($enum->maxBy(__NAMESPACE__ . '\compare_strlen', function($v, $k)
 { return $v . ' ' . $k; }));
 
 var_dump($enum->toArray());
-var_dump($enum->toSequental()->toArray());
-var_dump($enum->toSequental()->elementAt(2));
-var_dump($enum->toSequental()->elementAtOrDefault(-1, 666));
+var_dump($enum->toValues()->toArray());
+var_dump($enum->toValues()->elementAt(2));
+var_dump($enum->toValues()->elementAtOrDefault(-1, 666));
 
 //var_dump(Enumerable::from(array(1, 2, 3))->take(2)->toArray());
 var_dump(Enumerable::cycle(array(1, 2, 3))->take(10)->toArray());
+
+var_dump(Enumerable::emptyEnum()->toArray());
+var_dump(Enumerable::returnEnum('a')->toArray());
+//var_dump(Enumerable::repeat('b', -1)->toArray());
+var_dump(Enumerable::repeat('c', 0)->toArray());
+var_dump(Enumerable::repeat('d', 2)->toArray());
+var_dump(Enumerable::repeat('e', INF)->take(2)->toArray());
+
+var_dump(Enumerable::generate(
+    function($v, $k)
+    { return $k * $k - $v * 2; }
+)->take(20)->toArray());
+
+var_dump(Enumerable::generate(
+    function($v, $k)
+    { return $v + $k; },
+    1,
+    function($v)
+    { return $v; },
+    1
+)->take(10)->toArray());
+
+var_dump(Enumerable::generate(
+    function($v)
+    { return array($v[1], $v[0] + $v[1]); },
+    array(1, 1),
+    function($v)
+    { return $v[1]; },
+    1
+)->toKeys()->take(10)->toArray());
+
+var_dump(Enumerable::generate(
+    function ($v, $k)
+    { return pow(-1, $k) / (2 * $k + 1); },
+    0
+)->take(1000)->sum() * 4);
+
+var_dump(Enumerable::toInfinity()->take(999)->sum(
+    function ($k)
+    { return pow(-1, $k) / (2 * $k + 1); }
+) * 4);
