@@ -25,7 +25,6 @@ spl_autoload_register(function($class)
 // TODO: PHP Iterators: Recursive*Iterator
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: ToTable
-// TODO: (?) aggregate string lambda syntax
 
 class Enumerable implements \IteratorAggregate
 {
@@ -127,8 +126,8 @@ class Enumerable implements \IteratorAggregate
 
     public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
     {
-        $funcValue = Utils::createLambda($funcValue);
-        $funcKey = Utils::createLambda($funcKey, false);
+        $funcValue = Utils::createLambda($funcValue, 'v,k');
+        $funcKey = Utils::createLambda($funcKey, 'v,k', false);
 
         return new Enumerable(function () use ($funcValue, $funcKey, $seedValue, $seedKey)
         {
@@ -256,7 +255,7 @@ class Enumerable implements \IteratorAggregate
     public function select ($selector)
     {
         $self = $this;
-        $selector = Utils::createLambda($selector);
+        $selector = Utils::createLambda($selector, 'v,k');
 
         return new Enumerable(function () use ($self, $selector)
         {
@@ -282,7 +281,7 @@ class Enumerable implements \IteratorAggregate
     public function where ($predicate)
     {
         $self = $this;
-        $predicate = Utils::createLambda($predicate);
+        $predicate = Utils::createLambda($predicate, 'v,k');
 
         return new Enumerable(function () use ($self, $predicate)
         {
@@ -319,7 +318,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function aggregate ($func, $seed = null)
     {
-        $func = Utils::createLambda($func);
+        $func = Utils::createLambda($func, 'a,v,k');
 
         $result = $seed;
         if ($seed !== null) {
@@ -350,7 +349,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function aggregateOrDefault ($func, $default = null)
     {
-        $func = Utils::createLambda($func);
+        $func = Utils::createLambda($func, 'a,v,k');
         $result = null;
         $assigned = false;
 
@@ -373,7 +372,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function average ($selector = null)
     {
-        $selector = Utils::createLambda($selector, Functions::$identity);
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$identity);
         $sum = $count = 0;
 
         foreach ($this as $k => $v) {
@@ -395,7 +394,7 @@ class Enumerable implements \IteratorAggregate
         if ($it instanceof \Countable && $selector === null)
             return count($it);
 
-        $selector = Utils::createLambda($selector, Functions::$identity);
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$identity);
         $count = 0;
 
         foreach ($this as $k => $v)
@@ -428,7 +427,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function maxBy ($comparer, $selector = null)
     {
-        $comparer = Utils::createLambda($comparer, Functions::$compare);
+        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compare);
         $enum = $this;
 
         if ($selector !== null)
@@ -461,7 +460,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function minBy ($comparer, $selector = null)
     {
-        $comparer = Utils::createLambda($comparer, Functions::$compare);
+        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compare);
         $enum = $this;
 
         if ($selector !== null)
@@ -722,4 +721,4 @@ var_dump(Enumerable::toInfinity()->take(999)->sum(
 var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v => $v > 3')->select('$v => $v*$v')->toArray());
 var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => $v > 3')->select('$v, $k => $v+$k')->toArray());
 var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => { echo $v; return $v > 3; }')->select('($v, $k) => { return $v*2+$k*3; }')->toArray());
-var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$ > 3')->select('$+$$')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v > 3')->select('$v+$k')->toArray());

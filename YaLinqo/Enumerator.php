@@ -23,7 +23,7 @@ class Enumerator implements \Iterator
      */
     public function __construct ($funNext)
     {
-        $this->funNext = Utils::createLambda($funNext);
+        $this->funNext = $funNext;
         $self = $this;
         $this->funYield = function ($value, $key) use ($self)
         {

@@ -5,9 +5,15 @@ use YaLinqo;
 
 class Utils
 {
-    public static function createLambda ($closure, $default = null)
+    /**
+     * @param Closure|array|string $closure
+     * @param string $closureArgs
+     * @param Closure|boolean|null $default
+     * @throws \InvalidArgumentException Both closure and default are null.
+     * @return Closure|array|string|null
+     */
+    public static function createLambda ($closure, $closureArgs, $default = null)
     {
-        // TODO String lambda syntax: 'a => a*a'
         if ($closure === null) {
             if ($default === null)
                 throw new \InvalidArgumentException('closure must not be null');
@@ -27,13 +33,8 @@ class Utils
             }
             $pos = strpos($closure, '$');
             if ($pos !== false) {
-                $args = '$a1=null,$a2=null,$a3=null,$a4=null';
-                $code = strtr($closure, array(
-                    '$' => '$a1',
-                    '$$' => '$a2',
-                    '$$$' => '$a3',
-                    '$$$$' => '$a4',
-                ));
+                $args = '$' . str_replace(',', '=null,$', $closureArgs) . '=null';
+                $code = trim($closure, " \r\n\t");
                 if (strlen($code) > 0 && $code[0] != '{')
                     $code = "return {$code};";
                 return create_function($args, $code);
@@ -42,8 +43,6 @@ class Utils
         if (is_callable($closure)) {
             return $closure;
         }
-        /*return function() use($closure)
-          { return call_user_func_array($closure, func_get_args()); };*/
         throw new \InvalidArgumentException('closure must be callable');
     }
 
