@@ -10,7 +10,7 @@ spl_autoload_register(function($class)
         require_once($file);
 });
 
-// TODO: string syntax: select("$.string")
+// TODO: string syntax: select("$.prop") or select("v=>v.prop")
 // TODO: linq.js now: SelectMany, (Order|Then)By[Descending], Join, GroupJoin, GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach (Run?)
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
@@ -20,8 +20,10 @@ spl_autoload_register(function($class)
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
 // TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
-// TODO: MoreLinq: Batch, Pad, OrDefault+=OrFallback, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
+// TODO: MoreLinq: Batch(Chunk?), Pad, OrDefault+=OrFallback, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
 // TODO: EvenMoreLinq: OrderByDirection, Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
+// TODO: PHP Iterators: Recursive*Iterator
+// TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: ToTable
 
 class Enumerable implements \IteratorAggregate
