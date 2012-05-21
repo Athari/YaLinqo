@@ -10,7 +10,7 @@ spl_autoload_register(function($class)
         require_once($file);
 });
 
-// TODO: string syntax: select("$.prop") or select("v=>v.prop")
+// TODO: string syntax: select("new { ... }")
 // TODO: linq.js now: SelectMany, (Order|Then)By[Descending], Join, GroupJoin, GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach (Run?)
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
@@ -25,6 +25,7 @@ spl_autoload_register(function($class)
 // TODO: PHP Iterators: Recursive*Iterator
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: ToTable
+// TODO: (?) aggregate string lambda syntax
 
 class Enumerable implements \IteratorAggregate
 {
@@ -717,3 +718,8 @@ var_dump(Enumerable::toInfinity()->take(999)->sum(
     function ($k)
     { return pow(-1, $k) / (2 * $k + 1); }
 ) * 4);
+
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v => $v > 3')->select('$v => $v*$v')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => $v > 3')->select('$v, $k => $v+$k')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => { echo $v; return $v > 3; }')->select('($v, $k) => { return $v*2+$k*3; }')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$ > 3')->select('$+$$')->toArray());
