@@ -10,40 +10,53 @@ class Utils
      * @param string $closureArgs
      * @param Closure|boolean|null $default
      * @throws \InvalidArgumentException Both closure and default are null.
+     * @throws \InvalidArgumentException Incorrect lambda syntax.
      * @return Closure|array|string|null
      */
     public static function createLambda ($closure, $closureArgs, $default = null)
     {
         if ($closure === null) {
             if ($default === null)
-                throw new \InvalidArgumentException('closure must not be null');
+                throw new \InvalidArgumentException('closure must not be null.');
             return $default; /*Functions::$identity*/
         }
-        if ($closure instanceof \Closure) {
+        if ($closure instanceof \Closure)
             return $closure;
-        }
-        if (is_string($closure)) {
-            $pos = strpos($closure, '=>');
-            if ($pos !== false) {
-                $args = trim(substr($closure, 0, $pos), "() \r\n\t");
-                $code = trim(substr($closure, $pos + 2), " \r\n\t");
-                if (strlen($code) > 0 && $code[0] != '{')
-                    $code = "return {$code};";
-                return create_function($args, $code);
-            }
-            $pos = strpos($closure, '$');
-            if ($pos !== false) {
-                $args = '$' . str_replace(',', '=null,$', $closureArgs) . '=null';
-                $code = trim($closure, " \r\n\t");
-                if (strlen($code) > 0 && $code[0] != '{')
-                    $code = "return {$code};";
-                return create_function($args, $code);
-            }
-        }
-        if (is_callable($closure)) {
+        if (is_string($closure) && ($function = self::createLambdaFromString($closure, $closureArgs)))
+            return $function;
+        if (is_callable($closure))
             return $closure;
-        }
         throw new \InvalidArgumentException('closure must be callable');
+    }
+
+    /**
+     * @param string $closure
+     * @param string $closureArgs
+     * @throws \InvalidArgumentException Incorrect lambda syntax.
+     * @return string|null
+     */
+    private static function createLambdaFromString ($closure, $closureArgs)
+    {
+        $posDollar = strpos($closure, '$');
+        if ($posDollar !== false) {
+            $posArrow = strpos($closure, '=>', $posDollar);
+            if ($posArrow !== false) {
+                $args = trim(substr($closure, 0, $posArrow), "() \r\n\t");
+                $code = substr($closure, $posArrow + 2);
+            }
+            else {
+                $args = '$' . str_replace(',', '=null,$', $closureArgs) . '=null';
+                $code = $closure;
+            }
+            $code = trim($code, " \r\n\t");
+            if (strlen($code) > 0 && $code[0] != '{')
+                $code = "return {$code};";
+            $fun = create_function($args, $code);
+            if (!$fun)
+                throw new \InvalidArgumentException('Failed to parse closure as lambda.');
+            return $fun;
+        }
+        return null;
     }
 
     public static function compare ($a, $b)
