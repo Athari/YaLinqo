@@ -39,10 +39,10 @@ class Utils
     {
         $posDollar = strpos($closure, '$');
         if ($posDollar !== false) {
-            $posArrow = strpos($closure, '=>', $posDollar);
+            $posArrow = strpos($closure, '==>', $posDollar);
             if ($posArrow !== false) {
                 $args = trim(substr($closure, 0, $posArrow), "() \r\n\t");
-                $code = substr($closure, $posArrow + 2);
+                $code = substr($closure, $posArrow + 3);
             }
             else {
                 $args = '$' . str_replace(',', '=null,$', $closureArgs) . '=null';

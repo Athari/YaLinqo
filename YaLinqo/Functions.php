@@ -8,7 +8,8 @@ class Functions
     public static $identity;
     public static $true;
     public static $blank;
-    public static $compare;
+    public static $compareStrict;
+    public static $compareLoose;
 
     public static function init ()
     {
@@ -26,7 +27,17 @@ class Functions
         {
         };
 
-        self::$compare = function ($a, $b)
+        self::$compareStrict = function ($a, $b)
+        {
+            if ($a === $b)
+                return 0;
+            elseif ($a > $b)
+                return 1;
+            else
+                return -1;
+        };
+
+        self::$compareLoose = function ($a, $b)
         {
             if ($a === $b)
                 return 0;

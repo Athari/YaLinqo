@@ -24,7 +24,7 @@ spl_autoload_register(function($class)
 // TODO: EvenMoreLinq: OrderByDirection, Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
 // TODO: PHP Iterators: Recursive*Iterator
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
-// TODO: ToTable
+// TODO: toTable, toCsv, toExcelCsv
 
 class Enumerable implements \IteratorAggregate
 {
@@ -45,11 +45,7 @@ class Enumerable implements \IteratorAggregate
         $this->getIterator = $iterator;
     }
 
-    /**
-     * Retrieve an external iterator.
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return \Iterator
-     */
+    /** {@inheritdoc}  */
     public function getIterator ()
     {
         /** @var $it \Iterator */
@@ -168,11 +164,11 @@ class Enumerable implements \IteratorAggregate
      * After the first match is found, the subsequent searches are continued on from end of the last match.
      * @param string $subject The input string.
      * @param string $pattern The pattern to search for, as a string.
-     * @param int $flags Can be a combination of the following flags: PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_OFFSET_CAPTURE. Default: PREG_PATTERN_ORDER.
+     * @param int $flags Can be a combination of the following flags: PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_OFFSET_CAPTURE. Default: PREG_SET_ORDER.
      * @return \YaLinqo\Enumerable
      * @see preg_match_all
      */
-    public static function matches ($subject, $pattern, $flags = PREG_PATTERN_ORDER)
+    public static function matches ($subject, $pattern, $flags = PREG_SET_ORDER)
     {
         return new Enumerable(function () use ($subject, $pattern, $flags)
         {
@@ -248,8 +244,8 @@ class Enumerable implements \IteratorAggregate
     #region Projection and filtering
 
     /**
-     * <p>select (selector {{value [, key] => result}) => enum
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>select (selector {{(v, k) ==> result})
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @return \YaLinqo\Enumerable
      */
     public function select ($selector)
@@ -274,8 +270,51 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>where (predicate {{value [, key] => result}) => enum
-     * @param Closure|array|string $predicate {value [, key] => result}
+     * <p>select (selector {{(v, k) ==> result})
+     * @param Closure|array|string $collectionSelector {(v, k) ==> enum}
+     * @param Closure|array|string $resultSelectorValue {(v1, k1, v2, k2) ==> value}
+     * @param Closure|array|string $resultSelectorKey {(v1, k1, v2, k2) ==> key}
+     * @return \YaLinqo\Enumerable
+     */
+    public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
+    {
+        $self = $this;
+        $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,k1,v2,k2',
+            function ($v1, $k1, $v2, $k2) { return $v2; });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,k1,v2,k2', false);
+        if ($resultSelectorKey === false) {
+            $i = 0;
+            $resultSelectorKey = function ($v1, $k1, $v2, $k2) use (&$i) { return $i++; };
+        }
+
+        return new Enumerable(function () use ($self, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
+        {
+            /** @var $self Enumerable */
+            $itOut = $self->getIterator();
+            $itIn = null;
+            return new Enumerator(function ($yield) use ($itOut, &$itIn, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
+            {
+                /** @var $itOut \Iterator */
+                /** @var $itIn \Iterator */
+                while ($itIn === null || !$itIn->valid()) {
+                    if ($itIn !== null)
+                        $itOut->next();
+                    if (!$itOut->valid())
+                        return false;
+                    $itIn = Enumerable::from(call_user_func($collectionSelector, $itOut->current(), $itOut->key()))->getIterator();
+                }
+                $args = array($itOut->current(), $itOut->key(), $itIn->current(), $itIn->key());
+                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
+                $itIn->next();
+                return true;
+            });
+        });
+    }
+
+    /**
+     * <p>where (predicate {{(v, k) ==> result})
+     * @param Closure|array|string $predicate {(v, k) ==> result}
      * @return \YaLinqo\Enumerable
      */
     public function where ($predicate)
@@ -310,8 +349,8 @@ class Enumerable implements \IteratorAggregate
     #region Aggregation
 
     /**
-     * <p>aggregate (func {{accum, value [, key] => result} [, seed]) => result
-     * @param Closure|array|string $func {accum, value [, key] => result}
+     * <p>aggregate (func {{accum, (v, k) ==> result} [, seed]) => result
+     * @param Closure|array|string $func {accum, (v, k) ==> result}
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
      * @throws \InvalidOperationException If seed is null and sequence contains no elements.
      * @return mixed
@@ -324,8 +363,7 @@ class Enumerable implements \IteratorAggregate
         if ($seed !== null) {
             foreach ($this as $k => $v)
                 $result = call_user_func($func, $result, $v, $k);
-        }
-        else {
+        } else {
             $assigned = false;
             foreach ($this as $k => $v) {
                 if ($assigned)
@@ -342,8 +380,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>aggregateOrDefault (func {{accum, value [, key] => result}, default) => result
-     * @param Closure|array|string $func {accum, value [, key] => result}
+     * <p>aggregateOrDefault (func {{accum, (v, k) ==> result}, default) => result
+     * @param Closure|array|string $func {accum, (v, k) ==> result}
      * @param mixed $default Value to return if sequence is empty.
      * @return mixed
      */
@@ -365,8 +403,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>average ([selector {{value [, key] => result}]) => result
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>average ([selector {{(v, k) ==> result}]) => result
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -383,8 +421,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>count ([selector {{value [, key] => result}]) => result
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>count ([selector {{(v, k) ==> result}]) => result
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @return int
      */
     public function count ($selector = null)
@@ -404,8 +442,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>max ([selector {{value [, key] => result}]) => result
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>max ([selector {{(v, k) ==> result}]) => result
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -419,15 +457,15 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>maxBy (comparer {{a, b => diff} [, selector {{value [, key] => result}]) => result
+     * <p>maxBy (comparer {{a, b => diff} [, selector {{(v, k) ==> result}]) => result
      * @param Closure|array|string $comparer {a, b => diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {value [, key] => result}
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
     public function maxBy ($comparer, $selector = null)
     {
-        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compare);
+        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         $enum = $this;
 
         if ($selector !== null)
@@ -437,8 +475,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>min ([selector {{value [, key] => result}]) => result
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>min ([selector {{(v, k) ==> result}]) => result
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -452,15 +490,15 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>minBy (comparer {{a, b => diff} [, selector {{value [, key] => result}]) => result
+     * <p>minBy (comparer {{a, b => diff} [, selector {{(v, k) ==> result}]) => result
      * @param Closure|array|string $comparer {a, b => diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {value [, key] => result}
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
     public function minBy ($comparer, $selector = null)
     {
-        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compare);
+        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         $enum = $this;
 
         if ($selector !== null)
@@ -470,8 +508,8 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>sum ([selector {{value [, key] => result}]) => result
-     * @param Closure|array|string $selector {value [, key] => result}
+     * <p>sum ([selector {{(v, k) ==> result}]) => result
+     * @param Closure|array|string $selector {(v, k) ==> result}
      * @return number
      */
     public function sum ($selector = null)
@@ -718,7 +756,18 @@ var_dump(Enumerable::toInfinity()->take(999)->sum(
     { return pow(-1, $k) / (2 * $k + 1); }
 ) * 4);
 
-var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v => $v > 3')->select('$v => $v*$v')->toArray());
-var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => $v > 3')->select('$v, $k => $v+$k')->toArray());
-var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) => { echo $v; return $v > 3; }')->select('($v, $k) => { return $v*2+$k*3; }')->toArray());
-var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v > 3')->select('$v+$k')->toArray());
+echo "Lambdas\n";
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v ==> $v > 3')->select('$v ==> $v*$v')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) ==> $v > 3')->select('$v, $k ==> $v+$k')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('($v) ==> { echo $v; return $v > 3; }')->select('($v, $k) ==> { return $v*2+$k*3; }')->toArray());
+var_dump(Enumerable::from(array(1, 2, 3, 4, 5, 6))->where('$v > 2')->where('$v>3')->select('$v+$k')->toArray());
+
+var_dump(Enumerable::split('1 2 3 4 5 6', '# #')->toArray());
+var_dump(Enumerable::matches('1 2 3 4 5 6', '#\d+#')->select('$v[0]')->maxBy(Functions::$compareStrict));
+
+var_dump(Enumerable::from(array(1, 2))->selectMany('$v ==> array(1, 2)', '"$v1 $v2"', '"$k1 $k2"')->toArray());
+var_dump(Enumerable::from(array(1, 2))->selectMany('$v ==> array(1, 2)', '"$k1=$v1 $k2=$v2"')->toArray());
+var_dump(Enumerable::from(array(1, 2))->selectMany('$v ==> array(1, 2)', 'array($v1, $v2)')->toArray());
+var_dump(Enumerable::from(array(1, 2))->selectMany('$v ==> array()', '"$v1 $v2"', '"$k1 $k2"')->toArray());
+var_dump(Enumerable::from(array())->selectMany('$v ==> array(1, 2)', '"$v1 $v2"', '"$k1 $k2"')->toArray());
+var_dump(Enumerable::from(array('a' => array(1, 2), 'b' => array(3)))->selectMany('$v')->toArray());
