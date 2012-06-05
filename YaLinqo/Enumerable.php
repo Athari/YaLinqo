@@ -1,13 +1,13 @@
 <?php
 
 namespace YaLinqo;
-use YaLinqo;
+use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
 // TODO: linq.js now: Join, GroupJoin, GroupBy
-// TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach (Run?)
+// TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
-// TODO: linq.js now: ToLookup, ToObject, ToDictionary, ToJSON, ToString, Write, WriteLine
+// TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
@@ -39,7 +39,7 @@ class Enumerable implements \IteratorAggregate
         $this->getIterator = $iterator;
     }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function getIterator ()
     {
         /** @var $it \Iterator */
@@ -405,7 +405,8 @@ class Enumerable implements \IteratorAggregate
         if ($seed !== null) {
             foreach ($this as $k => $v)
                 $result = call_user_func($func, $result, $v, $k);
-        } else {
+        }
+        else {
             $assigned = false;
             foreach ($this as $k => $v) {
                 if ($assigned)
@@ -656,6 +657,17 @@ class Enumerable implements \IteratorAggregate
         return $array;
     }
 
+    public function toLookup ($keySelector = null, $valueSelector = null)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$identity);
+
+        $lookup = new c\Lookup();
+        foreach ($this as $k => $v)
+            $lookup->append(call_user_func($keySelector, $v, $k), call_user_func($valueSelector, $v, $k));
+        return $lookup;
+    }
+
     public function toKeys ()
     {
         $self = $this;
@@ -675,6 +687,17 @@ class Enumerable implements \IteratorAggregate
                 return true;
             });
         });
+    }
+
+    public function toObject ($keySelector = null, $valueSelector = null)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$identity);
+
+        $obj = new \stdClass();
+        foreach ($this as $k => $v)
+            $obj->{call_user_func($keySelector, $v, $k)} = call_user_func($valueSelector, $v, $k);
+        return $obj;
     }
 
     public function toValues ()

@@ -71,7 +71,7 @@ class OrderedEnumerable extends Enumerable
         return $this->thenByDir(true, $keySelector, $comparer);
     }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function getIterator ()
     {
         $orders = array();

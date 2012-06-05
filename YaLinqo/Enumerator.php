@@ -35,7 +35,7 @@ class Enumerator implements \Iterator
         $this->next();
     }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function next ()
     {
         try {
@@ -55,15 +55,15 @@ class Enumerator implements \Iterator
         }
     }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function current () { return $this->currentValue; }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function key () { return $this->currentKey; }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function valid () { return $this->valid; }
 
-    /** {@inheritdoc}  */
+    /** {@inheritdoc} */
     public function rewind () { }
 }

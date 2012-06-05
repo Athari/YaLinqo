@@ -6,6 +6,7 @@ use YaLinqo;
 class Functions
 {
     public static $identity;
+    public static $key;
     public static $true;
     public static $blank;
     public static $compareStrict;
@@ -16,6 +17,12 @@ class Functions
         self::$identity = function ($x)
         {
             return $x;
+        };
+
+        /** @noinspection PhpUnusedParameterInspection */
+        self::$key = function ($v, $k)
+        {
+            return $k;
         };
 
         self::$true = function ()

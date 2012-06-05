@@ -100,3 +100,6 @@ var_dump(from(array(
     array(1, 3, 1),
     array(1, 1, 1),
 ))->orderBy('$v[0]')->thenBy('$v[1]')->thenByDescending('$v[2]')->select('implode(" ", $v)')->toList());
+
+var_dump(from(array(1, 1, 1, 2, 2, 3))->select('$v', '$v')->toLookup());
+var_dump(from(array('a' => 1, 'b' => 2))->toObject());
