@@ -91,3 +91,12 @@ var_dump(from(array(1, 2))->selectMany('$v ==> array(1, 2)', 'array($v1, $v2)')-
 var_dump(from(array(1, 2))->selectMany('$v ==> array()', '"$v1 $v2"', '"$k1 $k2"')->toArray());
 var_dump(from(array())->selectMany('$v ==> array(1, 2)', '"$v1 $v2"', '"$k1 $k2"')->toArray());
 var_dump(from(array('a' => array(1, 2), 'b' => array(3)))->selectMany('$v')->toArray());
+
+var_dump(from(array(
+    array(1, 3, 4),
+    array(2, 1, 4),
+    array(2, 1, 1),
+    array(2, 3, 1),
+    array(1, 3, 1),
+    array(1, 1, 1),
+))->orderBy('$v[0]')->thenBy('$v[1]')->thenByDescending('$v[2]')->select('implode(" ", $v)')->toList());

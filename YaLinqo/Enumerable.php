@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: (Order|Then)By[Descending], Join, GroupJoin, GroupBy
+// TODO: linq.js now: Join, GroupJoin, GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach (Run?)
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToLookup, ToObject, ToDictionary, ToJSON, ToString, Write, WriteLine
@@ -12,9 +12,10 @@ use YaLinqo;
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
-// TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While, Exactly
+// TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
 // TODO: MoreLinq: Batch(Chunk?), Pad, OrDefault+=OrFallback, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
-// TODO: EvenMoreLinq: OrderByDirection, Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
+// TODO: EvenMoreLinq: Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
+// TODO: LinqLib: Permutations, Combinations, Statistical
 // TODO: PHP Iterators: Recursive*Iterator
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: toTable, toCsv, toExcelCsv
@@ -237,25 +238,30 @@ class Enumerable implements \IteratorAggregate
     #region Projection and filtering
 
     /**
-     * <p>select (selector {{(v, k) ==> result})
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * <p>select (selectorValue {{(v, k) ==> result} [, selectorKey {{(v, k) ==> result}])
+     * @param callback $selectorValue {(v, k) ==> value}
+     * @param callback $selectorKey {(v, k) ==> key}
      * @return \YaLinqo\Enumerable
      */
-    public function select ($selector)
+    public function select ($selectorValue, $selectorKey = null)
     {
         $self = $this;
-        $selector = Utils::createLambda($selector, 'v,k');
+        $selectorValue = Utils::createLambda($selectorValue, 'v,k');
+        $selectorKey = Utils::createLambda($selectorKey, 'v,k', function ($v, $k) { return $k; });
 
-        return new Enumerable(function () use ($self, $selector)
+        return new Enumerable(function () use ($self, $selectorValue, $selectorKey)
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
-            return new Enumerator(function ($yield) use ($it, $selector)
+            return new Enumerator(function ($yield) use ($it, $selectorValue, $selectorKey)
             {
                 /** @var $it \Iterator */
                 if (!$it->valid())
                     return false;
-                $yield(call_user_func($selector, $it->current(), $it->key()), $it->key());
+                $yield(
+                    call_user_func($selectorValue, $it->current(), $it->key()),
+                    call_user_func($selectorKey, $it->current(), $it->key())
+                );
                 $it->next();
                 return true;
             });
@@ -264,9 +270,9 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>select (selector {{(v, k) ==> result})
-     * @param Closure|array|string $collectionSelector {(v, k) ==> enum}
-     * @param Closure|array|string $resultSelectorValue {(v1, k1, v2, k2) ==> value}
-     * @param Closure|array|string $resultSelectorKey {(v1, k1, v2, k2) ==> key}
+     * @param callback $collectionSelector {(v, k) ==> enum}
+     * @param callback $resultSelectorValue {(v1, k1, v2, k2) ==> value}
+     * @param callback $resultSelectorKey {(v1, k1, v2, k2) ==> key}
      * @return \YaLinqo\Enumerable
      */
     public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
@@ -307,7 +313,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>where (predicate {{(v, k) ==> result})
-     * @param Closure|array|string $predicate {(v, k) ==> result}
+     * @param callback $predicate {(v, k) ==> result}
      * @return \YaLinqo\Enumerable
      */
     public function where ($predicate)
@@ -339,11 +345,54 @@ class Enumerable implements \IteratorAggregate
 
     #endregion
 
+    #region Ordering
+
+    /**
+     * <p>orderByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p>Sorts the elements of a sequence in a particular direction (ascending, descending) according to a key.
+     * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @return \YaLinqo\OrderedEnumerable
+     */
+    public function orderByDir ($desc, $keySelector = null, $comparer = null)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$identity);
+        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
+        return new OrderedEnumerable($this, $desc, $keySelector, $comparer);
+    }
+
+    /**
+     * <p>orderBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p>Sorts the elements of a sequence in ascending order according to a key.
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @return \YaLinqo\OrderedEnumerable
+     */
+    public function orderBy ($keySelector = null, $comparer = null)
+    {
+        return $this->orderByDir(false, $keySelector, $comparer);
+    }
+
+    /**
+     * <p>orderByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p>Sorts the elements of a sequence in descending order according to a key.
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @return \YaLinqo\OrderedEnumerable
+     */
+    public function orderByDescending ($keySelector = null, $comparer = null)
+    {
+        return $this->orderByDir(true, $keySelector, $comparer);
+    }
+
+    #endregion
+
     #region Aggregation
 
     /**
      * <p>aggregate (func {{(a, v, k) ==> accum} [, seed])
-     * @param Closure|array|string $func {(a, v, k) ==> accum}
+     * @param callback $func {(a, v, k) ==> accum}
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
      * @throws \InvalidOperationException If seed is null and sequence contains no elements.
      * @return mixed
@@ -374,7 +423,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>aggregateOrDefault (func {{(a, v, k) ==> accum} [, default])
-     * @param Closure|array|string $func {(a, v, k) ==> accum}
+     * @param callback $func {(a, v, k) ==> accum}
      * @param mixed $default Value to return if sequence is empty.
      * @return mixed
      */
@@ -397,7 +446,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>average ([selector {{(v, k) ==> result}])
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -415,7 +464,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>count ([selector {{(v, k) ==> result}])
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $selector {(v, k) ==> result}
      * @return int
      */
     public function count ($selector = null)
@@ -436,7 +485,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>max ([selector {{(v, k) ==> result}])
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -451,8 +500,8 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>maxBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
-     * @param Closure|array|string $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @param callback $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -469,7 +518,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>min ([selector {{(v, k) ==> result}])
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -484,8 +533,8 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>minBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
-     * @param Closure|array|string $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @param callback $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -502,7 +551,7 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p>sum ([selector {{(v, k) ==> result}])
-     * @param Closure|array|string $selector {(v, k) ==> result}
+     * @param callback $selector {(v, k) ==> result}
      * @return number
      */
     public function sum ($selector = null)
@@ -596,6 +645,14 @@ class Enumerable implements \IteratorAggregate
         $array = array();
         foreach ($this as $k => $v)
             $array[$k] = $v;
+        return $array;
+    }
+
+    public function toList ()
+    {
+        $array = array();
+        foreach ($this as $v)
+            $array[] = $v;
         return $array;
     }
 
