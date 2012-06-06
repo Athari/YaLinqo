@@ -5,6 +5,13 @@ use YaLinqo\collections, YaLinqo\exceptions as e;
 
 class Lookup extends Dictionary
 {
+    /** {@inheritdoc} */
+    public function offsetGet ($offset)
+    {
+        $offset = $this->containsObjects ? spl_object_hash($offset) : $offset;
+        return isset($this->data[$offset]) ? $this->data[$offset] : array();
+    }
+
     public function append ($offset, $value)
     {
         $offset = $this->convertOffset($offset);

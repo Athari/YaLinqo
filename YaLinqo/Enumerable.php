@@ -19,6 +19,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: PHP Iterators: Recursive*Iterator
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: toTable, toCsv, toExcelCsv
+// TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 
 class Enumerable implements \IteratorAggregate
 {
@@ -71,6 +72,7 @@ class Enumerable implements \IteratorAggregate
                 /** @var $it \Iterator */
                 if (!$it->valid()) {
                     $it = $source->getIterator();
+                    $it->rewind();
                     if (!$it->valid())
                         throw new \InvalidArgumentException(self::ERROR_NO_ELEMENTS);
                 }
@@ -253,6 +255,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
+            $it->rewind();
             return new Enumerator(function ($yield) use ($it, $selectorValue, $selectorKey)
             {
                 /** @var $it \Iterator */
@@ -291,6 +294,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $itOut = $self->getIterator();
+            $itOut->rewind();
             $itIn = null;
             return new Enumerator(function ($yield) use ($itOut, &$itIn, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
             {
@@ -302,6 +306,7 @@ class Enumerable implements \IteratorAggregate
                     if (!$itOut->valid())
                         return false;
                     $itIn = Enumerable::from(call_user_func($collectionSelector, $itOut->current(), $itOut->key()))->getIterator();
+                    $itIn->rewind();
                 }
                 $args = array($itOut->current(), $itOut->key(), $itIn->current(), $itIn->key());
                 $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
@@ -325,6 +330,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
+            $it->rewind();
             return new Enumerator(function ($yield) use ($it, $predicate)
             {
                 /** @var $it \Iterator */
@@ -611,8 +617,6 @@ class Enumerable implements \IteratorAggregate
         return $default;
     }
 
-    // TODO Pagination
-
     public function take ($count)
     {
         if ($count < 0)
@@ -624,6 +628,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
+            $it->rewind();
             $i = 0;
             return new Enumerator(function ($yield) use ($it, &$i, $count)
             {
@@ -676,6 +681,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
+            $it->rewind();
             $i = 0;
             return new Enumerator(function ($yield) use ($it, &$i)
             {
@@ -708,6 +714,7 @@ class Enumerable implements \IteratorAggregate
         {
             /** @var $self Enumerable */
             $it = $self->getIterator();
+            $it->rewind();
             $i = 0;
             return new Enumerator(function ($yield) use ($it, &$i)
             {
@@ -720,8 +727,6 @@ class Enumerable implements \IteratorAggregate
             });
         });
     }
-
-    // TODO Conversion
 
     #endregion
 }
