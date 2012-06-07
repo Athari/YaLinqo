@@ -6,12 +6,12 @@ use YaLinqo;
 class Utils
 {
     /**
-     * @param Closure|array|string $closure
+     * @param callback $closure
      * @param string $closureArgs
      * @param Closure|boolean|null $default
      * @throws \InvalidArgumentException Both closure and default are null.
      * @throws \InvalidArgumentException Incorrect lambda syntax.
-     * @return Closure|array|string|null
+     * @return callback|null
      */
     public static function createLambda ($closure, $closureArgs, $default = null)
     {

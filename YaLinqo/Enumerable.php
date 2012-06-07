@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: Join, GroupJoin, GroupBy
+// TODO: linq.js now: GroupJoin, GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
@@ -390,6 +390,61 @@ class Enumerable implements \IteratorAggregate
     public function orderByDescending ($keySelector = null, $comparer = null)
     {
         return $this->orderByDir(true, $keySelector, $comparer);
+    }
+
+    #endregion
+
+    #region Joining
+
+    /**
+     * <p>join (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v1, v2, k) ==> value} [, resultSelectorKey {{(v1, v2, k) ==> key}]]]])
+     * <p>Correlates the elements of two sequences based on matching keys.
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $inner The sequence to join to the source sequence.
+     * @param callback $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
+     * @param callback $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
+     * @param callback $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
+     * @param callback $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k}.
+     * @return \YaLinqo\Enumerable
+     */
+    public function join ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    {
+        $self = $this;
+        $inner = self::from($inner);
+        $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
+        $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function ($v1, $v2, $k) { return array($v1, $v2); });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
+
+        return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
+        {
+            /** @var $self Enumerable */
+            /** @var $inner Enumerable */
+            $itOut = $self->getIterator();
+            $itOut->rewind();
+            $lookup = $inner->toLookup($innerKeySelector);
+            $arrIn = null;
+            $posIn = 0;
+            $key = null;
+
+            return new Enumerator(function ($yield) use ($itOut, $lookup, &$arrIn, &$posIn, &$key, $outerKeySelector, $resultSelectorValue, $resultSelectorKey)
+            {
+                /** @var $itOut \Iterator */
+                /** @var $lookup \YaLinqo\collections\Lookup */
+                while ($arrIn === null || $posIn >= count($arrIn)) {
+                    if ($arrIn !== null)
+                        $itOut->next();
+                    if (!$itOut->valid())
+                        return false;
+                    $key = call_user_func($outerKeySelector, $itOut->current(), $itOut->key());
+                    $arrIn = $lookup[$key];
+                    $posIn = 0;
+                }
+                $args = array($itOut->current(), $arrIn[$posIn], $key);
+                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
+                $posIn++;
+                return true;
+            });
+        });
     }
 
     #endregion

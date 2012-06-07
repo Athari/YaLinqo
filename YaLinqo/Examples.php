@@ -103,3 +103,20 @@ var_dump(from(array(
 
 var_dump(from(array(1, 1, 1, 2, 2, 3))->select('$v', '$v')->toLookup());
 var_dump(from(array('a' => 1, 'b' => 2))->toObject());
+
+var_dump(from(array('a', 'b', 'c', 10 => 'z'))->join(array('d', 'e', 10 => 'y', 11 => 'x'))->toArray());
+var_dump(from(
+    array(
+        array('id' => 10, 'name' => 'cat1'),
+        array('id' => 11, 'name' => 'cat2'),
+        array('id' => 12, 'name' => 'cat3'),
+    )
+)->join(
+    array(
+        array('name' => 'prod1', 'catId' => 10),
+        array('name' => 'prod2', 'catId' => 10),
+        array('name' => 'prod3', 'catId' => 11),
+        array('name' => 'prod4', 'catId' => 13),
+    ),
+    '$v["id"]', '$v["catId"]',
+    function ($cat, $prod) { return "prod {$prod['name']} from {$cat['name']}"; })->toLookup()->toArray());

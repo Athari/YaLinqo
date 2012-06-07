@@ -79,6 +79,11 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
         return count($this->data);
     }
 
+    public function toArray ()
+    {
+        return $this->data;
+    }
+
     protected function convertOffset ($offset)
     {
         if (is_object($offset)) {
