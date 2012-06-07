@@ -240,16 +240,18 @@ class Enumerable implements \IteratorAggregate
     #region Projection and filtering
 
     /**
-     * <p>select (selectorValue {{(v, k) ==> result} [, selectorKey {{(v, k) ==> result}])
-     * @param callback $selectorValue {(v, k) ==> value}
-     * @param callback $selectorKey {(v, k) ==> key}
-     * @return \YaLinqo\Enumerable
+     * <p><b>Syntax</b>: select (selectorValue {{(v, k) ==> result} [, selectorKey {{(v, k) ==> result}])
+     * <p>Projects each element of a sequence into a new form.
+     * <p>This projection method requires the transform functions, selectorValue and selectorKey, to produce one key-value pair for each value in the source sequence. If selectorValue returns a value that is itself a collection, it is up to the consumer to traverse the subsequences manually. In such a situation, it might be better for your query to return a single coalesced sequence of values. To achieve this, use the {@link selectMany()} method instead of select. Although selectMany works similarly to select, it differs in that the transform function returns a collection that is then expanded by selectMany before it is returned.
+     * @param callback $selectorValue {(v, k) ==> value} A transform function to apply to each value.
+     * @param callback $selectorKey {(v, k) ==> key} A transform function to apply to each key. Default: key.
+     * @return \YaLinqo\Enumerable A sequence whose elements are the result of invoking the transform functions on each element of source.
      */
     public function select ($selectorValue, $selectorKey = null)
     {
         $self = $this;
         $selectorValue = Utils::createLambda($selectorValue, 'v,k');
-        $selectorKey = Utils::createLambda($selectorKey, 'v,k', function ($v, $k) { return $k; });
+        $selectorKey = Utils::createLambda($selectorKey, 'v,k', Functions::$key);
 
         return new Enumerable(function () use ($self, $selectorValue, $selectorKey)
         {
@@ -272,22 +274,27 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>select (selector {{(v, k) ==> result})
-     * @param callback $collectionSelector {(v, k) ==> enum}
-     * @param callback $resultSelectorValue {(v1, k1, v2, k2) ==> value}
-     * @param callback $resultSelectorKey {(v1, k1, v2, k2) ==> key}
-     * @return \YaLinqo\Enumerable
+     * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum})
+     * <p>Projects each element of a sequence to a sequence and flattens the resulting sequences into one sequence.
+     * <p>The selectMany method enumerates the input sequence, uses transform functions to map each element to a sequence, and then enumerates and yields the elements of each such sequence. That is, for each element of source, selectorValue and selectorKey are invoked and a sequence of key-value pairs is returned. selectMany then flattens this two-dimensional collection of collections into a one-dimensional sequence and returns it. For example, if a query uses selectMany to obtain the orders for each customer in a database, the result is a sequence of orders. If instead the query uses {@link select} to obtain the orders, the collection of collections of orders is not combined and the result is a sequence of sequences of orders.
+     * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum} [, resultSelectorValue {{(v1, v2, k1, k2) ==> value} [, resultSelectorKey {{(v1, v2, k1, k2) ==> key}]])
+     * <p>Projects each element of a sequence to a sequence, flattens the resulting sequences into one sequence, and invokes a result selector functions on each element therein.
+     * <p>The selectMany method is useful when you have to keep the elements of source in scope for query logic that occurs after the call to selectMany. If there is a bidirectional relationship between objects in the source sequence and objects returned from collectionSelector, that is, if a sequence returned from collectionSelector provides a property to retrieve the object that produced it, you do not need this overload of selectMany. Instead, you can use simpler selectMany overload and navigate back to the source object through the returned sequence.
+     * @param callback $collectionSelector {(v, k) ==> enum} A transform function to apply to each element.
+     * @param callback $resultSelectorValue {(v1, v2, k1, k2) ==> value} A transform function to apply to each value of the intermediate sequence. Default: {(v1, v2, k1, k2) ==> v2}.
+     * @param callback $resultSelectorKey {(v1, v2, k1, k2) ==> key} A transform function to apply to each key of the intermediate sequence. Default: increment.
+     * @return \YaLinqo\Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
      */
     public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $self = $this;
         $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,k1,v2,k2',
-            function ($v1, $k1, $v2, $k2) { return $v2; });
-        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,k1,v2,k2', false);
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k1,k2',
+            function ($v1, $v2, $k1, $k2) { return $v2; });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k1,k2', false);
         if ($resultSelectorKey === false) {
             $i = 0;
-            $resultSelectorKey = function ($v1, $k1, $v2, $k2) use (&$i) { return $i++; };
+            $resultSelectorKey = function ($v1, $v2, $k1, $k2) use (&$i) { return $i++; };
         }
 
         return new Enumerable(function () use ($self, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
@@ -317,9 +324,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>where (predicate {{(v, k) ==> result})
-     * @param callback $predicate {(v, k) ==> result}
-     * @return \YaLinqo\Enumerable
+     * <p><b>Syntax</b>: where (predicate {{(v, k) ==> result})
+     * <p>Filters a sequence of values based on a predicate.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition.
+     * @return \YaLinqo\Enumerable A sequence that contains elements from the input sequence that satisfy the condition.
      */
     public function where ($predicate)
     {
@@ -397,8 +405,11 @@ class Enumerable implements \IteratorAggregate
     #region Joining
 
     /**
-     * <p>join (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v1, v2, k) ==> value} [, resultSelectorKey {{(v1, v2, k) ==> key}]]]])
+     * <p><b>Syntax</b>: join (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v1, v2, k) ==> value} [, resultSelectorKey {{(v1, v2, k) ==> key}]]]])
      * <p>Correlates the elements of two sequences based on matching keys.
+     * <p>A join refers to the operation of correlating the elements of two sources of information based on a common key. Join brings the two information sources and the keys by which they are matched together in one method call. This differs from the use of SelectMany, which requires more than one method call to perform the same operation.
+     * <p>Join preserves the order of the elements of the source, and for each of these elements, the order of the matching elements of inner.
+     * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality.
      * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $inner The sequence to join to the source sequence.
      * @param callback $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
      * @param callback $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
