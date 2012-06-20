@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: GroupJoin, GroupBy
+// TODO: linq.js now: GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
@@ -403,6 +403,38 @@ class Enumerable implements \IteratorAggregate
     #endregion
 
     #region Joining
+
+    public function groupJoin ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    {
+        $self = $this;
+        $inner = self::from($inner);
+        $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
+        $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function ($v, $e, $k) { return array($v, $e); });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
+
+        return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
+        {
+            /** @var $self Enumerable */
+            /** @var $inner Enumerable */
+            $it = $self->getIterator();
+            $it->rewind();
+            $lookup = $inner->toLookup($innerKeySelector);
+
+            return new Enumerator(function ($yield) use ($it, $lookup, $outerKeySelector, $resultSelectorValue, $resultSelectorKey)
+            {
+                /** @var $it \Iterator */
+                /** @var $lookup \YaLinqo\collections\Lookup */
+                if (!$it->valid())
+                    return false;
+                $key = call_user_func($outerKeySelector, $it->current(), $it->key());
+                $args = array($it->current(), Enumerable::from($lookup[$key]), $key);
+                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
+                $it->next();
+                return true;
+            });
+        });
+    }
 
     /**
      * <p><b>Syntax</b>: join (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v1, v2, k) ==> value} [, resultSelectorKey {{(v1, v2, k) ==> key}]]]])

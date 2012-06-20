@@ -5,11 +5,17 @@ use YaLinqo;
 
 class Functions
 {
+    /** @var callback {(x) ==> x} */
     public static $identity;
+    /** @var callback {(v, k) ==> k} */
     public static $key;
+    /** @var callback {() ==> true} */
     public static $true;
+    /** @var callback {() ==> {}} */
     public static $blank;
+    /** @var callback */
     public static $compareStrict;
+    /** @var callback */
     public static $compareLoose;
 
     public static function init ()
