@@ -16,7 +16,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index
 
 class Enumerable implements \IteratorAggregate
 {
@@ -49,6 +49,7 @@ class Enumerable implements \IteratorAggregate
     #region Generation
 
     /**
+     * TODO doc
      * Source keys are discarded.
      * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
@@ -81,6 +82,11 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * <p><b>Syntax</b>: emptyEnum ()
+     * <p>Returns an empty sequence.
+     * @return \YaLinqo\Enumerable
+     */
     public static function emptyEnum ()
     {
         return new Enumerable(function ()
@@ -90,7 +96,15 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * <p><b>Syntax</b>: from (source)
+     * <p>Converts source into Enumerable sequence. Result depends on the type of source:
+     * <ul>
+     * <li><b>array</b>: Enumerable from ArrayIterator;
+     * <li><b>Enumerable</b>: Enumerable source itself;
+     * <li><b>Iterator</b>: Enumerable from Iterator;
+     * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method.
+     * </ul>
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source Value to convert into Enumerable sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @return \YaLinqo\Enumerable
      */
@@ -114,6 +128,9 @@ class Enumerable implements \IteratorAggregate
         throw new \InvalidArgumentException('source must be array or Traversable or Enumerable.');
     }
 
+    /**
+     * TODO doc
+     */
     public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
     {
         $funcValue = Utils::createLambda($funcValue, 'v,k');
@@ -542,11 +559,14 @@ class Enumerable implements \IteratorAggregate
     #region Aggregation
 
     /**
-     * <p>aggregate (func {{(a, v, k) ==> accum} [, seed])
-     * @param callback $func {(a, v, k) ==> accum}
+     * <p><b>Syntax</b>: aggregate (func {{(a, v, k) ==> accum} [, seed])
+     * <p>Applies an accumulator function over a sequence. If seed is not null, its value is used as the initial accumulator value.
+     * <p>Aggregate method makes it simple to perform a calculation over a sequence of values. This method works by calling func one time for each element in source. Each time func is called, aggregate passes both the element from the sequence and an aggregated value (as the first argument to func). If seed is null, the first element of source is used as the initial aggregate value. The result of func replaces the previous aggregated value. Aggregate returns the final result of func.
+     * <p>To simplify common aggregation operations, the standard query operators also include a general purpose count method, {@link count}, and four numeric aggregation methods, namely {@link min}, {@link max}, {@link sum}, and {@link average}.
+     * @param callback $func {(a, v, k) ==> accum} An accumulator function to be invoked on each element.
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
      * @throws \InvalidOperationException If seed is null and sequence contains no elements.
-     * @return mixed
+     * @return mixed The final accumulator value.
      */
     public function aggregate ($func, $seed = null)
     {
@@ -597,10 +617,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>average ([selector {{(v, k) ==> result}])
-     * @param callback $selector {(v, k) ==> result}
+     * <p><b>Syntax</b>: average ()
+     * <p>Computes the average of a sequence of numeric values.
+     * <p><b>Syntax</b>: average (selector {{(v, k) ==> result})
+     * <p>Computes the average of a sequence of numeric values that are obtained by invoking a transform function on each element of the input sequence.
+     * @param callback $selector {(v, k) ==> result} A transform function to apply to each element. Default: identity.
      * @throws \InvalidOperationException If sequence contains no elements.
-     * @return number
+     * @return number The average of the sequence of values.
      */
     public function average ($selector = null)
     {
@@ -615,22 +638,26 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>count ([selector {{(v, k) ==> result}])
-     * @param callback $selector {(v, k) ==> result}
-     * @return int
+     * <p><b>Syntax</b>: count ()
+     * <p>Returns the number of elements in a sequence.
+     * <p>If source iterator implements {@link Countable}, that implementation is used to obtain the count of elements. Otherwise, this method determines the count.
+     * <p><b>Syntax</b>: count (predicate {{(v, k) ==> result})
+     * <p>Returns a number that represents how many elements in the specified sequence satisfy a condition.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
+     * @return int The number of elements in the input sequence.
      */
-    public function count ($selector = null)
+    public function count ($predicate = null)
     {
         $it = $this->getIterator();
 
-        if ($it instanceof \Countable && $selector === null)
+        if ($it instanceof \Countable && $predicate === null)
             return count($it);
 
-        $selector = Utils::createLambda($selector, 'v,k', Functions::$identity);
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$identity);
         $count = 0;
 
         foreach ($this as $k => $v)
-            if (call_user_func($selector, $v, $k))
+            if (call_user_func($predicate, $v, $k))
                 $count++;
         return $count;
     }
@@ -716,6 +743,12 @@ class Enumerable implements \IteratorAggregate
 
     #region Set
 
+    /**
+     * <p><b>Syntax</b>: all (predicate {{(v, k) ==> result})
+     * <p>Determines whether all elements of a sequence satisfy a condition. The enumeration of source is stopped as soon as the result can be determined.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition.
+     * @return bool true if every element of the source sequence passes the test in the specified predicate, or if the sequence is empty; otherwise, false.
+     */
     public function all ($predicate)
     {
         $predicate = Utils::createLambda($predicate, 'v,k');
@@ -727,6 +760,14 @@ class Enumerable implements \IteratorAggregate
         return true;
     }
 
+    /**
+     * <p><b>Syntax</b>: any ()
+     * <p>Determines whether a sequence contains any elements. The enumeration of source is stopped as soon as the result can be determined.
+     * <p><b>Syntax</b>: any (predicate {{(v, k) ==> result})
+     * <p>Determines whether any element of a sequence exists or satisfies a condition. The enumeration of source is stopped as soon as the result can be determined.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
+     * @return bool If predicate is null: true if the source sequence contains any elements; otherwise, false. If predicate is not null: true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.
+     */
     public function any ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', false);
@@ -747,6 +788,12 @@ class Enumerable implements \IteratorAggregate
         }
     }
 
+    /**
+     * <p><b>Syntax</b>: contains (value)
+     * <p>Determines whether a sequence contains a specified element. Enumeration is terminated as soon as a matching element is found.
+     * @param $value mixed The value to locate in the sequence.
+     * @return bool true if the source sequence contains an element that has the specified value; otherwise, false.
+     */
     public function contains ($value)
     {
         foreach ($this as $v) {
@@ -761,9 +808,13 @@ class Enumerable implements \IteratorAggregate
     #region Pagination
 
     /**
-     * @param mixed $key
-     * @throws \InvalidArgumentException If sequence does not contain element with specified key.
-     * @return mixed
+     * <p><b>Syntax</b>: elementAt (key)
+     * <p>Returns the value at a specified key in a sequence.
+     * <p>If the type of source iterator implements {@link ArrayAccess}, that implementation is used to obtain the value at the specified key. Otherwise, this method obtains the specified value.
+     * <p>This method throws an exception if key is not found. To instead return a default value when the specified key is not found, use the {@link elementAtOrDefault} method.
+     * @param mixed $key The key of the value to retrieve.
+     * @throws \InvalidArgumentException If sequence does not contain value with specified key.
+     * @return mixed The value at the key in the source sequence.
      */
     public function elementAt ($key)
     {
@@ -784,9 +835,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @param mixed $key
-     * @param mixed $default Value to return if sequence does not contain element with specified key.
-     * @return mixed
+     * <p><b>Syntax</b>: elementAtOrDefault (key [, default])
+     * <p>Returns the value at a specified key in a sequence or a default value if the key is not found.
+     * <p>If the type of source iterator implements {@link ArrayAccess}, that implementation is used to obtain the value at the specified key. Otherwise, this method obtains the specified value.
+     * @param mixed $key The key of the value to retrieve.
+     * @param mixed $default Value to return if sequence does not contain value with specified key. Default: null.
+     * @return mixed default value if the key is not found in the source sequence; otherwise, the value at the specified key in the source sequence.
      */
     public function elementAtOrDefault ($key, $default = null)
     {
@@ -803,6 +857,17 @@ class Enumerable implements \IteratorAggregate
         return $default;
     }
 
+    /**
+     * <p><b>Syntax</b>: first ()
+     * <p>Returns the first element of a sequence.
+     * <p>The first method throws an exception if source contains no elements. To instead return a default value when the source sequence is empty, use the {@link firstOrDefault} method.
+     * <p><b>Syntax</b>: first (predicate {{(v, k) ==> result})
+     * <p>Returns the first element in a sequence that satisfies a specified condition.
+     * <p>The first method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link firstOrDefault} method.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @throws \InvalidArgumentException If source contains no matching elements.
+     * @return mixed If predicate is null: the first element in the specified sequence. If predicate is not null: The first element in the sequence that passes the test in the specified predicate function.
+     */
     public function first ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -814,6 +879,16 @@ class Enumerable implements \IteratorAggregate
         throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
     }
 
+    /**
+     * <p><b>Syntax</b>: firstOrDefault ([default])
+     * <p>Returns the first element of a sequence, or a default value if the sequence contains no elements.
+     * <p><b>Syntax</b>: firstOrDefault ([default [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
+     * <p>If obtaining the default value is a costly operation, use {@link firstOrFallback} method to avoid overhead.
+     * @param mixed $default A default value.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @return mixed If predicate is null: default value if source is empty; otherwise, the first element in source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.
+     */
     public function firstOrDefault ($default = null, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -825,6 +900,16 @@ class Enumerable implements \IteratorAggregate
         return $default;
     }
 
+    /**
+     * <p><b>Syntax</b>: firstOrFallback ([fallback])
+     * <p>Returns the first element of a sequence, or the result of calling a fallback function if the sequence contains no elements.
+     * <p><b>Syntax</b>: firstOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the first element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
+     * <p>The fallback function is not executed if a matching element is found. Use the firstOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link firstOrDefault}.
+     * @param mixed $fallback A fallback function to return the default element.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the first element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.
+     */
     public function firstOrFallback ($fallback, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -836,6 +921,17 @@ class Enumerable implements \IteratorAggregate
         return call_user_func($fallback);
     }
 
+    /**
+     * <p><b>Syntax</b>: last ()
+     * <p>Returns the last element of a sequence.
+     * <p>The last method throws an exception if source contains no elements. To instead return a default value when the source sequence is empty, use the {@link lastOrDefault} method.
+     * <p><b>Syntax</b>: last (predicate {{(v, k) ==> result})
+     * <p>Returns the last element in a sequence that satisfies a specified condition.
+     * <p>The last method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link lastOrDefault} method.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @throws \InvalidArgumentException If source contains no matching elements.
+     * @return mixed If predicate is null: the last element in the specified sequence. If predicate is not null: The last element in the sequence that passes the test in the specified predicate function.
+     */
     public function last ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -853,6 +949,16 @@ class Enumerable implements \IteratorAggregate
         return $value;
     }
 
+    /**
+     * <p><b>Syntax</b>: lastOrDefault ([default])
+     * <p>Returns the last element of a sequence, or a default value if the sequence contains no elements.
+     * <p><b>Syntax</b>: lastOrDefault ([default [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the last element of the sequence that satisfies a condition or a default value if no such element is found.
+     * <p>If obtaining the default value is a costly operation, use {@link lastOrFallback} method to avoid overhead.
+     * @param mixed $default A default value.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @return mixed If predicate is null: default value if source is empty; otherwise, the last element in source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the last element in source that passes the test specified by predicate.
+     */
     public function lastOrDefault ($default = null, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -868,6 +974,16 @@ class Enumerable implements \IteratorAggregate
         return $found ? $value : $default;
     }
 
+    /**
+     * <p><b>Syntax</b>: lastOrFallback ([fallback])
+     * <p>Returns the last element of a sequence, or the result of calling a fallback function if the sequence contains no elements.
+     * <p><b>Syntax</b>: lastOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the last element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
+     * <p>The fallback function is not executed if a matching element is found. Use the lastOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link lastOrDefault}.
+     * @param mixed $fallback A fallback function to return the default element.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the last element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the last element in source that passes the test specified by predicate.
+     */
     public function lastOrFallback ($fallback, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -883,6 +999,17 @@ class Enumerable implements \IteratorAggregate
         return $found ? $value : call_user_func($fallback);
     }
 
+    /**
+     * <p><b>Syntax</b>: single ()
+     * <p>Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
+     * <p>The single method throws an exception if source contains no elements. To instead return a default value when the source sequence is empty, use the {@link singleOrDefault} method.
+     * <p><b>Syntax</b>: single (predicate {{(v, k) ==> result})
+     * <p>Returns the only element of a sequence that satisfies a specified condition.
+     * <p>The single method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link singleOrDefault} method.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @throws \InvalidArgumentException If source contains no matching elements or more than one matching element.
+     * @return mixed If predicate is null: the single element of the input sequence. If predicate is not null: The single element of the sequence that passes the test in the specified predicate function.
+     */
     public function single ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -901,6 +1028,17 @@ class Enumerable implements \IteratorAggregate
         return $v;
     }
 
+    /**
+     * <p><b>Syntax</b>: singleOrDefault ([default])
+     * <p>Returns the only element of a sequence, or a default value if the sequence contains no elements.
+     * <p><b>Syntax</b>: singleOrDefault ([default [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the only element of the sequence that satisfies a condition or a default value if no such element is found.
+     * <p>If obtaining the default value is a costly operation, use {@link singleOrFallback} method to avoid overhead.
+     * @param mixed $default A default value.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @throws \InvalidArgumentException If source contains more than one matching element.
+     * @return mixed If predicate is null: default value if source is empty; otherwise, the single element of the source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
+     */
     public function singleOrDefault ($default = null, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -917,6 +1055,17 @@ class Enumerable implements \IteratorAggregate
         return $found ? $v : $default;
     }
 
+    /**
+     * <p><b>Syntax</b>: singleOrFallback ([fallback])
+     * <p>Returns the only element of a sequence, or the result of calling a fallback function if the sequence contains no elements.
+     * <p><b>Syntax</b>: singleOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
+     * <p>Returns the only element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
+     * <p>The fallback function is not executed if a matching element is found. Use the singleOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link singleOrDefault}.
+     * @param mixed $fallback A fallback function to return the default element.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @throws \InvalidArgumentException If source contains more than one matching element.
+     * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the single element of the source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
+     */
     public function singleOrFallback ($fallback, $predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
