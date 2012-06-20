@@ -4,7 +4,6 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
@@ -237,6 +236,36 @@ class Enumerable implements \IteratorAggregate
     #endregion
 
     #region Projection and filtering
+
+    public function ofType ($type)
+    {
+        switch ($type) {
+            case 'array':
+                return $this->where(function ($v) { return is_array($v); });
+            case 'int':
+            case 'integer':
+            case 'long':
+                return $this->where(function ($v) { return is_int($v); });
+            case 'callable':
+                return $this->where(function ($v) { return is_callable($v); });
+            case 'float':
+            case 'real':
+            case 'double':
+                return $this->where(function ($v) { return is_float($v); });
+            case 'null':
+                return $this->where(function ($v) { return is_null($v); });
+            case 'numeric':
+                return $this->where(function ($v) { return is_numeric($v); });
+            case 'object':
+                return $this->where(function ($v) { return is_object($v); });
+            case 'scalar':
+                return $this->where(function ($v) { return is_scalar($v); });
+            case 'string':
+                return $this->where(function ($v) { return is_string($v); });
+            default:
+                return $this->where(function ($v) use ($type) { return is_object($v) && get_class($v) === $type; });
+        }
+    }
 
     /**
      * <p><b>Syntax</b>: select (selectorValue {{(v, k) ==> result} [, selectorKey {{(v, k) ==> result}])
@@ -717,6 +746,15 @@ class Enumerable implements \IteratorAggregate
         }
     }
 
+    public function contains ($value)
+    {
+        foreach ($this as $v) {
+            if ($v === $value)
+                return true;
+        }
+        return false;
+    }
+
     #endregion
 
     #region Pagination
@@ -873,6 +911,42 @@ class Enumerable implements \IteratorAggregate
                 return true;
             });
         });
+    }
+
+    #endregion
+
+    #region Actions
+
+    public function doEnum ($action)
+    {
+        $self = $this;
+        $action = Utils::createLambda($action, 'v,k');
+
+        return new Enumerable(function () use ($self, $action)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $it->rewind();
+
+            return new Enumerator(function ($yield) use ($it, $action)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                call_user_func($action, $it->current(), $it->key());
+                $yield($it->current(), $it->key());
+                $it->next();
+                return true;
+            });
+        });
+    }
+
+    public function forEachEnum ($action = null)
+    {
+        $action = Utils::createLambda($action, 'v,k', Functions::$blank);
+
+        foreach ($this as $k => $v)
+            call_user_func($action, $v, $k);
     }
 
     #endregion

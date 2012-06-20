@@ -158,3 +158,15 @@ var_dump(from(array(1, 2, 3))->all('$v > 1'));
 var_dump(from(array(1, 2, 3))->any('$v > 2'));
 var_dump(from(array(1, 2, 3))->any('$v > 3'));
 var_dump(from(array(1, 2, 3))->any());
+
+var_dump(from(array(1, 2, 3))->contains('1'));
+var_dump(from(array(1, 2, 3))->contains(1));
+var_dump(from(array(1, 2, 3))->contains(4));
+
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('string')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('int')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('numeric')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('scalar')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('object')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('array')->toArray());
+var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('stdClass')->toArray());
