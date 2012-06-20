@@ -170,3 +170,17 @@ var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType(
 var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('object')->toArray());
 var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('array')->toArray());
 var_dump(from(array(1, array(), 2, '3', null, '45', new stdClass, 'a'))->ofType('stdClass')->toArray());
+
+//var_dump(from(array())->first());
+var_dump(from(array())->firstOrDefault(1));
+//var_dump(from(array())->last());
+var_dump(from(array())->lastOrDefault());
+var_dump(from(array(1, 2))->first());
+var_dump(from(array(1, 2))->last());
+var_dump(from(array(1, 2))->firstOrDefault(3, '$v > 1'));
+var_dump(from(array(1, 2))->firstOrDefault(3, '$v > 2'));
+var_dump(from(array())->firstOrFallback(function () { return 4; }));
+//var_dump(from(array(1, 2))->single());
+//var_dump(from(array(1, 2))->single('$v > 0'));
+var_dump(from(array(1, 2))->single('$v > 1'));
+var_dump(from(array(1, 2))->singleOrDefault(3, '$v > 2'));

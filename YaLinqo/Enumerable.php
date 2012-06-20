@@ -4,14 +4,14 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
-// TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
+// TODO: linq.js now: [Last]IndexOf, (Skip|Take)While
+// TODO: linq.js now: ToJSON, ToString, Write, WriteLine
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
 // TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
-// TODO: MoreLinq: Batch(Chunk?), Pad, OrDefault+=OrFallback, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
+// TODO: MoreLinq: Batch(Chunk?), Pad, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
 // TODO: EvenMoreLinq: Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
 // TODO: LinqLib: Permutations, Combinations, Statistical
 // TODO: PHP Iterators: Recursive*Iterator
@@ -802,6 +802,130 @@ class Enumerable implements \IteratorAggregate
         return $default;
     }
 
+    public function first ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                return $v;
+        }
+        throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+    }
+
+    public function firstOrDefault ($default = null, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                return $v;
+        }
+        return $default;
+    }
+
+    public function firstOrFallback ($fallback, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                return $v;
+        }
+        return call_user_func($fallback);
+    }
+
+    public function last ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                $found = true;
+        }
+        if (!$found)
+            throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+        return $v;
+    }
+
+    public function lastOrDefault ($default = null, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                $found = true;
+        }
+        return $found ? $v : $default;
+    }
+
+    public function lastOrFallback ($fallback, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                $found = true;
+        }
+        return $found ? $v : call_user_func($fallback);
+    }
+
+    public function single ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k)) {
+                if ($found)
+                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                $found = true;
+            }
+        }
+        if (!$found)
+            throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+        return $v;
+    }
+
+    public function singleOrDefault ($default = null, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k)) {
+                if ($found)
+                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                $found = true;
+            }
+        }
+        return $found ? $v : $default;
+    }
+
+    public function singleOrFallback ($fallback, $predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $found = false;
+        $v = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k)) {
+                if ($found)
+                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                $found = true;
+            }
+        }
+        return $found ? $v : call_user_func($fallback);
+    }
+
     public function take ($count)
     {
         if ($count < 0)
@@ -837,6 +961,11 @@ class Enumerable implements \IteratorAggregate
         foreach ($this as $k => $v)
             $array[$k] = $v;
         return $array;
+    }
+
+    public function toDictionary ()
+    {
+        return $this->toArray();
     }
 
     public function toList ()
