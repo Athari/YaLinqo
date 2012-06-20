@@ -4,8 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: [Last]IndexOf, (Skip|Take)While
-// TODO: linq.js now: ToJSON, ToString, Write, WriteLine
+// TODO: linq.js now: (Skip|Take)While
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
@@ -840,14 +839,16 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if (call_user_func($predicate, $v, $k)) {
                 $found = true;
+                $value = $v;
+            }
         }
         if (!$found)
             throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
-        return $v;
+        return $value;
     }
 
     public function lastOrDefault ($default = null, $predicate = null)
@@ -855,12 +856,14 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if (call_user_func($predicate, $v, $k)) {
                 $found = true;
+                $value = $v;
+            }
         }
-        return $found ? $v : $default;
+        return $found ? $value : $default;
     }
 
     public function lastOrFallback ($fallback, $predicate = null)
@@ -868,12 +871,14 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if (call_user_func($predicate, $v, $k)) {
                 $found = true;
+                $value = $v;
+            }
         }
-        return $found ? $v : call_user_func($fallback);
+        return $found ? $value : call_user_func($fallback);
     }
 
     public function single ($predicate = null)
@@ -926,6 +931,48 @@ class Enumerable implements \IteratorAggregate
         return $found ? $v : call_user_func($fallback);
     }
 
+    public function indexOf ($value)
+    {
+        foreach ($this as $k => $v) {
+            if ($v === $value)
+                return $k;
+        }
+        return null; // not -1
+    }
+
+    public function indexWhere ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                return $k;
+        }
+        return null; // not -1
+    }
+
+    public function lastIndexOf ($value)
+    {
+        $key = null;
+        foreach ($this as $k => $v) {
+            if ($v === $value)
+                $key = $k;
+        }
+        return $key; // not -1
+    }
+
+    public function lastIndexWhere ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        $key = null;
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                $key = $k;
+        }
+        return $key; // not -1
+    }
+
     public function take ($count)
     {
         if ($count < 0)
@@ -966,6 +1013,11 @@ class Enumerable implements \IteratorAggregate
     public function toDictionary ()
     {
         return $this->toArray();
+    }
+
+    public function toJSON ($options = 0)
+    {
+        return json_encode($this->toArray(), $options);
     }
 
     public function toList ()
@@ -1018,6 +1070,20 @@ class Enumerable implements \IteratorAggregate
         foreach ($this as $k => $v)
             $obj->{call_user_func($keySelector, $v, $k)} = call_user_func($valueSelector, $v, $k);
         return $obj;
+    }
+
+    public function toString ($separator = '', $selector = null)
+    {
+        if ($selector === null) {
+            /** @var $it \Iterator|\ArrayIterator */
+            $it = $this->getIterator();
+            if ($it instanceof \ArrayIterator)
+                return implode($separator, $it->getArrayCopy());
+        }
+
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        return implode($separator, $this->select($selector)->toArray());
     }
 
     public function toValues ()
@@ -1076,6 +1142,21 @@ class Enumerable implements \IteratorAggregate
 
         foreach ($this as $k => $v)
             call_user_func($action, $v, $k);
+    }
+
+    public function write ($separator = '', $selector = null)
+    {
+        echo $this->toString($separator, $selector);
+    }
+
+    public function writeLine ($selector = null)
+    {
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        foreach ($this as $k => $v) {
+            echo call_user_func($selector, $v, $k);
+            echo PHP_EOL;
+        }
     }
 
     #endregion

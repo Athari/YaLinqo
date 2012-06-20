@@ -140,7 +140,7 @@ var_dump(from(
     {
         /** @var $prods \YaLinqo\Enumerable */
         return $prods->any()
-                ? "Prods from {$cat['name']}: " . implode(', ', $prods->select('$v["name"]')->toArray()) . '.'
+                ? "Prods from {$cat['name']}: " . $prods->toString(', ', '$v["name"]') . '.'
                 : "Cat {$cat['name']} is empty.";
     })->toArray());
 
@@ -179,8 +179,23 @@ var_dump(from(array(1, 2))->first());
 var_dump(from(array(1, 2))->last());
 var_dump(from(array(1, 2))->firstOrDefault(3, '$v > 1'));
 var_dump(from(array(1, 2))->firstOrDefault(3, '$v > 2'));
+var_dump(from(array(1, 2))->lastOrDefault(3, '$v < 2'));
 var_dump(from(array())->firstOrFallback(function () { return 4; }));
 //var_dump(from(array(1, 2))->single());
 //var_dump(from(array(1, 2))->single('$v > 0'));
 var_dump(from(array(1, 2))->single('$v > 1'));
 var_dump(from(array(1, 2))->singleOrDefault(3, '$v > 2'));
+
+var_dump(from(array(1, 2, 3))->toString());
+var_dump(from(array(1, 2, 3))->toString(', '));
+var_dump(from(array(1, 2, 3))->toString(', ', '$v*2'));
+
+from(array(1, 2, 3))->write();
+echo "\n";
+from(array(1, 2, 3))->write(', ');
+echo "\n";
+from(array(1, 2, 3))->write(', ', '"$k = $v"');
+echo "\n";
+from(array(1, 2, 3))->writeLine('"$k = $v"');
+
+var_dump(from(array(1, 2, 3))->select('array($v, $v)')->toJSON());
