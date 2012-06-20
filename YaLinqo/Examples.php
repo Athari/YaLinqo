@@ -139,9 +139,9 @@ var_dump(from(
     function ($cat, $prods)
     {
         /** @var $prods \YaLinqo\Enumerable */
-        return "Prods from {$cat['name']}: " .
-                implode(', ', $prods->select('$v["name"]')->toArray()) .
-                '.';
+        return $prods->any()
+                ? "Prods from {$cat['name']}: " . implode(', ', $prods->select('$v["name"]')->toArray()) . '.'
+                : "Cat {$cat['name']} is empty.";
     })->toArray());
 
 var_dump(from(
@@ -152,3 +152,9 @@ var_dump(from(
         array('name' => 'prod4', 'cat' => 'cat3'),
     )
 )->groupBy('$v["cat"]', '$v["name"]')->toArray());
+
+var_dump(from(array(1, 2, 3))->all('$v > 0'));
+var_dump(from(array(1, 2, 3))->all('$v > 1'));
+var_dump(from(array(1, 2, 3))->any('$v > 2'));
+var_dump(from(array(1, 2, 3))->any('$v > 3'));
+var_dump(from(array(1, 2, 3))->any());

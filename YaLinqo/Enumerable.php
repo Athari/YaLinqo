@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach
+// TODO: linq.js now: Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
@@ -680,6 +680,41 @@ class Enumerable implements \IteratorAggregate
             $enum = $enum->select($selector);
         return $enum->aggregateOrDefault(function ($a, $b)
         { return $a + $b; }, 0);
+    }
+
+    #endregion
+
+    #region Set
+
+    public function all ($predicate)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k');
+
+        foreach ($this as $k => $v) {
+            if (!call_user_func($predicate, $v, $k))
+                return false;
+        }
+        return true;
+    }
+
+    public function any ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', false);
+
+        if ($predicate) {
+            foreach ($this as $k => $v) {
+                if (call_user_func($predicate, $v, $k))
+                    return true;
+            }
+            return false;
+        }
+        else {
+            $it = $this->getIterator();
+            if ($it instanceof \Countable)
+                return count($it) > 0;
+            $it->rewind();
+            return $it->valid();
+        }
     }
 
     #endregion
