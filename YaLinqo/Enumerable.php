@@ -16,6 +16,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
+// TODO: document when keys are preserved/discarded
 // Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index
 
 class Enumerable implements \IteratorAggregate
@@ -32,7 +33,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * @param Closure $iterator
      */
-    public function __construct ($iterator)
+    private function __construct ($iterator)
     {
         $this->getIterator = $iterator;
     }
@@ -49,12 +50,12 @@ class Enumerable implements \IteratorAggregate
     #region Generation
 
     /**
-     * TODO doc
+     * TODODOC
      * Source keys are discarded.
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $source
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @throws \InvalidArgumentException If source contains no elements (checked during enumeration).
-     * @return \YaLinqo\Enumerable
+     * @return Enumerable
      */
     public static function cycle ($source)
     {
@@ -85,7 +86,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: emptyEnum ()
      * <p>Returns an empty sequence.
-     * @return \YaLinqo\Enumerable
+     * @return Enumerable
      */
     public static function emptyEnum ()
     {
@@ -104,9 +105,9 @@ class Enumerable implements \IteratorAggregate
      * <li><b>Iterator</b>: Enumerable from Iterator;
      * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method.
      * </ul>
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source Value to convert into Enumerable sequence.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $source Value to convert into Enumerable sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
-     * @return \YaLinqo\Enumerable
+     * @return Enumerable
      */
     public static function from ($source)
     {
@@ -129,7 +130,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODO doc
+     * TODODOC
+     * @param callback $funcValue
+     * @param callback|null $seedValue
+     * @param callback|null $funcKey
+     * @param callback|null $seedKey
+     * @return Enumerable
      */
     public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
     {
@@ -157,6 +163,12 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * TODODOC
+     * @param int $start
+     * @param int $step
+     * @return Enumerable
+     */
     public static function toInfinity ($start = 0, $step = 1)
     {
         return new Enumerable(function () use ($start, $step)
@@ -172,12 +184,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * Searches subject for all matches to the regular expression given in pattern and enumerates them in the order specified by flags.
-     * After the first match is found, the subsequent searches are continued on from end of the last match.
+     * <p><b>Syntax</b>: matches (subject, pattern [, flags])
+     * <p>Searches subject for all matches to the regular expression given in pattern and enumerates them in the order specified by flags. After the first match is found, the subsequent searches are continued on from end of the last match.
      * @param string $subject The input string.
      * @param string $pattern The pattern to search for, as a string.
      * @param int $flags Can be a combination of the following flags: PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_OFFSET_CAPTURE. Default: PREG_SET_ORDER.
-     * @return \YaLinqo\Enumerable
+     * @return Enumerable
      * @see preg_match_all
      */
     public static function matches ($subject, $pattern, $flags = PREG_SET_ORDER)
@@ -189,26 +201,58 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * TODODOC
+     * @param int $start
+     * @param int $step
+     * @return Enumerable
+     */
     public static function toNegativeInfinity ($start = 0, $step = 1)
     {
         return self::toInfinity($start, -$step);
     }
 
+    /**
+     * TODODOC
+     * @param mixed $element
+     * @return Enumerable
+     */
     public static function returnEnum ($element)
     {
         return self::repeat($element, 1);
     }
 
+    /**
+     * TODODOC
+     * @param int $start
+     * @param int $count
+     * @param int $step
+     * @return Enumerable
+     */
     public static function range ($start, $count, $step = 1)
     {
         return self::toInfinity($start, $step)->take($count);
     }
 
+    /**
+     * TODODOC
+     * @param int $start
+     * @param int $count
+     * @param int $step
+     * @return Enumerable
+     */
     public static function rangeDown ($start, $count, $step = 1)
     {
         return self::toInfinity($start, $count, -$step);
     }
 
+    /**
+     * TODODOC
+     * @param int $start
+     * @param int $end
+     * @param int $step
+     * @return Enumerable
+     */
     public static function rangeTo ($start, $end, $step = 1)
     {
         if ($start > $end)
@@ -218,6 +262,13 @@ class Enumerable implements \IteratorAggregate
         );
     }
 
+    /**
+     * TODODOC
+     * @param int $element
+     * @param int $count
+     * @throws \InvalidArgumentException
+     * @return Enumerable
+     */
     public static function repeat ($element, $count)
     {
         if ($count < 0)
@@ -236,11 +287,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * Split the given string by a regular expression.
+     * <p><b>Syntax</b>: split (subject, pattern [, flags])
+     * <p>Split the given string by a regular expression.
      * @param string $subject The input string.
      * @param string $pattern The pattern to search for, as a string.
      * @param int $flags flags can be any combination of the following flags: PREG_SPLIT_NO_EMPTY, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_OFFSET_CAPTURE. Default: 0.
-     * @return \YaLinqo\Enumerable
+     * @return Enumerable
      * @see preg_split
      */
     public static function split ($subject, $pattern, $flags = 0)
@@ -255,6 +307,11 @@ class Enumerable implements \IteratorAggregate
 
     #region Projection and filtering
 
+    /**
+     * TODODOC
+     * @param string $type
+     * @return Enumerable
+     */
     public function ofType ($type)
     {
         switch ($type) {
@@ -290,8 +347,8 @@ class Enumerable implements \IteratorAggregate
      * <p>Projects each element of a sequence into a new form.
      * <p>This projection method requires the transform functions, selectorValue and selectorKey, to produce one key-value pair for each value in the source sequence. If selectorValue returns a value that is itself a collection, it is up to the consumer to traverse the subsequences manually. In such a situation, it might be better for your query to return a single coalesced sequence of values. To achieve this, use the {@link selectMany()} method instead of select. Although selectMany works similarly to select, it differs in that the transform function returns a collection that is then expanded by selectMany before it is returned.
      * @param callback $selectorValue {(v, k) ==> value} A transform function to apply to each value.
-     * @param callback $selectorKey {(v, k) ==> key} A transform function to apply to each key. Default: key.
-     * @return \YaLinqo\Enumerable A sequence whose elements are the result of invoking the transform functions on each element of source.
+     * @param callback|null $selectorKey {(v, k) ==> key} A transform function to apply to each key. Default: key.
+     * @return Enumerable A sequence whose elements are the result of invoking the transform functions on each element of source.
      */
     public function select ($selectorValue, $selectorKey = null)
     {
@@ -328,9 +385,9 @@ class Enumerable implements \IteratorAggregate
      * <p>Projects each element of a sequence to a sequence, flattens the resulting sequences into one sequence, and invokes a result selector functions on each element therein.
      * <p>The selectMany method is useful when you have to keep the elements of source in scope for query logic that occurs after the call to selectMany. If there is a bidirectional relationship between objects in the source sequence and objects returned from collectionSelector, that is, if a sequence returned from collectionSelector provides a property to retrieve the object that produced it, you do not need this overload of selectMany. Instead, you can use simpler selectMany overload and navigate back to the source object through the returned sequence.
      * @param callback $collectionSelector {(v, k) ==> enum} A transform function to apply to each element.
-     * @param callback $resultSelectorValue {(v1, v2, k1, k2) ==> value} A transform function to apply to each value of the intermediate sequence. Default: {(v1, v2, k1, k2) ==> v2}.
-     * @param callback $resultSelectorKey {(v1, v2, k1, k2) ==> key} A transform function to apply to each key of the intermediate sequence. Default: increment.
-     * @return \YaLinqo\Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
+     * @param callback|null $resultSelectorValue {(v1, v2, k1, k2) ==> value} A transform function to apply to each value of the intermediate sequence. Default: {(v1, v2, k1, k2) ==> v2}.
+     * @param callback|null $resultSelectorKey {(v1, v2, k1, k2) ==> key} A transform function to apply to each key of the intermediate sequence. Default: increment.
+     * @return Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
      */
     public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
     {
@@ -339,10 +396,8 @@ class Enumerable implements \IteratorAggregate
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k1,k2',
             function ($v1, $v2, $k1, $k2) { return $v2; });
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k1,k2', false);
-        if ($resultSelectorKey === false) {
-            $i = 0;
-            $resultSelectorKey = function ($v1, $v2, $k1, $k2) use (&$i) { return $i++; };
-        }
+        if ($resultSelectorKey === false)
+            $resultSelectorKey = Functions::increment();
 
         return new Enumerable(function () use ($self, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
         {
@@ -375,7 +430,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: where (predicate {{(v, k) ==> result})
      * <p>Filters a sequence of values based on a predicate.
      * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition.
-     * @return \YaLinqo\Enumerable A sequence that contains elements from the input sequence that satisfy the condition.
+     * @return Enumerable A sequence that contains elements from the input sequence that satisfy the condition.
      */
     public function where ($predicate)
     {
@@ -411,25 +466,25 @@ class Enumerable implements \IteratorAggregate
     #region Ordering
 
     /**
-     * <p>orderByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: orderByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in a particular direction (ascending, descending) according to a key.
      * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
-     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */
     public function orderByDir ($desc, $keySelector = null, $comparer = null)
     {
-        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$identity);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
         $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         return new OrderedEnumerable($this, $desc, $keySelector, $comparer);
     }
 
     /**
-     * <p>orderBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: orderBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in ascending order according to a key.
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
-     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */
     public function orderBy ($keySelector = null, $comparer = null)
@@ -438,10 +493,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p>orderByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: orderByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in descending order according to a key.
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
-     * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */
     public function orderByDescending ($keySelector = null, $comparer = null)
@@ -453,6 +508,15 @@ class Enumerable implements \IteratorAggregate
 
     #region Joining
 
+    /**
+     * TODODOC
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner
+     * @param callback|null $outerKeySelector
+     * @param callback|null $innerKeySelector
+     * @param callback|null $resultSelectorValue
+     * @param callback|null $resultSelectorKey
+     * @return Enumerable
+     */
     public function groupJoin ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $self = $this;
@@ -491,12 +555,12 @@ class Enumerable implements \IteratorAggregate
      * <p>A join refers to the operation of correlating the elements of two sources of information based on a common key. Join brings the two information sources and the keys by which they are matched together in one method call. This differs from the use of SelectMany, which requires more than one method call to perform the same operation.
      * <p>Join preserves the order of the elements of the source, and for each of these elements, the order of the matching elements of inner.
      * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality.
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $inner The sequence to join to the source sequence.
-     * @param callback $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
-     * @param callback $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
-     * @param callback $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
-     * @param callback $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k}.
-     * @return \YaLinqo\Enumerable
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The sequence to join to the source sequence.
+     * @param callback|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
+     * @param callback|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
+     * @param callback|null $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
+     * @param callback|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k}.
+     * @return Enumerable
      */
     public function join ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
@@ -543,6 +607,14 @@ class Enumerable implements \IteratorAggregate
 
     #region Grouping
 
+    /**
+     * TODODOC
+     * @param callback|null $keySelector
+     * @param callback|null $valueSelector
+     * @param callback|null $resultSelectorValue
+     * @param callback|null $resultSelectorKey
+     * @return Enumerable
+     */
     public function groupBy ($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
@@ -594,6 +666,7 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>aggregateOrDefault (func {{(a, v, k) ==> accum} [, default])
      * @param callback $func {(a, v, k) ==> accum}
      * @param mixed $default Value to return if sequence is empty.
@@ -621,13 +694,13 @@ class Enumerable implements \IteratorAggregate
      * <p>Computes the average of a sequence of numeric values.
      * <p><b>Syntax</b>: average (selector {{(v, k) ==> result})
      * <p>Computes the average of a sequence of numeric values that are obtained by invoking a transform function on each element of the input sequence.
-     * @param callback $selector {(v, k) ==> result} A transform function to apply to each element. Default: identity.
+     * @param callback|null $selector {(v, k) ==> result} A transform function to apply to each element. Default: value.
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number The average of the sequence of values.
      */
     public function average ($selector = null)
     {
-        $selector = Utils::createLambda($selector, 'v,k', Functions::$identity);
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
         $sum = $count = 0;
 
         foreach ($this as $k => $v) {
@@ -643,7 +716,7 @@ class Enumerable implements \IteratorAggregate
      * <p>If source iterator implements {@link Countable}, that implementation is used to obtain the count of elements. Otherwise, this method determines the count.
      * <p><b>Syntax</b>: count (predicate {{(v, k) ==> result})
      * <p>Returns a number that represents how many elements in the specified sequence satisfy a condition.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
      * @return int The number of elements in the input sequence.
      */
     public function count ($predicate = null)
@@ -653,7 +726,7 @@ class Enumerable implements \IteratorAggregate
         if ($it instanceof \Countable && $predicate === null)
             return count($it);
 
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$identity);
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$value);
         $count = 0;
 
         foreach ($this as $k => $v)
@@ -663,8 +736,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>max ([selector {{(v, k) ==> result}])
-     * @param callback $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -677,9 +751,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>maxBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param callback $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -695,8 +770,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>min ([selector {{(v, k) ==> result}])
-     * @param callback $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -709,9 +785,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>minBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param callback $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> result}
      * @throws \InvalidOperationException If sequence contains no elements.
      * @return number
      */
@@ -727,8 +804,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * <p>sum ([selector {{(v, k) ==> result}])
-     * @param callback $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> result}
      * @return number
      */
     public function sum ($selector = null)
@@ -765,7 +843,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Determines whether a sequence contains any elements. The enumeration of source is stopped as soon as the result can be determined.
      * <p><b>Syntax</b>: any (predicate {{(v, k) ==> result})
      * <p>Determines whether any element of a sequence exists or satisfies a condition. The enumeration of source is stopped as soon as the result can be determined.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
      * @return bool If predicate is null: true if the source sequence contains any elements; otherwise, false. If predicate is not null: true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.
      */
     public function any ($predicate = null)
@@ -864,7 +942,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: first (predicate {{(v, k) ==> result})
      * <p>Returns the first element in a sequence that satisfies a specified condition.
      * <p>The first method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link firstOrDefault} method.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \InvalidArgumentException If source contains no matching elements.
      * @return mixed If predicate is null: the first element in the specified sequence. If predicate is not null: The first element in the sequence that passes the test in the specified predicate function.
      */
@@ -886,7 +964,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
      * <p>If obtaining the default value is a costly operation, use {@link firstOrFallback} method to avoid overhead.
      * @param mixed $default A default value.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: default value if source is empty; otherwise, the first element in source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.
      */
     public function firstOrDefault ($default = null, $predicate = null)
@@ -907,7 +985,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the first element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the firstOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link firstOrDefault}.
      * @param mixed $fallback A fallback function to return the default element.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the first element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.
      */
     public function firstOrFallback ($fallback, $predicate = null)
@@ -928,7 +1006,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: last (predicate {{(v, k) ==> result})
      * <p>Returns the last element in a sequence that satisfies a specified condition.
      * <p>The last method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link lastOrDefault} method.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \InvalidArgumentException If source contains no matching elements.
      * @return mixed If predicate is null: the last element in the specified sequence. If predicate is not null: The last element in the sequence that passes the test in the specified predicate function.
      */
@@ -956,7 +1034,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the last element of the sequence that satisfies a condition or a default value if no such element is found.
      * <p>If obtaining the default value is a costly operation, use {@link lastOrFallback} method to avoid overhead.
      * @param mixed $default A default value.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: default value if source is empty; otherwise, the last element in source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the last element in source that passes the test specified by predicate.
      */
     public function lastOrDefault ($default = null, $predicate = null)
@@ -981,7 +1059,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the last element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the lastOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link lastOrDefault}.
      * @param mixed $fallback A fallback function to return the default element.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the last element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the last element in source that passes the test specified by predicate.
      */
     public function lastOrFallback ($fallback, $predicate = null)
@@ -1006,7 +1084,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: single (predicate {{(v, k) ==> result})
      * <p>Returns the only element of a sequence that satisfies a specified condition.
      * <p>The single method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link singleOrDefault} method.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \InvalidArgumentException If source contains no matching elements or more than one matching element.
      * @return mixed If predicate is null: the single element of the input sequence. If predicate is not null: The single element of the sequence that passes the test in the specified predicate function.
      */
@@ -1035,7 +1113,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the only element of the sequence that satisfies a condition or a default value if no such element is found.
      * <p>If obtaining the default value is a costly operation, use {@link singleOrFallback} method to avoid overhead.
      * @param mixed $default A default value.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \InvalidArgumentException If source contains more than one matching element.
      * @return mixed If predicate is null: default value if source is empty; otherwise, the single element of the source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
      */
@@ -1062,7 +1140,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the only element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the singleOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link singleOrDefault}.
      * @param mixed $fallback A fallback function to return the default element.
-     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
+     * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \InvalidArgumentException If source contains more than one matching element.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the single element of the source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
      */
@@ -1082,6 +1160,10 @@ class Enumerable implements \IteratorAggregate
         return $found ? $v : call_user_func($fallback);
     }
 
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
     public function indexOf ($value)
     {
         foreach ($this as $k => $v) {
@@ -1091,6 +1173,11 @@ class Enumerable implements \IteratorAggregate
         return null; // not -1
     }
 
+    /**
+     * TODODOC
+     * @param callback|null $predicate
+     * @return mixed
+     */
     public function indexWhere ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -1102,6 +1189,11 @@ class Enumerable implements \IteratorAggregate
         return null; // not -1
     }
 
+    /**
+     * TODODOC
+     * @param mixed $value
+     * @return mixed
+     */
     public function lastIndexOf ($value)
     {
         $key = null;
@@ -1112,6 +1204,11 @@ class Enumerable implements \IteratorAggregate
         return $key; // not -1
     }
 
+    /**
+     * TODODOC
+     * @param callback|null $predicate
+     * @return mixed
+     */
     public function lastIndexWhere ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
@@ -1124,6 +1221,12 @@ class Enumerable implements \IteratorAggregate
         return $key; // not -1
     }
 
+    /**
+     * TODODOC
+     * @param int $count
+     * @throws \InvalidArgumentException
+     * @return Enumerable
+     */
     public function skip ($count)
     {
         if ($count < 0)
@@ -1151,6 +1254,11 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * TODODOC
+     * @param callback $predicate
+     * @return Enumerable
+     */
     public function skipWhile ($predicate)
     {
         $self = $this;
@@ -1176,6 +1284,12 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * TODODOC
+     * @param int $count
+     * @throws \InvalidArgumentException
+     * @return Enumerable
+     */
     public function take ($count)
     {
         if ($count < 0)
@@ -1202,6 +1316,11 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
+    /**
+     * TODODOC
+     * @param callback $predicate
+     * @return Enumerable
+     */
     public function takeWhile ($predicate)
     {
         $self = $this;
@@ -1229,6 +1348,10 @@ class Enumerable implements \IteratorAggregate
 
     #region Conversion
 
+    /**
+     * TODODOC
+     * @return array
+     */
     public function toArray ()
     {
         $array = array();
@@ -1237,16 +1360,29 @@ class Enumerable implements \IteratorAggregate
         return $array;
     }
 
+    /**
+     * TODODOC
+     * @return array
+     */
     public function toDictionary ()
     {
         return $this->toArray();
     }
 
+    /**
+     * TODODOC
+     * @param int $options
+     * @return string
+     */
     public function toJSON ($options = 0)
     {
         return json_encode($this->toArray(), $options);
     }
 
+    /**
+     * TODODOC
+     * @return array
+     */
     public function toList ()
     {
         $array = array();
@@ -1255,10 +1391,16 @@ class Enumerable implements \IteratorAggregate
         return $array;
     }
 
+    /**
+     * TODODOC
+     * @param callback|null $keySelector
+     * @param callback|null $valueSelector
+     * @return collections\Lookup
+     */
     public function toLookup ($keySelector = null, $valueSelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
-        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$identity);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
         $lookup = new c\Lookup();
         foreach ($this as $k => $v)
@@ -1266,40 +1408,38 @@ class Enumerable implements \IteratorAggregate
         return $lookup;
     }
 
+    /**
+     * TODODOC
+     * @return Enumerable
+     */
     public function toKeys ()
     {
-        $self = $this;
-
-        return new Enumerable(function () use ($self)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-            $i = 0;
-
-            return new Enumerator(function ($yield) use ($it, &$i)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                $yield($it->key(), $i++);
-                $it->next();
-                return true;
-            });
-        });
+        return $this->select(Functions::$key, Functions::increment());
     }
 
-    public function toObject ($keySelector = null, $valueSelector = null)
+    /**
+     * TODODOC
+     * @param callback|null $propertySelector
+     * @param callback|null $valueSelector
+     * @return \stdClass
+     */
+    public function toObject ($propertySelector = null, $valueSelector = null)
     {
-        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
-        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$identity);
+        $propertySelector = Utils::createLambda($propertySelector, 'v,k', Functions::$key);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
         $obj = new \stdClass();
         foreach ($this as $k => $v)
-            $obj->{call_user_func($keySelector, $v, $k)} = call_user_func($valueSelector, $v, $k);
+            $obj->{call_user_func($propertySelector, $v, $k)} = call_user_func($valueSelector, $v, $k);
         return $obj;
     }
 
+    /**
+     * TODODOC
+     * @param string $separator
+     * @param callback|null $selector
+     * @return string
+     */
     public function toString ($separator = '', $selector = null)
     {
         if ($selector === null) {
@@ -1314,33 +1454,24 @@ class Enumerable implements \IteratorAggregate
         return implode($separator, $this->select($selector)->toArray());
     }
 
+    /**
+     * TODODOC
+     * @return Enumerable
+     */
     public function toValues ()
     {
-        $self = $this;
-
-        return new Enumerable(function () use ($self)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-            $i = 0;
-
-            return new Enumerator(function ($yield) use ($it, &$i)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                $yield($it->current(), $i++);
-                $it->next();
-                return true;
-            });
-        });
+        return $this->select(Functions::$value, Functions::increment());
     }
 
     #endregion
 
     #region Actions
 
+    /**
+     * TODODOC
+     * @param callback $action
+     * @return Enumerable
+     */
     public function doEnum ($action)
     {
         $self = $this;
@@ -1365,7 +1496,11 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
-    public function forEachEnum ($action = null)
+    /**
+     * TODODOC
+     * @param callback|null $action
+     */
+    public function each ($action = null)
     {
         $action = Utils::createLambda($action, 'v,k', Functions::$blank);
 
@@ -1373,11 +1508,20 @@ class Enumerable implements \IteratorAggregate
             call_user_func($action, $v, $k);
     }
 
+    /**
+     * TODODOC
+     * @param string $separator
+     * @param callback|null $selector
+     */
     public function write ($separator = '', $selector = null)
     {
         echo $this->toString($separator, $selector);
     }
 
+    /**
+     * TODODOC
+     * @param callback|null $selector
+     */
     public function writeLine ($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);

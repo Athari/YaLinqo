@@ -18,7 +18,7 @@ class Utils
         if ($closure === null) {
             if ($default === null)
                 throw new \InvalidArgumentException('closure must not be null.');
-            return $default; /*Functions::$identity*/
+            return $default;
         }
         if ($closure instanceof \Closure)
             return $closure;
@@ -57,15 +57,5 @@ class Utils
             return $fun;
         }
         return null;
-    }
-
-    public static function compare ($a, $b)
-    {
-        if ($a === $b)
-            return 0;
-        elseif ($a > $b)
-            return 1;
-        else
-            return -1;
     }
 }

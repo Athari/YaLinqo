@@ -5,7 +5,7 @@ use YaLinqo;
 
 class OrderedEnumerable extends Enumerable
 {
-    /** @var \YaLinqo\Enumerable */
+    /** @var Enumerable */
     private $source;
     /** @var \YaLinqo\OrderedEnumerable */
     private $parent;
@@ -17,7 +17,7 @@ class OrderedEnumerable extends Enumerable
     private $comparer;
 
     /**
-     * @param \YaLinqo\Enumerable $source
+     * @param Enumerable $source
      * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element.
      * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
@@ -33,24 +33,24 @@ class OrderedEnumerable extends Enumerable
     }
 
     /**
-     * <p>thenByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: thenByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Performs a subsequent ordering of elements in a sequence in a particular direction (ascending, descending) according to a key.
      * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */
     public function thenByDir ($desc, $keySelector = null, $comparer = null)
     {
-        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$identity);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
         $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         return new OrderedEnumerable($this->source, $desc, $keySelector, $comparer, $this);
     }
 
     /**
-     * <p>thenBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: thenBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Performs a subsequent ordering of the elements in a sequence in ascending order according to a key.
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */
@@ -60,9 +60,9 @@ class OrderedEnumerable extends Enumerable
     }
 
     /**
-     * <p>thenByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
+     * <p><b>Syntax</b>: thenByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Performs a subsequent ordering of the elements in a sequence in descending order according to a key.
-     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: identity function.
+     * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return \YaLinqo\OrderedEnumerable
      */

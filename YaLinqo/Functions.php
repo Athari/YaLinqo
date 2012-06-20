@@ -68,6 +68,12 @@ class Functions
                 return -1;
         };
     }
+
+    public static function increment ()
+    {
+        $i = 0;
+        return function () use (&$i) { return $i++; };
+    }
 }
 
 Functions::init();

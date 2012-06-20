@@ -12,6 +12,11 @@ class Lookup extends Dictionary
         return isset($this->data[$offset]) ? $this->data[$offset] : array();
     }
 
+    /**
+     * TODODOC
+     * @param mixed $offset
+     * @param mixed $value
+     */
     public function append ($offset, $value)
     {
         $offset = $this->convertOffset($offset);

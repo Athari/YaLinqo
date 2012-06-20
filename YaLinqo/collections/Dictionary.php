@@ -80,6 +80,10 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
         return count($this->data);
     }
 
+    /**
+     * TODODOC
+     * @return array
+     */
     public function toArray ()
     {
         return $this->data;
