@@ -199,3 +199,21 @@ echo "\n";
 from(array(1, 2, 3))->writeLine('"$k = $v"');
 
 var_dump(from(array(1, 2, 3))->select('array($v, $v)')->toJSON());
+
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(0)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(4)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(8)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(9)->toString());
+//var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(-1)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skipWhile('$v < 7')->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skipWhile('$v == 0')->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skipWhile('$v != 8')->toString());
+
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->take(0)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->take(4)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->take(8)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->take(9)->toString());
+//var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->skip(-1)->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v < 7')->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v == 0')->toString());
+var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v != 9')->toString());

@@ -4,7 +4,6 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: (Skip|Take)While
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
@@ -17,6 +16,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect
 
 class Enumerable implements \IteratorAggregate
 {
@@ -25,7 +25,7 @@ class Enumerable implements \IteratorAggregate
     const ERROR_NO_KEY = 'Sequence does not contain the key.';
     const ERROR_MANY_ELEMENTS = 'Sequence contains more than one element.';
     const ERROR_MANY_MATCHES = 'Sequence contains more than one matching element.';
-    const ERROR_COUNT_LESS_THAN_ZERO = 'count must have a non-negative value.';
+    const ERROR_COUNT_LESS_THAN_ZERO = 'count must be a non-negative value.';
 
     private $getIterator;
 
@@ -63,6 +63,7 @@ class Enumerable implements \IteratorAggregate
         {
             $it = new \EmptyIterator;
             $i = 0;
+
             return new Enumerator(function ($yield) use ($source, &$it, &$i)
             {
                 /** @var $source Enumerable */
@@ -121,6 +122,7 @@ class Enumerable implements \IteratorAggregate
         return new Enumerable(function () use ($funcValue, $funcKey, $seedValue, $seedKey)
         {
             $isFirst = true;
+
             return new Enumerator(function ($yield) use ($funcValue, $funcKey, $seedValue, $seedKey, &$value, &$key, &$isFirst)
             {
                 if ($isFirst) {
@@ -195,8 +197,7 @@ class Enumerable implements \IteratorAggregate
         if ($start > $end)
             $step = -$step;
         return self::toInfinity($start, $step)->takeWhile(
-            function ($v) use ($end)
-            { return $v < $end; }
+            function ($v) use ($end) { return $v < $end; }
         );
     }
 
@@ -207,6 +208,7 @@ class Enumerable implements \IteratorAggregate
         return new Enumerable(function () use ($element, $count)
         {
             $i = 0;
+
             return new Enumerator(function ($yield) use ($element, $count, &$i)
             {
                 if ($i++ >= $count)
@@ -285,6 +287,7 @@ class Enumerable implements \IteratorAggregate
             /** @var $self Enumerable */
             $it = $self->getIterator();
             $it->rewind();
+
             return new Enumerator(function ($yield) use ($it, $selectorValue, $selectorKey)
             {
                 /** @var $it \Iterator */
@@ -330,6 +333,7 @@ class Enumerable implements \IteratorAggregate
             $itOut = $self->getIterator();
             $itOut->rewind();
             $itIn = null;
+
             return new Enumerator(function ($yield) use ($itOut, &$itIn, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
             {
                 /** @var $itOut \Iterator */
@@ -366,6 +370,7 @@ class Enumerable implements \IteratorAggregate
             /** @var $self Enumerable */
             $it = $self->getIterator();
             $it->rewind();
+
             return new Enumerator(function ($yield) use ($it, $predicate)
             {
                 /** @var $it \Iterator */
@@ -641,8 +646,7 @@ class Enumerable implements \IteratorAggregate
         $enum = $this;
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b)
-        { return max($a, $b); });
+        return $enum->aggregate(function ($a, $b) { return max($a, $b); });
     }
 
     /**
@@ -674,8 +678,7 @@ class Enumerable implements \IteratorAggregate
         $enum = $this;
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function($a, $b)
-        { return min($a, $b); });
+        return $enum->aggregate(function($a, $b) { return min($a, $b); });
     }
 
     /**
@@ -706,8 +709,7 @@ class Enumerable implements \IteratorAggregate
         $enum = $this;
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregateOrDefault(function ($a, $b)
-        { return $a + $b; }, 0);
+        return $enum->aggregateOrDefault(function ($a, $b) { return $a + $b; }, 0);
     }
 
     #endregion
@@ -973,6 +975,58 @@ class Enumerable implements \IteratorAggregate
         return $key; // not -1
     }
 
+    public function skip ($count)
+    {
+        if ($count < 0)
+            throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
+
+        $self = $this;
+
+        return new Enumerable(function () use ($self, $count)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $it->rewind();
+            for ($i = 0; $i < $count && $it->valid(); ++$i)
+                $it->next();
+
+            return new Enumerator(function ($yield) use ($it)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                $yield($it->current(), $it->key());
+                $it->next();
+                return true;
+            });
+        });
+    }
+
+    public function skipWhile ($predicate)
+    {
+        $self = $this;
+        $predicate = Utils::createLambda($predicate, 'v,k');
+
+        return new Enumerable(function () use ($self, $predicate)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $it->rewind();
+            while ($it->valid() && call_user_func($predicate, $it->current(), $it->key()))
+                $it->next();
+
+            return new Enumerator(function ($yield) use ($it)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid())
+                    return false;
+                $yield($it->current(), $it->key());
+                $it->next();
+                return true;
+            });
+        });
+    }
+
     public function take ($count)
     {
         if ($count < 0)
@@ -986,10 +1040,34 @@ class Enumerable implements \IteratorAggregate
             $it = $self->getIterator();
             $it->rewind();
             $i = 0;
+
             return new Enumerator(function ($yield) use ($it, &$i, $count)
             {
                 /** @var $it \Iterator */
                 if ($i++ >= $count || !$it->valid())
+                    return false;
+                $yield($it->current(), $it->key());
+                $it->next();
+                return true;
+            });
+        });
+    }
+
+    public function takeWhile ($predicate)
+    {
+        $self = $this;
+        $predicate = Utils::createLambda($predicate, 'v,k');
+
+        return new Enumerable(function () use ($self, $predicate)
+        {
+            /** @var $self Enumerable */
+            $it = $self->getIterator();
+            $it->rewind();
+
+            return new Enumerator(function ($yield) use ($it, &$i, $predicate)
+            {
+                /** @var $it \Iterator */
+                if (!$it->valid() || !call_user_func($predicate, $it->current(), $it->key()))
                     return false;
                 $yield($it->current(), $it->key());
                 $it->next();
@@ -1049,6 +1127,7 @@ class Enumerable implements \IteratorAggregate
             $it = $self->getIterator();
             $it->rewind();
             $i = 0;
+
             return new Enumerator(function ($yield) use ($it, &$i)
             {
                 /** @var $it \Iterator */
@@ -1096,6 +1175,7 @@ class Enumerable implements \IteratorAggregate
             $it = $self->getIterator();
             $it->rewind();
             $i = 0;
+
             return new Enumerator(function ($yield) use ($it, &$i)
             {
                 /** @var $it \Iterator */
