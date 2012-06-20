@@ -4,7 +4,6 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js now: GroupBy
 // TODO: linq.js now: All, Any, Contains, OfType, Do, ForEach
 // TODO: linq.js now: (First|Last|Single)[OrDefault], [Last]IndexOf, (Skip|Take)While
 // TODO: linq.js now: ToDictionary, ToJSON, ToString, Write, WriteLine
@@ -488,6 +487,21 @@ class Enumerable implements \IteratorAggregate
                 return true;
             });
         });
+    }
+
+    #endregion
+
+    #region Grouping
+
+    public function groupBy ($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'e,k', Functions::$value);
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'e,k', Functions::$key);
+
+        return self::from($this->toLookup($keySelector, $valueSelector))
+                ->select($resultSelectorValue, $resultSelectorKey);
     }
 
     #endregion

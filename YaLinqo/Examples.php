@@ -143,3 +143,12 @@ var_dump(from(
                 implode(', ', $prods->select('$v["name"]')->toArray()) .
                 '.';
     })->toArray());
+
+var_dump(from(
+    array(
+        array('name' => 'prod1', 'cat' => 'cat1'),
+        array('name' => 'prod2', 'cat' => 'cat1'),
+        array('name' => 'prod3', 'cat' => 'cat2'),
+        array('name' => 'prod4', 'cat' => 'cat3'),
+    )
+)->groupBy('$v["cat"]', '$v["name"]')->toArray());

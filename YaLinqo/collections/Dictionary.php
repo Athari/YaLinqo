@@ -43,6 +43,7 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
     public function rewind ()
     {
         reset($this->data);
+        $this->current = current($this->data);
     }
 
     /** {@inheritdoc} */

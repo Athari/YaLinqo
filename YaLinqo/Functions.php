@@ -9,6 +9,8 @@ class Functions
     public static $identity;
     /** @var callback {(v, k) ==> k} */
     public static $key;
+    /** @var callback {(v, k) ==> v} */
+    public static $value;
     /** @var callback {() ==> true} */
     public static $true;
     /** @var callback {() ==> {}} */
@@ -29,6 +31,12 @@ class Functions
         self::$key = function ($v, $k)
         {
             return $k;
+        };
+
+        /** @noinspection PhpUnusedParameterInspection */
+        self::$value = function ($v, $k)
+        {
+            return $v;
         };
 
         self::$true = function ()
