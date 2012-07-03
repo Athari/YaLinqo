@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js must: Distinct[By], Except[By], Intersect, Union
+// TODO: linq.js must: Distinct[By], Except[By], Intersect, Union, Cast
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
@@ -17,7 +17,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 // TODO: document when keys are preserved/discarded
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete
 
 class Enumerable implements \IteratorAggregate
 {
@@ -308,9 +308,11 @@ class Enumerable implements \IteratorAggregate
     #region Projection and filtering
 
     /**
-     * TODODOC
-     * @param string $type
-     * @return Enumerable
+     * <p><b>Syntax</b>: ofType (type)
+     * <p>Filters the elements of a sequence based on a specified type.
+     * <p>The ofType method returns only those elements in source that can be cast to the specified type. To instead receive an exception if an element cannot be cast, use {@link cast}.
+     * @param string $type The type to filter the elements of the sequence on. Can be either class name or one of the predefined types: array, int (integer, long), callable (callback), float (real, double), null, string, object, numeric, scalar.
+     * @return Enumerable A sequence that contains elements from the input sequence of the specified type.
      */
     public function ofType ($type)
     {
@@ -322,6 +324,7 @@ class Enumerable implements \IteratorAggregate
             case 'long':
                 return $this->where(function ($v) { return is_int($v); });
             case 'callable':
+            case 'callback':
                 return $this->where(function ($v) { return is_callable($v); });
             case 'float':
             case 'real':
@@ -468,10 +471,13 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: orderByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in a particular direction (ascending, descending) according to a key.
+     * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
+     * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
+     * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
      * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function orderByDir ($desc, $keySelector = null, $comparer = null)
     {
@@ -483,9 +489,12 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: orderBy ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in ascending order according to a key.
+     * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
+     * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
+     * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function orderBy ($keySelector = null, $comparer = null)
     {
@@ -495,9 +504,12 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: orderByDescending ([{{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Sorts the elements of a sequence in descending order according to a key.
+     * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
+     * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
+     * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callback|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function orderByDescending ($keySelector = null, $comparer = null)
     {
@@ -509,13 +521,17 @@ class Enumerable implements \IteratorAggregate
     #region Joining
 
     /**
-     * TODODOC
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner
-     * @param callback|null $outerKeySelector
-     * @param callback|null $innerKeySelector
-     * @param callback|null $resultSelectorValue
-     * @param callback|null $resultSelectorKey
-     * @return Enumerable
+     * <p><b>Syntax</b>: groupJoin (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v, e, k) ==> value} [, resultSelectorKey {{(v, e, k) ==> key}]]]])
+     * <p>Correlates the elements of two sequences based on equality of keys and groups the results.
+     * <p>GroupJoin produces hierarchical results, which means that elements from outer are paired with collections of matching elements from inner. GroupJoin enables you to base your results on a whole set of matches for each element of outer. If there are no correlated elements in inner for a given element of outer, the sequence of matches for that element will be empty but will still appear in the results.
+     * <p>The resultSelectorValue and resultSelectorKey functions are called only one time for each outer element together with a collection of all the inner elements that match the outer element. This differs from the {@link join} method, in which the result selector function is invoked on pairs that contain one element from outer and one element from inner. GroupJoin preserves the order of the elements of outer, and for each element of outer, the order of the matching elements from inner.
+     * <p>GroupJoin has no direct equivalent in traditional relational database terms. However, this method does implement a superset of inner joins and left outer joins. Both of these operations can be written in terms of a grouped join.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The second (inner) sequence to join to the first (source, outer) sequence.
+     * @param callback|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the first sequence. Default: key.
+     * @param callback|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
+     * @param callback|null $resultSelectorValue {(v, e, k) ==> value} A function to create a result value from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> array(v, e)}.
+     * @param callback|null $resultSelectorKey {(v, e, k) ==> key} A function to create a result key from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
+     * @return Enumerable A sequence that contains elements that are obtained by performing a grouped join on two sequences.
      */
     public function groupJoin ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
@@ -552,14 +568,14 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: join (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v1, v2, k) ==> value} [, resultSelectorKey {{(v1, v2, k) ==> key}]]]])
      * <p>Correlates the elements of two sequences based on matching keys.
-     * <p>A join refers to the operation of correlating the elements of two sources of information based on a common key. Join brings the two information sources and the keys by which they are matched together in one method call. This differs from the use of SelectMany, which requires more than one method call to perform the same operation.
+     * <p>A join refers to the operation of correlating the elements of two sources of information based on a common key. Join brings the two information sources and the keys by which they are matched together in one method call. This differs from the use of {@link selectMany}, which requires more than one method call to perform the same operation.
      * <p>Join preserves the order of the elements of the source, and for each of these elements, the order of the matching elements of inner.
-     * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality.
+     * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality. A left outer join operation has no dedicated standard query operator, but can be performed by using the {@link groupJoin} method.
      * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The sequence to join to the source sequence.
      * @param callback|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
      * @param callback|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
      * @param callback|null $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
-     * @param callback|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k}.
+     * @param callback|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
      * @return Enumerable
      */
     public function join ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
@@ -608,12 +624,20 @@ class Enumerable implements \IteratorAggregate
     #region Grouping
 
     /**
-     * TODODOC
-     * @param callback|null $keySelector
-     * @param callback|null $valueSelector
-     * @param callback|null $resultSelectorValue
-     * @param callback|null $resultSelectorKey
-     * @return Enumerable
+     * <p><b>Syntax</b>: groupBy ()
+     * <p>Groups the elements of a sequence by its keys.
+     * <p><b>Syntax</b>: groupBy (keySelector {{(v, k) ==> key})
+     * <p>Groups the elements of a sequence according to a specified key selector function.
+     * <p><b>Syntax</b>: groupBy (keySelector {{(v, k) ==> key}, valueSelector {{(v, k) ==> value})
+     * <p>Groups the elements of a sequence according to a specified key selector function and projects the elements for each group by using a specified function.
+     * <p><b>Syntax</b>: groupBy (keySelector {{(v, k) ==> key}, valueSelector {{(v, k) ==> value}, resultSelectorValue {{(e, k) ==> value} [, resultSelectorKey {{(e, k) ==> key}])
+     * <p>Groups the elements of a sequence according to a specified key selector function and creates a result value from each group and its key.
+     * <p>For all overloads except the last: the groupBy method returns a sequence of sequences, one inner sequence for each distinct key that was encountered. The outer sequence is yielded in an order based on the order of the elements in source that produced the first key of each inner sequence. Elements in a inner sequence are yielded in the order they appear in source.
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract the key for each element. Default: key.
+     * @param callback|null $valueSelector {(v, k) ==> value} A function to map each source element to a value in the inner sequence.
+     * @param callback|null $resultSelectorValue {(e, k) ==> value} A function to create a result value from each group.
+     * @param callback|null $resultSelectorKey {(e, k) ==> key} A function to create a result key from each group.
+     * @return Enumerable A sequence of sequences indexed by a key.
      */
     public function groupBy ($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
@@ -736,11 +760,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * <p>max ([selector {{(v, k) ==> result}])
-     * @param callback|null $selector {(v, k) ==> result}
+     * <p><b>Syntax</b>: max ()
+     * <p>Returns the maximum value in a sequence of values.
+     * <p><b>Syntax</b>: max ([selector {{(v, k) ==> value}])
+     * <p>Invokes a transform function on each element of a sequence and returns the maximum value.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \InvalidOperationException If sequence contains no elements.
-     * @return number
+     * @return number The maximum value in the sequence.
      */
     public function max ($selector = null)
     {
@@ -751,12 +777,14 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * <p>maxBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
+     * <p><b>Syntax</b>: maxBy ()
+     * <p>Returns the maximum value in a sequence of values, using specified comparer.
+     * <p><b>Syntax</b>: maxBy ([selector {{(v, k) ==> value}])
+     * <p>Invokes a transform function on each element of a sequence and returns the maximum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param callback|null $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \InvalidOperationException If sequence contains no elements.
-     * @return number
+     * @return number The maximum value in the sequence.
      */
     public function maxBy ($comparer, $selector = null)
     {
@@ -770,11 +798,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * <p>min ([selector {{(v, k) ==> result}])
-     * @param callback|null $selector {(v, k) ==> result}
+     * <p><b>Syntax</b>: min ()
+     * <p>Returns the minimum value in a sequence of values.
+     * <p><b>Syntax</b>: min ([selector {{(v, k) ==> value}])
+     * <p>Invokes a transform function on each element of a sequence and returns the minimum value.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \InvalidOperationException If sequence contains no elements.
-     * @return number
+     * @return number The minimum value in the sequence.
      */
     public function min ($selector = null)
     {
@@ -785,12 +815,14 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * <p>minBy (comparer {{(a, b) ==> diff} [, selector {{(v, k) ==> result}])
+     * <p><b>Syntax</b>: minBy ()
+     * <p>Returns the minimum value in a sequence of values, using specified comparer.
+     * <p><b>Syntax</b>: minBy ([selector {{(v, k) ==> value}])
+     * <p>Invokes a transform function on each element of a sequence and returns the minimum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param callback|null $selector {(v, k) ==> result}
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \InvalidOperationException If sequence contains no elements.
-     * @return number
+     * @return number The minimum value in the sequence.
      */
     public function minBy ($comparer, $selector = null)
     {
@@ -1161,6 +1193,7 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * TODODOC
      * @param mixed $value
      * @return mixed
      */
