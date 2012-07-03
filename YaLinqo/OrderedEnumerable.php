@@ -17,6 +17,7 @@ class OrderedEnumerable extends Enumerable
     private $comparer;
 
     /**
+     * @internal
      * @param Enumerable $source
      * @param callback $keySelector {(v, k) ==> key} A function to extract a key from an element.
      * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).

@@ -5,8 +5,8 @@ use YaLinqo, YaLinqo\collections as c;
 
 // TODO: string syntax: select("new { ... }")
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union, Cast
-// TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount
-// TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, SequenceEqual, Reverse, Shuffle
+// TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount, SequenceEqual, Reverse
+// TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
 // TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
 // TODO: MoreLinq: Batch(Chunk?), Pad, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
@@ -17,7 +17,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 // TODO: document when keys are preserved/discarded
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined
 
 class Enumerable implements \IteratorAggregate
 {
@@ -31,6 +31,7 @@ class Enumerable implements \IteratorAggregate
     private $getIterator;
 
     /**
+     * @internal
      * @param Closure $iterator
      */
     private function __construct ($iterator)
@@ -223,11 +224,14 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $start
-     * @param int $count
-     * @param int $step
-     * @return Enumerable
+     * <p><b>Syntax</b>: range (start, count [, step])
+     * <p>Generates a sequence of integral numbers, beginning with start and containing count elements.
+     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Example: range(3, 4, 2) = 3, 5, 7, 9.
+     * @param int $start The value of the first integer in the sequence.
+     * @param int $count The number of integers to generate.
+     * @param int $step The difference between adjacent integers. Default: 1.
+     * @return Enumerable A sequence that contains a range of integral numbers.
      */
     public static function range ($start, $count, $step = 1)
     {
@@ -235,23 +239,29 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $start
-     * @param int $count
-     * @param int $step
-     * @return Enumerable
+     * <p><b>Syntax</b>: rangeDown (start, count [, step])
+     * <p>Generates a reversed sequence of integral numbers, beginning with start and containing count elements.
+     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Example: rangeDown(9, 4, 2) = 9, 7, 5, 3.
+     * @param int $start The value of the first integer in the sequence.
+     * @param int $count The number of integers to generate.
+     * @param int $step The difference between adjacent integers. Default: 1.
+     * @return Enumerable A sequence that contains a range of integral numbers.
      */
     public static function rangeDown ($start, $count, $step = 1)
     {
-        return self::toInfinity($start, $count, -$step);
+        return self::range($start, $count, -$step);
     }
 
     /**
-     * TODODOC
-     * @param int $start
-     * @param int $end
-     * @param int $step
-     * @return Enumerable
+     * <p><b>Syntax</b>: rangeTo (start, end [, step])
+     * <p>Generates a sequence of integral numbers within a specified range from start to end.
+     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Example: rangeTo(3, 9, 2) = 3, 5, 7, 9.
+     * @param int $start The value of the first integer in the sequence.
+     * @param int $end The value of the last integer in the sequence (not included).
+     * @param int $step The difference between adjacent integers. Default: 1.
+     * @return Enumerable A sequence that contains a range of integral numbers.
      */
     public static function rangeTo ($start, $end, $step = 1)
     {
@@ -263,11 +273,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $element
-     * @param int $count
-     * @throws \InvalidArgumentException
-     * @return Enumerable
+     * <p><b>Syntax</b>: repeat (element, count)
+     * <p>Generates a sequence that contains one repeated value.
+     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * @param int $element The value to be repeated.
+     * @param int $count The number of times to repeat the value in the generated sequence.
+     * @throws \InvalidArgumentException If count is less than 0.
+     * @return Enumerable A sequence that contains a repeated value.
      */
     public static function repeat ($element, $count)
     {
@@ -690,11 +702,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
      * <p>aggregateOrDefault (func {{(a, v, k) ==> accum} [, default])
-     * @param callback $func {(a, v, k) ==> accum}
-     * @param mixed $default Value to return if sequence is empty.
-     * @return mixed
+     * <p>Applies an accumulator function over a sequence.
+     * <p>Aggregate method makes it simple to perform a calculation over a sequence of values. This method works by calling func one time for each element in source. Each time func is called, aggregate passes both the element from the sequence and an aggregated value (as the first argument to func). The first element of source is used as the initial aggregate value. The result of func replaces the previous aggregated value. Aggregate returns the final result of func. If source sequence is empty, default is returned.
+     * <p>To simplify common aggregation operations, the standard query operators also include a general purpose count method, {@link count}, and four numeric aggregation methods, namely {@link min}, {@link max}, {@link sum}, and {@link average}.
+     * @param callback $func {(a, v, k) ==> accum} An accumulator function to be invoked on each element.
+     * @param mixed $default Value to return if sequence is empty. Default: null.
+     * @return mixed The final accumulator value, or default if sequence is empty.
      */
     public function aggregateOrDefault ($func, $default = null)
     {
@@ -836,10 +850,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * <p>sum ([selector {{(v, k) ==> result}])
-     * @param callback|null $selector {(v, k) ==> result}
-     * @return number
+     * <p><b>Syntax</b>: sum ()
+     * <p>Computes the sum of a sequence of values.
+     * <p><b>Syntax</b>: sum (selector {{(v, k) ==> result})
+     * <p>Computes the sum of the sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+     * <p>This method returns zero if source contains no elements.
+     * @param callback|null $selector {(v, k) ==> result} A transform function to apply to each element.
+     * @return number The sum of the values in the sequence.
      */
     public function sum ($selector = null)
     {
@@ -1255,16 +1272,15 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $count
-     * @throws \InvalidArgumentException
-     * @return Enumerable
+     * <p><b>Syntax</b>: skip (count)
+     * <p>Bypasses a specified number of elements in a sequence and then returns the remaining elements.
+     * <p>If source contains fewer than count elements, an empty sequence is returned. If count is less than or equal to zero, all elements of source are yielded.
+     * <p>The {@link take} and skip methods are functional complements. Given a sequence coll and an integer n, concatenating the results of coll->take(n) and coll->skip(n) yields the same sequence as coll.
+     * @param int $count The number of elements to skip before returning the remaining elements.
+     * @return Enumerable A sequence that contains the elements that occur after the specified index in the input sequence.
      */
     public function skip ($count)
     {
-        if ($count < 0)
-            throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
-
         $self = $this;
 
         return new Enumerable(function () use ($self, $count)
@@ -1288,9 +1304,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback $predicate
-     * @return Enumerable
+     * <p><b>Syntax</b>: skipWhile (predicate {{(v, k) ==> result})
+     * <p>Bypasses elements in a sequence as long as a specified condition is true and then returns the remaining elements.
+     * <p>This method tests each element of source by using predicate and skips the element if the result is true. After the predicate function returns false for an element, that element and the remaining elements in source are yielded and there are no more invocations of predicate. If predicate returns true for all elements in the sequence, an empty sequence is returned.
+     * <p>The {@link takeWhile} and skipWhile methods are functional complements. Given a sequence coll and a pure function p, concatenating the results of coll->takeWhile(p) and coll->skipWhile(p) yields the same sequence as coll.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition.
+     * @return Enumerable A sequence that contains the elements from the input sequence starting at the first element in the linear series that does not pass the test specified by predicate.
      */
     public function skipWhile ($predicate)
     {
@@ -1318,15 +1337,17 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $count
-     * @throws \InvalidArgumentException
-     * @return Enumerable
+     * <p><b>Syntax</b>: take (count)
+     * <p>Returns a specified number of contiguous elements from the start of a sequence.
+     * <p>Take enumerates source and yields elements until count elements have been yielded or source contains no more elements. If count is less than or equal to zero, source is not enumerated and an empty sequence is returned.
+     * <p>The take and {@link skip} methods are functional complements. Given a sequence coll and an integer n, concatenating the results of coll->take(n) and coll->skip(n) yields the same sequence as coll.
+     * @param int $count The number of elements to return.
+     * @return Enumerable A sequence that contains the specified number of elements from the start of the input sequence.
      */
     public function take ($count)
     {
-        if ($count < 0)
-            throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
+        if ($count <= 0)
+            return self::emptyEnum();
 
         $self = $this;
 
@@ -1350,9 +1371,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback $predicate
-     * @return Enumerable
+     * <p><b>Syntax</b>: takeWhile (predicate {{(v, k) ==> result})
+     * <p>Returns elements from a sequence as long as a specified condition is true.
+     * <p>The takeWhile method tests each element of source by using predicate and yields the element if the result is true. Enumeration stops when the predicate function returns false for an element or when source contains no more elements.
+     * <p>The takeWhile and {@link skipWhile} methods are functional complements. Given a sequence coll and a pure function p, concatenating the results of coll->takeWhile(p) and coll->skipWhile(p) yields the same sequence as coll.
+     * @param callback $predicate {(v, k) ==> result} A function to test each element for a condition.
+     * @return Enumerable A sequence that contains the elements from the input sequence that occur before the element at which the test no longer passes.
      */
     public function takeWhile ($predicate)
     {
@@ -1382,8 +1406,11 @@ class Enumerable implements \IteratorAggregate
     #region Conversion
 
     /**
-     * TODODOC
-     * @return array
+     * <p><b>Syntax</b>: toArray ()
+     * <p>Creates an array from a sequence.
+     * <p>The toArray method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>Keys from the sequence are preserved. If the source sequence contains multiple values with the same key, the result array will only contain the latter value. To discard keys, you can use {@link toList} method. To preserve all values and keys, you can use {@link toLookup} method.
+     * @return array An array that contains the elements from the input sequence.
      */
     public function toArray ()
     {
@@ -1394,18 +1421,31 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @return array
+     * <p><b>Syntax</b>: toDictionary ([keySelector {{(v, k) ==> key} [, valueSelector {{(v, k) ==> value}]])
+     * <p>Creates a {@link Dictionary} from a sequence according to specified key selector and value selector functions.
+     * <p>The toDictionary method returns a Dictionary, a one-to-one dictionary that maps keys to values. If the source sequence contains multiple values with the same key, the result dictionary will only contain the latter value.
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from each element. Default: key.
+     * @param callback|null $valueSelector {(v, k) ==> value} A transform function to produce a result value from each element. Default: value.
+     * @return collections\Dictionary A Dictionary that contains values selected from the input sequence.
      */
-    public function toDictionary ()
+    public function toDictionary ($keySelector = null, $valueSelector = null)
     {
-        return $this->toArray();
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
+
+        $dic = new c\Dictionary();
+        foreach ($this as $k => $v)
+            $dic->offsetSet(call_user_func($keySelector, $v, $k), call_user_func($valueSelector, $v, $k));
+        return $dic;
     }
 
     /**
-     * TODODOC
-     * @param int $options
-     * @return string
+     * <p><b>Syntax</b>: toJSON ([options])
+     * <p>Returns a string containing the JSON representation of sequence (converted to array).
+     * <p>This function only works with UTF-8 encoded data.
+     * @param int $options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_UNESCAPED_UNICODE. Default: 0.
+     * @return string A JSON encoded string on success or false on failure.
+     * @see json_encode
      */
     public function toJSON ($options = 0)
     {
@@ -1413,8 +1453,11 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @return array
+     * <p><b>Syntax</b>: toList ()
+     * <p>Creates an array from a sequence, with sequental integer keys.
+     * <p>The toList method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>Keys from the sequence are discarded. To preserve keys and lose values with the same keys, you can use {@link toArray} method. To preserve all values and keys, you can use {@link toLookup} method.
+     * @return array An array that contains the elements from the input sequence.
      */
     public function toList ()
     {
@@ -1425,10 +1468,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $keySelector
-     * @param callback|null $valueSelector
-     * @return collections\Lookup
+     * <p><b>Syntax</b>: toLookup ([keySelector {{(v, k) ==> key} [, valueSelector {{(v, k) ==> value}]])
+     * <p>Creates a {@link Lookup} from a sequence according to specified key selector and value selector functions.
+     * <p>The toLookup method returns a Lookup, a one-to-many dictionary that maps keys to collections of values.
+     * @param callback|null $keySelector {(v, k) ==> key} A function to extract a key from each element. Default: key.
+     * @param callback|null $valueSelector {(v, k) ==> value} A transform function to produce a result value from each element. Default: value.
+     * @return collections\Lookup A Lookup that contains values selected from the input sequence.
      */
     public function toLookup ($keySelector = null, $valueSelector = null)
     {
