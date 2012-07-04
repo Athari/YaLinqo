@@ -17,7 +17,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 // TODO: document when keys are preserved/discarded
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, process/each
 
 class Enumerable implements \IteratorAggregate
 {
@@ -408,6 +408,7 @@ class Enumerable implements \IteratorAggregate
     {
         $self = $this;
         $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
+        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k1,k2',
             function ($v1, $v2, $k1, $k2) { return $v2; });
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k1,k2', false);
@@ -551,7 +552,9 @@ class Enumerable implements \IteratorAggregate
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
+        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function ($v, $e, $k) { return array($v, $e); });
+        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
 
         return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
@@ -596,7 +599,9 @@ class Enumerable implements \IteratorAggregate
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
+        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function ($v1, $v2, $k) { return array($v1, $v2); });
+        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
 
         return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
@@ -1210,9 +1215,11 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param mixed $value
-     * @return mixed
+     * <p><b>Syntax</b>: indexOf (value)
+     * <p>Searches for the specified value and returns the key of the first occurrence.
+     * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
+     * @param mixed $value The value to locate in the sequence.
+     * @return mixed The key of the first occurrence of value, if found; otherwise, null.
      */
     public function indexOf ($value)
     {
@@ -1224,25 +1231,11 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $predicate
-     * @return mixed
-     */
-    public function indexWhere ($predicate = null)
-    {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
-
-        foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
-                return $k;
-        }
-        return null; // not -1
-    }
-
-    /**
-     * TODODOC
-     * @param mixed $value
-     * @return mixed
+     * <p><b>Syntax</b>: lastIndexOf (value)
+     * <p>Searches for the specified value and returns the key of the last occurrence.
+     * <p>To search for the zero-based index of the last occurence, call {@link toValues} method first.
+     * @param mixed $value The value to locate in the sequence.
+     * @return mixed The key of the last occurrence of value, if found; otherwise, null.
      */
     public function lastIndexOf ($value)
     {
@@ -1255,11 +1248,31 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $predicate
-     * @return mixed
+     * <p><b>Syntax</b>: findIndex (predicate {{(v, k) ==> result})
+     * <p>Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the first occurrence.
+     * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
+     * @param callback|null $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
+     * @return mixed The key of the first occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
      */
-    public function lastIndexWhere ($predicate = null)
+    public function findIndex ($predicate = null)
+    {
+        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+
+        foreach ($this as $k => $v) {
+            if (call_user_func($predicate, $v, $k))
+                return $k;
+        }
+        return null; // not -1
+    }
+
+    /**
+     * <p><b>Syntax</b>: findLastIndex (predicate {{(v, k) ==> result})
+     * <p>Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the last occurrence.
+     * <p>To search for the zero-based index of the last occurence, call {@link toValues} method first.
+     * @param callback|null $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
+     * @return mixed The key of the last occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
+     */
+    public function findLastIndex ($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
@@ -1487,8 +1500,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @return Enumerable
+     * <p><b>Syntax</b>: toKeys ()
+     * <p>Returns a sequence of keys from the source sequence.
+     * @return Enumerable A sequence with keys from the source sequence as values and sequental integers as keys.
+     * @see array_keys
      */
     public function toKeys ()
     {
@@ -1496,9 +1511,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $propertySelector
-     * @param callback|null $valueSelector
+     * <p><b>Syntax</b>: toObject ([propertySelector {{(v, k) ==> name} [, valueSelector {{(v, k) ==> value}]])
+     * <p>Transform the sequence to an object.
+     * @param callback|null $propertySelector {(v, k) ==> name} A function to extract a property name from an element. Must return a valid PHP identifier. Default: key.
+     * @param callback|null $valueSelector {(v, k) ==> value} A function to extract a property value from an element. Default: value.
      * @return \stdClass
      */
     public function toObject ($propertySelector = null, $valueSelector = null)
@@ -1513,10 +1529,12 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param string $separator
-     * @param callback|null $selector
+     * <p><b>Syntax</b>: toString ([separator [, selector]])
+     * <p>Returns a string containing a string representation of all the sequence values, with the separator string between each element.
+     * @param string $separator A string separating values in the result string. Default: ''.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @return string
+     * @see implode
      */
     public function toString ($separator = '', $selector = null)
     {
@@ -1533,8 +1551,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @return Enumerable
+     * <p><b>Syntax</b>: toValues ()
+     * <p>Returns a sequence of values from the source sequence; keys are discarded.
+     * @return Enumerable A sequence with the same values and sequental integers as keys.
+     * @see array_values
      */
     public function toValues ()
     {
@@ -1546,11 +1566,14 @@ class Enumerable implements \IteratorAggregate
     #region Actions
 
     /**
-     * TODODOC
-     * @param callback $action
-     * @return Enumerable
+     * <p><b>Syntax</b>: process (action {{(v, k) ==> void})
+     * <p>Invokes an action for each element in the sequence.
+     * <p>Process method does not start enumeration itself. To force enumeration, you can use {@link each} method.
+     * <p>Original LINQ method name: do.
+     * @param callback $action The action to invoke for each element in the sequence.
+     * @return Enumerable The source sequence with the side-effecting behavior applied.
      */
-    public function doEnum ($action)
+    public function process ($action)
     {
         $self = $this;
         $action = Utils::createLambda($action, 'v,k');
@@ -1575,8 +1598,11 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $action
+     * <p><b>Syntax</b>: each (action {{(v, k) ==> void})
+     * <p>Invokes an action for each element in the sequence.
+     * <p>Each method forces enumeration. To just add side-effect without enumerating, you can use {@link process} method.
+     * <p>Original LINQ method name: foreach.
+     * @param callback $action The action to invoke for each element in the sequence.
      */
     public function each ($action = null)
     {
@@ -1587,9 +1613,11 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param string $separator
-     * @param callback|null $selector
+     * <p><b>Syntax</b>: write ([separator [, selector]])
+     * <p>Output the result of calling {@link toString} method.
+     * @param string $separator A string separating values in the result string. Default: ''.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @see implode, echo
      */
     public function write ($separator = '', $selector = null)
     {
@@ -1597,16 +1625,18 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback|null $selector
+     * <p><b>Syntax</b>: writeLine ([selector])
+     * <p>Output all the sequence values, with a new line after each element.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @return string
+     * @see echo, PHP_EOL
      */
     public function writeLine ($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
         foreach ($this as $k => $v) {
-            echo call_user_func($selector, $v, $k);
-            echo PHP_EOL;
+            echo call_user_func($selector, $v, $k), PHP_EOL;
         }
     }
 
