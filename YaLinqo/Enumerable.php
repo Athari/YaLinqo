@@ -51,12 +51,13 @@ class Enumerable implements \IteratorAggregate
     #region Generation
 
     /**
-     * TODODOC
-     * Source keys are discarded.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $source
+     * <p><b>Syntax</b>: cycle (source)
+     * <p>Cycles through the source sequence.
+     * <p>Source keys are discarded.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $source Source sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @throws \InvalidArgumentException If source contains no elements (checked during enumeration).
-     * @return Enumerable
+     * @return Enumerable Endless list of items repeating the source sequence.
      */
     public static function cycle ($source)
     {
@@ -131,11 +132,13 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param callback $funcValue
-     * @param callback|null $seedValue
-     * @param callback|null $funcKey
-     * @param callback|null $seedKey
+     * <p><b>Syntax</b>: generate (funcValue {{(v, k) ==> value} [, seedValue [, funcKey {{(v, k) ==> key} [, seedKey]]])
+     * <p>Generates a sequence by mimicking a for loop.
+     * <p>If seedValue is null, the first value will be the result of calling funcValue on seedValue and seedKey. The same applies for seedKey.
+     * @param callback $funcValue {(v, k) ==> value} State update function to run on value after every iteration of the generator loop. Default: value.
+     * @param callback|null $seedValue Initial state of the generator loop for values. Default: null.
+     * @param callback|null $funcKey {(v, k) ==> key} State update function to run on key after every iteration of the generator loop. Default: increment.
+     * @param callback|null $seedKey Initial state of the generator loop ofr keys. Default: null.
      * @return Enumerable
      */
     public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
@@ -165,9 +168,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $start
-     * @param int $step
+     * <p><b>Syntax</b>: toInfinity ([start [, step]])
+     * <p>Generates a sequence of integral numbers to infinity.
+     * @param int $start The first integer in the sequence. Default: 0.
+     * @param int $step The difference between adjacent integers. Default: 1.
      * @return Enumerable
      */
     public static function toInfinity ($start = 0, $step = 1)
@@ -203,9 +207,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param int $start
-     * @param int $step
+     * <p><b>Syntax</b>: toNegativeInfinity ([start [, step]])
+     * <p>Generates a sequence of integral numbers to negative infinity.
+     * @param int $start The first integer in the sequence. Default: 0.
+     * @param int $step The difference between adjacent integers. Default: 1.
      * @return Enumerable
      */
     public static function toNegativeInfinity ($start = 0, $step = 1)
@@ -214,9 +219,10 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * TODODOC
-     * @param mixed $element
-     * @return Enumerable
+     * <p><b>Syntax</b>: returnEnum (element)
+     * <p>Returns a sequence that contains a single element with a specified value.
+     * @param mixed $element The single element in the resulting sequence.
+     * @return Enumerable Observable sequence containing the single specified element.
      */
     public static function returnEnum ($element)
     {
