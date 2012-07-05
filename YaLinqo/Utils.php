@@ -5,6 +5,9 @@ use YaLinqo;
 
 class Utils
 {
+    const ERROR_CLOSURE_NULL = 'closure must not be null.';
+    const ERROR_CLOSURE_NOT_CALLABLE = 'closure must be callable';
+    const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
     /**
      * @param callback $closure
      * @param string $closureArgs
@@ -17,7 +20,7 @@ class Utils
     {
         if ($closure === null) {
             if ($default === null)
-                throw new \InvalidArgumentException('closure must not be null.');
+                throw new \InvalidArgumentException(self::ERROR_CLOSURE_NULL);
             return $default;
         }
         if ($closure instanceof \Closure)
@@ -26,7 +29,7 @@ class Utils
             return $function;
         if (is_callable($closure))
             return $closure;
-        throw new \InvalidArgumentException('closure must be callable');
+        throw new \InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
     }
 
     /**
@@ -53,7 +56,7 @@ class Utils
                 $code = "return {$code};";
             $fun = create_function($args, $code);
             if (!$fun)
-                throw new \InvalidArgumentException('Failed to parse closure as lambda.');
+                throw new \InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA);
             return $fun;
         }
         return null;

@@ -27,6 +27,7 @@ class Enumerable implements \IteratorAggregate
     const ERROR_MANY_ELEMENTS = 'Sequence contains more than one element.';
     const ERROR_MANY_MATCHES = 'Sequence contains more than one matching element.';
     const ERROR_COUNT_LESS_THAN_ZERO = 'count must be a non-negative value.';
+    const ERROR_STEP_NEGATIVE = 'step must be a positive value.';
 
     private $getIterator;
 
@@ -76,7 +77,7 @@ class Enumerable implements \IteratorAggregate
                     $it = $source->getIterator();
                     $it->rewind();
                     if (!$it->valid())
-                        throw new \InvalidArgumentException(self::ERROR_NO_ELEMENTS);
+                        throw new \InvalidArgumentException(Enumerable::ERROR_NO_ELEMENTS);
                 }
                 $yield($it->current(), $i++);
                 $it->next();
@@ -136,9 +137,9 @@ class Enumerable implements \IteratorAggregate
      * <p>Generates a sequence by mimicking a for loop.
      * <p>If seedValue is null, the first value will be the result of calling funcValue on seedValue and seedKey. The same applies for seedKey.
      * @param callback $funcValue {(v, k) ==> value} State update function to run on value after every iteration of the generator loop. Default: value.
-     * @param callback|null $seedValue Initial state of the generator loop for values. Default: null.
+     * @param mixed $seedValue Initial state of the generator loop for values. Default: null.
      * @param callback|null $funcKey {(v, k) ==> key} State update function to run on key after every iteration of the generator loop. Default: increment.
-     * @param callback|null $seedKey Initial state of the generator loop ofr keys. Default: null.
+     * @param mixed $seedKey Initial state of the generator loop ofr keys. Default: 0.
      * @return Enumerable
      */
     public static function generate ($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
@@ -267,27 +268,30 @@ class Enumerable implements \IteratorAggregate
      * @param int $start The value of the first integer in the sequence.
      * @param int $end The value of the last integer in the sequence (not included).
      * @param int $step The difference between adjacent integers. Default: 1.
+     * @throws \InvalidArgumentException If step is not a positive number.
      * @return Enumerable A sequence that contains a range of integral numbers.
      */
     public static function rangeTo ($start, $end, $step = 1)
     {
-        if ($start > $end)
-            $step = -$step;
-        return self::toInfinity($start, $step)->takeWhile(
-            function ($v) use ($end) { return $v < $end; }
-        );
+        if ($step <= 0)
+            throw new \InvalidArgumentException(self::ERROR_STEP_NEGATIVE);
+        return $start < $end
+                ? self::toInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v < $end; })
+                : self::toNegativeInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v > $end; });
     }
 
     /**
+     * <p><b>Syntax</b>: repeat (element)
+     * <p>Generates an endless sequence that contains one repeated value.
      * <p><b>Syntax</b>: repeat (element, count)
-     * <p>Generates a sequence that contains one repeated value.
+     * <p>Generates a sequence of specified length that contains one repeated value.
      * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
      * @param int $element The value to be repeated.
-     * @param int $count The number of times to repeat the value in the generated sequence.
+     * @param int $count The number of times to repeat the value in the generated sequence. Default: null.
      * @throws \InvalidArgumentException If count is less than 0.
      * @return Enumerable A sequence that contains a repeated value.
      */
-    public static function repeat ($element, $count)
+    public static function repeat ($element, $count = null)
     {
         if ($count < 0)
             throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
@@ -297,9 +301,9 @@ class Enumerable implements \IteratorAggregate
 
             return new Enumerator(function ($yield) use ($element, $count, &$i)
             {
-                if ($i++ >= $count)
+                if ($count !== null && $i >= $count)
                     return false;
-                return $yield($element, $i);
+                return $yield($element, $i++);
             });
         });
     }
