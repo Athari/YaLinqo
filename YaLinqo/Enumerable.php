@@ -406,22 +406,20 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum})
      * <p>Projects each element of a sequence to a sequence and flattens the resulting sequences into one sequence.
      * <p>The selectMany method enumerates the input sequence, uses transform functions to map each element to a sequence, and then enumerates and yields the elements of each such sequence. That is, for each element of source, selectorValue and selectorKey are invoked and a sequence of key-value pairs is returned. selectMany then flattens this two-dimensional collection of collections into a one-dimensional sequence and returns it. For example, if a query uses selectMany to obtain the orders for each customer in a database, the result is a sequence of orders. If instead the query uses {@link select} to obtain the orders, the collection of collections of orders is not combined and the result is a sequence of sequences of orders.
-     * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum} [, resultSelectorValue {{(v1, v2, k1, k2) ==> value} [, resultSelectorKey {{(v1, v2, k1, k2) ==> key}]])
+     * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum} [, resultSelectorValue {{(v, k1, k2) ==> value} [, resultSelectorKey {{(v, k1, k2) ==> key}]])
      * <p>Projects each element of a sequence to a sequence, flattens the resulting sequences into one sequence, and invokes a result selector functions on each element therein.
      * <p>The selectMany method is useful when you have to keep the elements of source in scope for query logic that occurs after the call to selectMany. If there is a bidirectional relationship between objects in the source sequence and objects returned from collectionSelector, that is, if a sequence returned from collectionSelector provides a property to retrieve the object that produced it, you do not need this overload of selectMany. Instead, you can use simpler selectMany overload and navigate back to the source object through the returned sequence.
      * @param callback $collectionSelector {(v, k) ==> enum} A transform function to apply to each element.
-     * @param callback|null $resultSelectorValue {(v1, v2, k1, k2) ==> value} A transform function to apply to each value of the intermediate sequence. Default: {(v1, v2, k1, k2) ==> v2}.
-     * @param callback|null $resultSelectorKey {(v1, v2, k1, k2) ==> key} A transform function to apply to each key of the intermediate sequence. Default: increment.
+     * @param callback|null $resultSelectorValue {(v, k1, k2) ==> value} A transform function to apply to each value of the intermediate sequence. Default: {(v, k1, k2) ==> v}.
+     * @param callback|null $resultSelectorKey {(v, k1, k2) ==> key} A transform function to apply to each key of the intermediate sequence. Default: increment.
      * @return Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
      */
     public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $self = $this;
         $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
-        /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k1,k2',
-            function ($v1, $v2, $k1, $k2) { return $v2; });
-        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k1,k2', false);
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,k1,k2', Functions::$value);
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,k1,k2', false);
         if ($resultSelectorKey === false)
             $resultSelectorKey = Functions::increment();
 
@@ -444,7 +442,7 @@ class Enumerable implements \IteratorAggregate
                     $itIn = Enumerable::from(call_user_func($collectionSelector, $itOut->current(), $itOut->key()))->getIterator();
                     $itIn->rewind();
                 }
-                $args = array($itOut->current(), $itOut->key(), $itIn->current(), $itIn->key());
+                $args = array($itIn->current(), $itOut->key(), $itIn->key());
                 $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
                 $itIn->next();
                 return true;

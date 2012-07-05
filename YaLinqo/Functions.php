@@ -13,6 +13,8 @@ class Functions
     public static $value;
     /** @var callback {() ==> true} */
     public static $true;
+    /** @var callback {() ==> false} */
+    public static $false;
     /** @var callback {() ==> {}} */
     public static $blank;
     /** @var callback */
@@ -42,6 +44,11 @@ class Functions
         self::$true = function ()
         {
             return true;
+        };
+
+        self::$false = function ()
+        {
+            return false;
         };
 
         self::$blank = function ()
