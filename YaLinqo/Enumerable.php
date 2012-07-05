@@ -1430,6 +1430,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: toArray ()
      * <p>Creates an array from a sequence.
      * <p>The toArray method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>The toArray method does not traverse into elements of the sequence, only the sequence itself is converted. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will remain as is. To traverse deeply, you can use {@link toArrayDeep} method.
      * <p>Keys from the sequence are preserved. If the source sequence contains multiple values with the same key, the result array will only contain the latter value. To discard keys, you can use {@link toList} method. To preserve all values and keys, you can use {@link toLookup} method.
      * @return array An array that contains the elements from the input sequence.
      */
@@ -1438,6 +1439,64 @@ class Enumerable implements \IteratorAggregate
         $array = array();
         foreach ($this as $k => $v)
             $array[$k] = $v;
+        return $array;
+    }
+
+    /**
+     * <p><b>Syntax</b>: toArrayDeep ()
+     * <p>Creates an array from a sequence, traversing deeply.
+     * <p>The toArrayDeep method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>The toArrayDeep method traverses into elements of the sequence. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will be converted to arrays too. To convert only the sequence itself, you can use {@link toArray} method.
+     * <p>Keys from the sequence are preserved. If the source sequence contains multiple values with the same key, the result array will only contain the latter value. To discard keys, you can use {@link toListDeep} method. To preserve all values and keys, you can use {@link toLookup} method.
+     * @return array An array that contains the elements from the input sequence.
+     */
+    public function toArrayDeep ()
+    {
+        return $this->toArrayDeepProc($this);
+    }
+
+    protected function toArrayDeepProc ($enum)
+    {
+        $array = array();
+        foreach ($enum as $k => $v)
+            $array[$k] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
+        return $array;
+    }
+
+    /**
+     * <p><b>Syntax</b>: toList ()
+     * <p>Creates an array from a sequence, with sequental integer keys.
+     * <p>The toList method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>The toList method does not traverse into elements of the sequence, only the sequence itself is converted. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will remain as is. To traverse deeply, you can use {@link toListDeep} method.
+     * <p>Keys from the sequence are discarded. To preserve keys and lose values with the same keys, you can use {@link toArray} method. To preserve all values and keys, you can use {@link toLookup} method.
+     * @return array An array that contains the elements from the input sequence.
+     */
+    public function toList ()
+    {
+        $array = array();
+        foreach ($this as $v)
+            $array[] = $v;
+        return $array;
+    }
+
+    /**
+     * <p><b>Syntax</b>: toListDeep ()
+     * <p>Creates an array from a sequence, with sequental integer keys.
+     * <p>The toListDeep method forces immediate query evaluation and returns an array that contains the query results.
+     * <p>The toListDeep method traverses into elements of the sequence. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will be converted to arrays too. To convert only the sequence itself, you can use {@link toList} method.
+     * <p>Keys from the sequence are discarded. To preserve keys and lose values with the same keys, you can use {@link toArrayDeep} method. To preserve all values and keys, you can use {@link toLookup} method.
+     * @return array An array that contains the elements from the input sequence.
+     */
+    public function toListDeep ()
+    {
+        return $this->toListDeepProc($this);
+    }
+
+    protected function toListDeepProc ($enum)
+    {
+        $array = array();
+        foreach ($enum as $v)
+            $array[] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
         return $array;
     }
 
@@ -1471,21 +1530,6 @@ class Enumerable implements \IteratorAggregate
     public function toJSON ($options = 0)
     {
         return json_encode($this->toArray(), $options);
-    }
-
-    /**
-     * <p><b>Syntax</b>: toList ()
-     * <p>Creates an array from a sequence, with sequental integer keys.
-     * <p>The toList method forces immediate query evaluation and returns an array that contains the query results.
-     * <p>Keys from the sequence are discarded. To preserve keys and lose values with the same keys, you can use {@link toArray} method. To preserve all values and keys, you can use {@link toLookup} method.
-     * @return array An array that contains the elements from the input sequence.
-     */
-    public function toList ()
-    {
-        $array = array();
-        foreach ($this as $v)
-            $array[] = $v;
-        return $array;
     }
 
     /**
