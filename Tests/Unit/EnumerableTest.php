@@ -39,7 +39,7 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
      */
     function testCycle_emptySource ()
     {
-        $this->setExpectedException('InvalidArgumentException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
         E::cycle(array())->getIterator();
     }
 
@@ -163,6 +163,10 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     function testGenerate ()
     {
         // generate (funcValue)
+        $this->assertEnumEquals(
+            array(0, 0, 0, 0),
+            E::generate('$v==>0'),
+            4);
         $this->assertEnumEquals(
             array(2, 4, 6, 8),
             E::generate('$v+2'),
@@ -439,6 +443,10 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         $this->assertEnumEquals(
             array('123', '4', '44'),
             E::split('123,4, 44,', '#, ?#', PREG_SPLIT_NO_EMPTY));
+        // with empty, empty skipped, no results
+        $this->assertEnumEquals(
+            array(),
+            E::split(',', '#, ?#', PREG_SPLIT_NO_EMPTY));
     }
 
     #endregion
@@ -452,6 +460,11 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         $a = from(array(
             1, array(2), '6', function() { }, 1.2, null, new \stdClass, 3, 4.5, 'ab', array(), new \Exception
         ));
+
+        // ofType (empty)
+        $this->assertEnumValuesEquals(
+            array(),
+            E::from(array())->ofType('array'));
 
         // ofType (array)
         $this->assertEnumValuesEquals(
@@ -525,19 +538,22 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // select (selectorValue)
         $this->assertEnumEquals(
+            array(),
+            E::from(array())->select('$v+1'));
+        $this->assertEnumEquals(
             array(4, 5, 6),
-            from(array(3, 4, 5))->select('$v+1'));
+            E::from(array(3, 4, 5))->select('$v+1'));
         $this->assertEnumEquals(
             array(3, 5, 7),
-            from(array(3, 4, 5))->select('$v+$k'));
+            E::from(array(3, 4, 5))->select('$v+$k'));
 
         // select (selectorValue, selectorKey)
         $this->assertEnumEquals(
             array(1 => 3, 2 => 4, 3 => 5),
-            from(array(3, 4, 5))->select('$v', '$k+1'));
+            E::from(array(3, 4, 5))->select('$v', '$k+1'));
         $this->assertEnumEquals(
             array(3 => 3, 5 => 3, 7 => 3),
-            from(array(3, 4, 5))->select('$v-$k', '$v+$k'));
+            E::from(array(3, 4, 5))->select('$v-$k', '$v+$k'));
     }
 
     /** @covers YaLinqo\Enumerable::selectMany
@@ -547,38 +563,38 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         // selectMany (collectionSelector)
         $this->assertEnumEquals(
             array(1, 2, 3, 4),
-            from(array(array(1, 2), array(3, 4)))->selectMany('$v'));
+            E::from(array(array(1, 2), array(3, 4)))->selectMany('$v'));
         $this->assertEnumEquals(
             array(1, 2, 3),
-            from(array(array(1), array(2), array(3)))->selectMany('$v'));
+            E::from(array(array(1), array(2), array(3)))->selectMany('$v'));
         $this->assertEnumEquals(
             array(1, 2),
-            from(array(array(), array(), array(1, 2)))->selectMany('$v'));
+            E::from(array(array(), array(), array(1, 2)))->selectMany('$v'));
         $this->assertEnumEquals(
             array(1, 2),
-            from(array(array(1, 2), array(), array()))->selectMany('$v'));
+            E::from(array(array(1, 2), array(), array()))->selectMany('$v'));
         $this->assertEnumEquals(
             array(),
-            from(array(array(), array()))->selectMany('$v'));
+            E::from(array(array(), array()))->selectMany('$v'));
         $this->assertEnumEquals(
             array(),
-            from(array())->selectMany('$v'));
+            E::from(array())->selectMany('$v'));
 
         // selectMany (collectionSelector, resultSelectorValue)
         $this->assertEnumEquals(
             array(0, 0, 1, 1),
-            from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$k1'));
+            E::from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$k1'));
         $this->assertEnumEquals(
             array(1, 3, 3, 5),
-            from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$v+$k2'));
+            E::from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$v+$k2'));
 
         // selectMany (collectionSelector, resultSelectorValue, resultSelectorKey)
         $this->assertEnumEquals(
             array('00' => 1, '01' => 2, '10' => 3, '11' => 4),
-            from(array(array(1, 2), array(3, 4)))->selectMany('$v', null, '"$k1$k2"'));
+            E::from(array(array(1, 2), array(3, 4)))->selectMany('$v', null, '"$k1$k2"'));
         $this->assertEnumEquals(
             array('00' => 1, '01' => 2, '10' => 4, '11' => 5),
-            from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$v+$k1', '"$k1$k2"'));
+            E::from(array(array(1, 2), array(3, 4)))->selectMany('$v', '$v+$k1', '"$k1$k2"'));
     }
 
     /** @covers YaLinqo\Enumerable::where
@@ -587,17 +603,23 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // where (predicate)
         $this->assertEnumEquals(
-            array(1, 2, 3, 4),
-            from(array(1, 2, 3, 4))->where(Functions::$true));
+            array(),
+            E::from(array())->where(Functions::$true));
         $this->assertEnumEquals(
             array(),
-            from(array(1, 2, 3, 4))->where(Functions::$false));
+            E::from(array())->where(Functions::$false));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4),
+            E::from(array(1, 2, 3, 4))->where(Functions::$true));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4))->where(Functions::$false));
         $this->assertEnumEquals(
             array(2 => 3, 3 => 4),
-            from(array(1, 2, 3, 4))->where('$v>2'));
+            E::from(array(1, 2, 3, 4))->where('$v>2'));
         $this->assertEnumEquals(
             array(0 => '1', 1 => '2'),
-            from(array('1', '2', '3', '4'))->where('$k<2'));
+            E::from(array('1', '2', '3', '4'))->where('$k<2'));
     }
 
     #endregion
@@ -610,27 +632,30 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // orderByDir (false)
         $this->assertEnumValuesEquals(
+            array(),
+            E::from(array())->orderByDir(false));
+        $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderByDir(false));
+            E::from(array(4, 6, 5, 3))->orderByDir(false));
 
         // orderByDir (false, keySelector)
         $this->assertEnumValuesEquals(
             array(6, 5, 4, 3),
-            from(array(4, 6, 5, 3))->orderByDir(false, '-$v'));
+            E::from(array(4, 6, 5, 3))->orderByDir(false, '-$v'));
 
         // orderByDir (false, keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             array(2, 33, 111, 4444),
-            from(array(111, 2, 33, 4444))->orderByDir(false, null, $compareLen));
+            E::from(array(111, 2, 33, 4444))->orderByDir(false, null, $compareLen));
         $this->assertEnumValuesEquals(
             array(33, 3, 999, 4444),
-            from(array(999, 3, 33, 4444))->orderByDir(false, '$v-33', $compareLen));
+            E::from(array(999, 3, 33, 4444))->orderByDir(false, '$v-33', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
             array(a(0, 3), a(2, 4), a(1, 5)),
-            from(array(3, 5, 4))->orderByDir(false));
+            E::from(array(3, 5, 4))->orderByDir(false));
     }
 
     /** @covers YaLinqo\Enumerable::orderByDir
@@ -639,22 +664,25 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // orderByDir (true)
         $this->assertEnumValuesEquals(
+            array(),
+            E::from(array())->orderByDir(true));
+        $this->assertEnumValuesEquals(
             array(6, 5, 4, 3),
-            from(array(4, 6, 5, 3))->orderByDir(true));
+            E::from(array(4, 6, 5, 3))->orderByDir(true));
 
         // orderByDir (true, keySelector)
         $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderByDir(true, '-$v'));
+            E::from(array(4, 6, 5, 3))->orderByDir(true, '-$v'));
 
         // orderByDir (true, keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             array(4444, 111, 33, 2),
-            from(array(111, 2, 33, 4444))->orderByDir(true, null, $compareLen));
+            E::from(array(111, 2, 33, 4444))->orderByDir(true, null, $compareLen));
         $this->assertEnumValuesEquals(
             array(4444, 999, 30, 33),
-            from(array(999, 30, 33, 4444))->orderByDir(true, '$v-33', $compareLen));
+            E::from(array(999, 30, 33, 4444))->orderByDir(true, '$v-33', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
@@ -668,27 +696,30 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // orderBy ()
         $this->assertEnumValuesEquals(
+            array(),
+            E::from(array())->orderBy());
+        $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderBy());
+            E::from(array(4, 6, 5, 3))->orderBy());
 
         // orderBy (keySelector)
         $this->assertEnumValuesEquals(
             array(6, 5, 4, 3),
-            from(array(4, 6, 5, 3))->orderBy('-$v'));
+            E::from(array(4, 6, 5, 3))->orderBy('-$v'));
 
         // orderBy (keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             array(2, 33, 111, 4444),
-            from(array(111, 2, 33, 4444))->orderBy(null, $compareLen));
+            E::from(array(111, 2, 33, 4444))->orderBy(null, $compareLen));
         $this->assertEnumValuesEquals(
             array(33, 30, 999, 4444),
-            from(array(999, 30, 33, 4444))->orderBy('$v-33', $compareLen));
+            E::from(array(999, 30, 33, 4444))->orderBy('$v-33', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
             array(a(0, 3), a(2, 4), a(1, 5)),
-            from(array(3, 5, 4))->orderBy());
+            E::from(array(3, 5, 4))->orderBy());
     }
 
     /** @covers YaLinqo\Enumerable::orderByDescending
@@ -697,27 +728,30 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         // orderByDescending ()
         $this->assertEnumValuesEquals(
+            array(),
+            E::from(array())->orderByDescending());
+        $this->assertEnumValuesEquals(
             array(6, 5, 4, 3),
-            from(array(4, 6, 5, 3))->orderByDescending());
+            E::from(array(4, 6, 5, 3))->orderByDescending());
 
         // orderByDescending (keySelector)
         $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderByDescending('-$v'));
+            E::from(array(4, 6, 5, 3))->orderByDescending('-$v'));
 
         // orderByDescending (keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             array(4444, 111, 33, 2),
-            from(array(111, 2, 33, 4444))->orderByDescending(null, $compareLen));
+            E::from(array(111, 2, 33, 4444))->orderByDescending(null, $compareLen));
         $this->assertEnumValuesEquals(
             array(4444, 999, 30, 33),
-            from(array(999, 30, 33, 4444))->orderByDescending('$v-33', $compareLen));
+            E::from(array(999, 30, 33, 4444))->orderByDescending('$v-33', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
             array(a(1, 5), a(2, 4), a(0, 3)),
-            from(array(3, 5, 4))->orderByDescending());
+            E::from(array(3, 5, 4))->orderByDescending());
     }
 
     /** @covers YaLinqo\Enumerable::orderBy
@@ -727,24 +761,33 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderBy('-$v')->orderBy('$v'));
+            E::from(array(4, 6, 5, 3))->orderBy('-$v')->orderBy('$v'));
         $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderBy('-$v')->orderByDescending('-$v'));
+            E::from(array(4, 6, 5, 3))->orderBy('-$v')->orderByDescending('-$v'));
         $this->assertEnumValuesEquals(
             array(3, 4, 5, 6),
-            from(array(4, 6, 5, 3))->orderByDescending('$v')->orderByDescending('-$v'));
+            E::from(array(4, 6, 5, 3))->orderByDescending('$v')->orderByDescending('-$v'));
     }
 
     #endregion
 
-    #region Joining
+    #region Joining and grouping
 
     /** @covers YaLinqo\Enumerable::groupJoin
      */
     function testGroupJoin ()
     {
         // groupJoin (inner)
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->groupJoin(array()));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->groupJoin(array(6, 7, 8)));
+        $this->assertEnumEquals(
+            array(a(3, a()), a(4, a()), a(5, a())),
+            E::from(array(3, 4, 5))->groupJoin(array()));
         $this->assertEnumEquals(
             array(a(3, a(6)), a(4, a(7)), a(5, a(8))),
             E::from(array(3, 4, 5))->groupJoin(array(6, 7, 8)));
@@ -771,8 +814,277 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             E::from(array(3, 4, 5))->groupJoin(array(6, 7, 8), null, null, 'array($v+$k, $e)'));
         $this->assertEnumEquals(
             array(1 => a(a(6), 3), 2 => a(a(7), 4), 3 => a(a(8), 5)),
-            E::from(array('a1' => 3, 'a2' => 4, 'a3' => 5))
-                    ->groupJoin(array('1b' => 6, '2b' => 7, '3b' => 8), '$k[1]', 'intval($k)', 'array($e, $v)'));
+            E::from(array('a1' => 3, 'a2' => 4, 'a3' => 5))->groupJoin(
+                array('1b' => 6, '2b' => 7, '3b' => 8), '$k[1]', 'intval($k)', 'array($e, $v)'));
+
+        // groupJoin (inner, outerKeySelector, innerKeySelector, resultSelectorValue, resultSelectorKey)
+        $this->assertEnumEquals(
+            array(6 => a('a'), 7 => a('b', 'c'), 8 => a()),
+            E::from(array(a(1, 6), a(2, 7), a(3, 8)))->groupJoin(
+                array(a(1, 'a'), a(2, 'b'), a(2, 'c'), a(4, 'd')),
+                '$v[0]', '$v[0]', '$e->select("\$v[1]")', '$v[1]'));
+        $this->assertEnumEquals(
+            array(a(6, a('a')), a(7, a('b', 'c')), a(8, a())),
+            E::from(array(a(1, 6), a(2, 7), a(3, 8)))->groupJoin(
+                array(a(1, 'a'), a(2, 'b'), a(2, 'c'), a(4, 'd')),
+                '$v[0]', '$v[0]', 'array($v[1], $e->select("\$v[1]"))', Functions::increment()));
+    }
+
+    /** @covers YaLinqo\Enumerable::join
+     */
+    function testJoin ()
+    {
+        // join (inner)
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->join(array()));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->join(array(6, 7, 8)));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(3, 4, 5))->join(array()));
+        $this->assertEnumEquals(
+            array(a(3, 6), a(4, 7), a(5, 8)),
+            E::from(array(3, 4, 5))->join(array(6, 7, 8)));
+        $this->assertEnumEquals(
+            array('a' => a(3, 6), 'b' => a(4, 7), 'c' => a(5, 8)),
+            E::from(array('a' => 3, 'b' => 4, 'c' => 5))->join(array('a' => 6, 'b' => 7, 'c' => 8)));
+
+        // join (inner, outerKeySelector)
+        $this->assertEnumEquals(
+            array(3 => a(a(3, 4), 6), 6 => a(a(5, 6), 7), 9 => a(a(7, 8), 8)),
+            E::from(array(a(3, 4), a(5, 6), a(7, 8)))->join(array(3 => 6, 6 => 7, 9 => 8), '$v[0]+$k'));
+
+        // join (inner, outerKeySelector, innerKeySelector)
+        $this->assertEnumEquals(
+            array(4 => a(1, 3), 6 => a(2, 4), 8 => a(3, 5)),
+            E::from(array(4 => 1, 6 => 2, 8 => 3))->join(array(1 => 3, 2 => 4, 3 => 5), null, '$v+$k'));
+        $this->assertEnumEquals(
+            array(4 => a(4, 3), 6 => a(6, 4), 8 => a(8, 5)),
+            E::from(array(3 => 4, 5 => 6, 7 => 8))->join(array(1 => 3, 2 => 4, 3 => 5), '$v', '$v+$k'));
+
+        // join (inner, outerKeySelector, innerKeySelector, resultSelectorValue)
+        $this->assertEnumEquals(
+            array(a(3, 6), a(5, 7), a(7, 8)),
+            E::from(array(3, 4, 5))->join(array(6, 7, 8), null, null, 'array($v1+$k, $v2)'));
+        $this->assertEnumEquals(
+            array(1 => a(6, 3), 2 => a(7, 4), 3 => a(8, 5)),
+            E::from(array('a1' => 3, 'a2' => 4, 'a3' => 5))->join(
+                array('1b' => 6, '2b' => 7, '3b' => 8), '$k[1]', 'intval($k)', 'array($v2, $v1)'));
+
+        // join (inner, outerKeySelector, innerKeySelector, resultSelectorValue, resultSelectorKey)
+        $this->assertEnumOrderEquals(
+            array(a(6, 'a'), a(7, 'b'), a(7, 'c')),
+            E::from(array(a(1, 6), a(2, 7), a(3, 8)))->join(
+                array(a(1, 'a'), a(2, 'b'), a(2, 'c'), a(4, 'd')),
+                '$v[0]', '$v[0]', '$v2[1]', '$v1[1]'));
+        $this->assertEnumEquals(
+            array(a(6, 'a'), a(7, 'b'), a(7, 'c')),
+            E::from(array(a(1, 6), a(2, 7), a(3, 8)))->join(
+                array(a(1, 'a'), a(2, 'b'), a(2, 'c'), a(4, 'd')),
+                '$v[0]', '$v[0]', 'array($v1[1], $v2[1])', Functions::increment()));
+    }
+
+    /** @covers YaLinqo\Enumerable::groupBy
+     */
+    function testGroupBy ()
+    {
+        // groupBy ()
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->groupBy());
+        $this->assertEnumEquals(
+            array(a(3), a(4), a(5)),
+            E::from(array(3, 4, 5))->groupBy());
+        $this->assertEnumEquals(
+            array('a' => a(3), 'b' => a(4), 'c' => a(5)),
+            E::from(array('a' => 3, 'b' => 4, 'c' => 5))->groupBy());
+
+        // groupBy (keySelector)
+        $this->assertEnumEquals(
+            array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('$v&1'));
+        $this->assertEnumEquals(
+            array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('!($k%2)'));
+
+        // groupBy (keySelector, valueSelector)
+        $this->assertEnumEquals(
+            array(a(3), a(5), a(7), a(9), a(11), a(13)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy(null, '$v+$k'));
+        $this->assertEnumEquals(
+            array(0 => a(5, 9, 13), 1 => a(3, 7, 11)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('$v&1', '$v+$k'));
+        $this->assertEnumEquals(
+            array(0 => a(3, 3, 5), 1 => a(3, 3, 4)),
+            E::from(array(3, 4, 5, 6, 8, 10))->groupBy('!($k%2)', '$v-$k'));
+
+        // groupBy (keySelector, valueSelector, resultSelectorValue)
+        $this->assertEnumEquals(
+            array(a(3, 0), a(4, 1), a(5, 2), a(6, 3), a(7, 4), a(8, 5)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy(null, null, '$e+array(1=>$k)'));
+        $this->assertEnumEquals(
+            array(0 => array(4, 6, 8, 'k' => 0), 1 => array(3, 5, 7, 'k' => 1)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('$v&1', null, '$e+array("k"=>$k)'));
+        $this->assertEnumEquals(
+            array(a(3, 0), a(5, 1), a(7, 2), a(9, 3), a(11, 4), a(13, 5)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy(null, '$v+$k', '$e+array(1=>$k)'));
+        $this->assertEnumEquals(
+            array(0 => array(5, 9, 13, 'k' => 0), 1 => array(3, 7, 11, 'k' => 1)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('$v&1', '$v+$k', '$e+array("k"=>$k)'));
+
+        // groupBy (keySelector, valueSelector, resultSelectorValue, resultSelectorKey)
+        $this->assertEnumEquals(
+            array(3 => a(3), 5 => a(4), 7 => a(5), 9 => a(6), 11 => a(7), 13 => a(8)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy(null, null, null, '$e[0]+$k'));
+        $this->assertEnumEquals(
+            array(5 => array(5, 9, 13, 'k' => 0), 4 => array(3, 7, 11, 'k' => 1)),
+            E::from(array(3, 4, 5, 6, 7, 8))->groupBy('$v&1', '$v+$k', '$e+array("k"=>$k)', '$e[0]+$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::aggregate
+     */
+    function testAggregate ()
+    {
+        // aggregate (func)
+        $this->assertEquals(
+            12,
+            E::from(array(3, 4, 5))->aggregate('$a+$v'));
+        $this->assertEquals(
+            9, // callback is not called on 1st element, just value is used
+            E::from(array(3 => 3, 2 => 4, 1 => 5))->aggregate('$a+$v-$k'));
+
+        // aggregate (func, seed)
+        $this->assertEquals(
+            10,
+            E::from(array())->aggregate('$a+$v', 10));
+        $this->assertEquals(
+            22,
+            E::from(array(3, 4, 5))->aggregate('$a+$v', 10));
+        $this->assertEquals(
+            6,
+            E::from(array(3 => 3, 2 => 4, 1 => 5))->aggregate('$a+$v-$k', 0));
+    }
+
+    /** @covers YaLinqo\Enumerable::aggregate
+     */
+    function testAggregate_emptySourceNoSeed ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        E::from(array())->aggregate('$a+$v');
+    }
+
+    /** @covers YaLinqo\Enumerable::aggregateOrDefault
+     */
+    function testAggregateOrDefault ()
+    {
+        // aggregate (func)
+        $this->assertEquals(
+            null,
+            E::from(array())->aggregateOrDefault('$a+$v'));
+        $this->assertEquals(
+            12,
+            E::from(array(3, 4, 5))->aggregateOrDefault('$a+$v'));
+        $this->assertEquals(
+            9, // callback is not called on 1st element, just value is used
+            E::from(array(3 => 3, 2 => 4, 1 => 5))->aggregateOrDefault('$a+$v-$k'));
+
+        // aggregate (func, seed)
+        $this->assertEquals(
+            null,
+            E::from(array())->aggregateOrDefault('$a+$v', 10));
+        $this->assertEquals(
+            22,
+            E::from(array(3, 4, 5))->aggregateOrDefault('$a+$v', 10));
+        $this->assertEquals(
+            6,
+            E::from(array(3 => 3, 2 => 4, 1 => 5))->aggregateOrDefault('$a+$v-$k', 0));
+
+        // aggregate (func, seed, default)
+        $this->assertEquals(
+            'empty',
+            E::from(array())->aggregateOrDefault('$a+$v', 10, 'empty'));
+        $this->assertEquals(
+            22,
+            E::from(array(3, 4, 5))->aggregateOrDefault('$a+$v', 10, 'empty'));
+    }
+
+    /** @covers YaLinqo\Enumerable::average
+     */
+    function testAverage ()
+    {
+        // average ()
+        $this->assertEquals(
+            4,
+            E::from(array(3, 4, 5))->average());
+        $this->assertEquals(
+            3,
+            E::from(array(3, '4', '5b', 'a'))->average());
+
+        // average (selector)
+        $this->assertEquals(
+            (3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2) / 3,
+            E::from(array(3, 4, 5))->average('$v*2+$k'));
+        $this->assertEquals(
+            (3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3) / 4,
+            E::from(array(3, '4', '5b', 'a'))->average('$v*2+$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::count
+     */
+    function testCount ()
+    {
+        // count ()
+        $this->assertEquals(
+            0,
+            E::from(array())->count());
+        $this->assertEquals(
+            3,
+            E::from(array(3, 4, 5))->count());
+        $this->assertEquals(
+            4,
+            E::from(array(3, '4', '5b', 'a'))->count());
+
+        // count (predicate)
+        $this->assertEquals(
+            2,
+            E::from(array(3, 4, 5))->count('$v*2+$k<10'));
+        $this->assertEquals(
+            3,
+            E::from(array(3, '4', '5b', 'a'))->count('$v*2+$k<10'));
+    }
+
+    /** @covers YaLinqo\Enumerable::average
+     */
+    function testAverage_emptySource ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        E::from(array())->average();
+    }
+
+    /** @covers YaLinqo\Enumerable::sum
+     */
+    function testSum ()
+    {
+        // sum ()
+        $this->assertEquals(
+            0,
+            E::from(array())->sum());
+        $this->assertEquals(
+            12,
+            E::from(array(3, 4, 5))->sum());
+        $this->assertEquals(
+            12,
+            E::from(array(3, '4', '5b', 'a'))->sum());
+
+        // sum (selector)
+        $this->assertEquals(
+            3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2,
+            E::from(array(3, 4, 5))->sum('$v*2+$k'));
+        $this->assertEquals(
+            3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3,
+            E::from(array(3, '4', '5b', 'a'))->sum('$v*2+$k'));
     }
 
     #endregion

@@ -1,7 +1,7 @@
 <?php
 
 namespace YaLinqo;
-use YaLinqo, YaLinqo\collections as c;
+use YaLinqo, YaLinqo\collections as c, YaLinqo\exceptions as e;
 
 // TODO: string syntax: select("new { ... }")
 // TODO: linq.js must: Distinct[By], Except[By], Intersect, Union, Cast
@@ -17,7 +17,7 @@ use YaLinqo, YaLinqo\collections as c;
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 // TODO: document when keys are preserved/discarded
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, process/each
+// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, process/each, InvalidOperationException => UnexpectedValueException
 
 class Enumerable implements \IteratorAggregate
 {
@@ -57,7 +57,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Source keys are discarded.
      * @param array|\Iterator|\IteratorAggregate|Enumerable $source Source sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
-     * @throws \InvalidArgumentException If source contains no elements (checked during enumeration).
+     * @throws \UnexpectedValueException If source contains no elements (checked during enumeration).
      * @return Enumerable Endless list of items repeating the source sequence.
      */
     public static function cycle ($source)
@@ -77,7 +77,7 @@ class Enumerable implements \IteratorAggregate
                     $it = $source->getIterator();
                     $it->rewind();
                     if (!$it->valid())
-                        throw new \InvalidArgumentException(Enumerable::ERROR_NO_ELEMENTS);
+                        throw new \UnexpectedValueException(Enumerable::ERROR_NO_ELEMENTS);
                 }
                 $yield($it->current(), $i++);
                 $it->next();
@@ -539,7 +539,7 @@ class Enumerable implements \IteratorAggregate
 
     #endregion
 
-    #region Joining
+    #region Joining and grouping
 
     /**
      * <p><b>Syntax</b>: groupJoin (inner [, outerKeySelector {{(v, k) ==> key} [, innerKeySelector {{(v, k) ==> key} [, resultSelectorValue {{(v, e, k) ==> value} [, resultSelectorKey {{(v, e, k) ==> key}]]]])
@@ -644,10 +644,6 @@ class Enumerable implements \IteratorAggregate
         });
     }
 
-    #endregion
-
-    #region Grouping
-
     /**
      * <p><b>Syntax</b>: groupBy ()
      * <p>Groups the elements of a sequence by its keys.
@@ -686,7 +682,7 @@ class Enumerable implements \IteratorAggregate
      * <p>To simplify common aggregation operations, the standard query operators also include a general purpose count method, {@link count}, and four numeric aggregation methods, namely {@link min}, {@link max}, {@link sum}, and {@link average}.
      * @param callback $func {(a, v, k) ==> accum} An accumulator function to be invoked on each element.
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
-     * @throws \InvalidOperationException If seed is null and sequence contains no elements.
+     * @throws \UnexpectedValueException If seed is null and sequence contains no elements.
      * @return mixed The final accumulator value.
      */
     public function aggregate ($func, $seed = null)
@@ -695,46 +691,58 @@ class Enumerable implements \IteratorAggregate
 
         $result = $seed;
         if ($seed !== null) {
-            foreach ($this as $k => $v)
+            foreach ($this as $k => $v) {
                 $result = call_user_func($func, $result, $v, $k);
+            }
         }
         else {
             $assigned = false;
             foreach ($this as $k => $v) {
-                if ($assigned)
+                if ($assigned) {
                     $result = call_user_func($func, $result, $v, $k);
+                }
                 else {
                     $result = $v;
                     $assigned = true;
                 }
             }
             if (!$assigned)
-                throw new \InvalidOperationException(self::ERROR_NO_ELEMENTS);
+                throw new \UnexpectedValueException(self::ERROR_NO_ELEMENTS);
         }
         return $result;
     }
 
     /**
-     * <p>aggregateOrDefault (func {{(a, v, k) ==> accum} [, default])
-     * <p>Applies an accumulator function over a sequence.
-     * <p>Aggregate method makes it simple to perform a calculation over a sequence of values. This method works by calling func one time for each element in source. Each time func is called, aggregate passes both the element from the sequence and an aggregated value (as the first argument to func). The first element of source is used as the initial aggregate value. The result of func replaces the previous aggregated value. Aggregate returns the final result of func. If source sequence is empty, default is returned.
+     * <p>aggregateOrDefault (func {{(a, v, k) ==> accum} [, seed [, default]])
+     * <p>Applies an accumulator function over a sequence. If seed is not null, its value is used as the initial accumulator value.
+     * <p>Aggregate method makes it simple to perform a calculation over a sequence of values. This method works by calling func one time for each element in source. Each time func is called, aggregate passes both the element from the sequence and an aggregated value (as the first argument to func). If seed is null, the first element of source is used as the initial aggregate value. The result of func replaces the previous aggregated value. Aggregate returns the final result of func. If source sequence is empty, default is returned.
      * <p>To simplify common aggregation operations, the standard query operators also include a general purpose count method, {@link count}, and four numeric aggregation methods, namely {@link min}, {@link max}, {@link sum}, and {@link average}.
      * @param callback $func {(a, v, k) ==> accum} An accumulator function to be invoked on each element.
+     * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
      * @param mixed $default Value to return if sequence is empty. Default: null.
      * @return mixed The final accumulator value, or default if sequence is empty.
      */
-    public function aggregateOrDefault ($func, $default = null)
+    public function aggregateOrDefault ($func, $seed = null, $default = null)
     {
         $func = Utils::createLambda($func, 'a,v,k');
-        $result = null;
+        $result = $seed;
         $assigned = false;
 
-        foreach ($this as $k => $v) {
-            if ($assigned)
+        if ($seed !== null) {
+            foreach ($this as $k => $v) {
                 $result = call_user_func($func, $result, $v, $k);
-            else {
-                $result = $v;
                 $assigned = true;
+            }
+        }
+        else {
+            foreach ($this as $k => $v) {
+                if ($assigned) {
+                    $result = call_user_func($func, $result, $v, $k);
+                }
+                else {
+                    $result = $v;
+                    $assigned = true;
+                }
             }
         }
         return $assigned ? $result : $default;
@@ -746,7 +754,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: average (selector {{(v, k) ==> result})
      * <p>Computes the average of a sequence of numeric values that are obtained by invoking a transform function on each element of the input sequence.
      * @param callback|null $selector {(v, k) ==> result} A transform function to apply to each element. Default: value.
-     * @throws \InvalidOperationException If sequence contains no elements.
+     * @throws \UnexpectedValueException If sequence contains no elements.
      * @return number The average of the sequence of values.
      */
     public function average ($selector = null)
@@ -758,7 +766,9 @@ class Enumerable implements \IteratorAggregate
             $sum += call_user_func($selector, $v, $k);
             $count++;
         }
-        return $count === 0 ? NAN : $sum / $count;
+        if ($count === 0)
+            throw new \UnexpectedValueException(self::ERROR_NO_ELEMENTS);
+        return $sum / $count;
     }
 
     /**
@@ -792,7 +802,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: max ([selector {{(v, k) ==> value}])
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value.
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \InvalidOperationException If sequence contains no elements.
+     * @throws \UnexpectedValueException If sequence contains no elements.
      * @return number The maximum value in the sequence.
      */
     public function max ($selector = null)
@@ -810,7 +820,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \InvalidOperationException If sequence contains no elements.
+     * @throws \UnexpectedValueException If sequence contains no elements.
      * @return number The maximum value in the sequence.
      */
     public function maxBy ($comparer, $selector = null)
@@ -830,7 +840,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: min ([selector {{(v, k) ==> value}])
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value.
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \InvalidOperationException If sequence contains no elements.
+     * @throws \UnexpectedValueException If sequence contains no elements.
      * @return number The minimum value in the sequence.
      */
     public function min ($selector = null)
@@ -848,7 +858,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \InvalidOperationException If sequence contains no elements.
+     * @throws \UnexpectedValueException If sequence contains no elements.
      * @return number The minimum value in the sequence.
      */
     public function minBy ($comparer, $selector = null)
@@ -953,7 +963,7 @@ class Enumerable implements \IteratorAggregate
      * <p>If the type of source iterator implements {@link ArrayAccess}, that implementation is used to obtain the value at the specified key. Otherwise, this method obtains the specified value.
      * <p>This method throws an exception if key is not found. To instead return a default value when the specified key is not found, use the {@link elementAtOrDefault} method.
      * @param mixed $key The key of the value to retrieve.
-     * @throws \InvalidArgumentException If sequence does not contain value with specified key.
+     * @throws \UnexpectedValueException If sequence does not contain value with specified key.
      * @return mixed The value at the key in the source sequence.
      */
     public function elementAt ($key)
@@ -963,7 +973,7 @@ class Enumerable implements \IteratorAggregate
 
         if ($it instanceof \ArrayAccess) {
             if (!$it->offsetExists($key))
-                throw new \InvalidArgumentException(self::ERROR_NO_KEY);
+                throw new \UnexpectedValueException(self::ERROR_NO_KEY);
             return $it->offsetGet($key);
         }
 
@@ -971,7 +981,7 @@ class Enumerable implements \IteratorAggregate
             if ($k === $key)
                 return $v;
         }
-        throw new \InvalidArgumentException(self::ERROR_NO_KEY);
+        throw new \UnexpectedValueException(self::ERROR_NO_KEY);
     }
 
     /**
@@ -1005,7 +1015,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the first element in a sequence that satisfies a specified condition.
      * <p>The first method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link firstOrDefault} method.
      * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \InvalidArgumentException If source contains no matching elements.
+     * @throws \UnexpectedValueException If source contains no matching elements.
      * @return mixed If predicate is null: the first element in the specified sequence. If predicate is not null: The first element in the sequence that passes the test in the specified predicate function.
      */
     public function first ($predicate = null)
@@ -1016,7 +1026,7 @@ class Enumerable implements \IteratorAggregate
             if (call_user_func($predicate, $v, $k))
                 return $v;
         }
-        throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+        throw new \UnexpectedValueException(self::ERROR_NO_MATCHES);
     }
 
     /**
@@ -1069,7 +1079,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the last element in a sequence that satisfies a specified condition.
      * <p>The last method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link lastOrDefault} method.
      * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \InvalidArgumentException If source contains no matching elements.
+     * @throws \UnexpectedValueException If source contains no matching elements.
      * @return mixed If predicate is null: the last element in the specified sequence. If predicate is not null: The last element in the sequence that passes the test in the specified predicate function.
      */
     public function last ($predicate = null)
@@ -1085,7 +1095,7 @@ class Enumerable implements \IteratorAggregate
             }
         }
         if (!$found)
-            throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+            throw new \UnexpectedValueException(self::ERROR_NO_MATCHES);
         return $value;
     }
 
@@ -1147,7 +1157,7 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns the only element of a sequence that satisfies a specified condition.
      * <p>The single method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link singleOrDefault} method.
      * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \InvalidArgumentException If source contains no matching elements or more than one matching element.
+     * @throws \UnexpectedValueException If source contains no matching elements or more than one matching element.
      * @return mixed If predicate is null: the single element of the input sequence. If predicate is not null: The single element of the sequence that passes the test in the specified predicate function.
      */
     public function single ($predicate = null)
@@ -1159,12 +1169,12 @@ class Enumerable implements \IteratorAggregate
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
-                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                    throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
             }
         }
         if (!$found)
-            throw new \InvalidArgumentException(self::ERROR_NO_MATCHES);
+            throw new \UnexpectedValueException(self::ERROR_NO_MATCHES);
         return $v;
     }
 
@@ -1176,7 +1186,7 @@ class Enumerable implements \IteratorAggregate
      * <p>If obtaining the default value is a costly operation, use {@link singleOrFallback} method to avoid overhead.
      * @param mixed $default A default value.
      * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \InvalidArgumentException If source contains more than one matching element.
+     * @throws \UnexpectedValueException If source contains more than one matching element.
      * @return mixed If predicate is null: default value if source is empty; otherwise, the single element of the source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
      */
     public function singleOrDefault ($default = null, $predicate = null)
@@ -1188,7 +1198,7 @@ class Enumerable implements \IteratorAggregate
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
-                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                    throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
             }
         }
@@ -1203,7 +1213,7 @@ class Enumerable implements \IteratorAggregate
      * <p>The fallback function is not executed if a matching element is found. Use the singleOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link singleOrDefault}.
      * @param mixed $fallback A fallback function to return the default element.
      * @param callback|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \InvalidArgumentException If source contains more than one matching element.
+     * @throws \UnexpectedValueException If source contains more than one matching element.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the single element of the source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
      */
     public function singleOrFallback ($fallback, $predicate = null)
@@ -1215,7 +1225,7 @@ class Enumerable implements \IteratorAggregate
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
-                    throw new \InvalidArgumentException(self::ERROR_MANY_MATCHES);
+                    throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
             }
         }
