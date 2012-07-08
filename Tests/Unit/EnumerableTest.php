@@ -15,6 +15,11 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         \PHPUnit_Framework_ComparatorFactory::getDefaultInstance()->register(new Tests\Testing\Comparator_ArrayEnumerable);
     }
 
+    protected function setUp ()
+    {
+        $this->setOutputCallback(function ($str) { return str_replace("\r\n", "\n", $str); });
+    }
+
     #region Generation
 
     /** @covers YaLinqo\Enumerable::cycle
@@ -2269,6 +2274,106 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(
             '0=1, a=2, 1=3',
             E::from(array(1, 'a' => 2, 3))->toString(', ', '"$k=$v"'));
+    }
+
+    #endregion
+
+    #region Actions
+
+    /** @covers YaLinqo\Enumerable::call
+     */
+    function testCall ()
+    {
+        // call (action)
+        $a = array();
+        foreach (E::from(array())->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        $this->assertEquals(
+            array(),
+            $a);
+        $a = array();
+        foreach (E::from(array(1, 'a' => 2, 3))->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            $a);
+        $a = array();
+        foreach (E::from(array(1, 'a' => 2, 3))->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) break;
+        $this->assertEquals(
+            array(1),
+            $a);
+        $a = array();
+        E::from(array(1, 'a' => 2, 3))->call(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $this->assertEquals(
+            array(),
+            $a);
+    }
+
+    /** @covers YaLinqo\Enumerable::each
+     */
+    function testEach ()
+    {
+        // call (action)
+        $a = array();
+        E::from(array())->each(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $this->assertEquals(
+            array(),
+            $a);
+        $a = array();
+        E::from(array(1, 'a' => 2, 3))->each(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            $a);
+    }
+
+    /** @covers YaLinqo\Enumerable::write
+     * @dataProvider dataProvider_testWrite
+     */
+    function testWrite ($output, $source, $separator, $selector)
+    {
+        // toString ()
+        $this->expectOutputString($output);
+        E::from($source)->write($separator, $selector);
+    }
+
+    function dataProvider_testWrite ()
+    {
+        return array(
+            // write ()
+            array('', array(), null, null),
+            array('123', array(1, 2, 3), null, null),
+            array('123', array(1, 'a' => 2, 3), null, null),
+            // write (separator)
+            array('', array(), ', ', null),
+            array('1, 2, 3', array(1, 2, 3), ', ', null),
+            array('1, 2, 3', array(1, 'a' => 2, 3), ', ', null),
+            // write (separator, selector)
+            array('', array(), ', ', '"$k=$v"'),
+            array('0=1, 1=2, 2=3', array(1, 2, 3), ', ', '"$k=$v"'),
+            array('0=1, a=2, 1=3', array(1, 'a' => 2, 3), ', ', '"$k=$v"'),
+        );
+    }
+
+    /** @covers YaLinqo\Enumerable::writeLine
+     * @dataProvider dataProvider_testWriteLine
+     */
+    function testWriteLine ($output, $source, $selector)
+    {
+        // toString ()
+        $this->expectOutputString($output);
+        E::from($source)->writeLine($selector);
+    }
+
+    function dataProvider_testWriteLine ()
+    {
+        return array(
+            // writeLine ()
+            array("", array(), null),
+            array("1\n2\n3\n", array(1, 2, 3), null),
+            array("1\n2\n3\n", array(1, 'a' => 2, 3), null),
+            // writeLine (selector)
+            array("", array(), '"$k=$v"'),
+            array("0=1\n1=2\n2=3\n", array(1, 2, 3), '"$k=$v"'),
+            array("0=1\na=2\n1=3\n", array(1, 'a' => 2, 3), '"$k=$v"'),
+        );
     }
 
     #endregion
