@@ -1220,7 +1220,7 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
 
     /** @covers YaLinqo\Enumerable::any
      */
-    function testAny_fromArray ()
+    function testAny_array ()
     {
         // any ()
         $this->assertEquals(
@@ -1307,7 +1307,7 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
 
     /** @covers YaLinqo\Enumerable::elementAt
      */
-    function testElementAt_Enumerable ()
+    function testElementAt_enumerable ()
     {
         // elementAt (key)
         $this->assertEquals(
@@ -1379,7 +1379,7 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
 
     /** @covers YaLinqo\Enumerable::elementAtOrDefault
      */
-    function testElementAtOrDefault_Enumerable ()
+    function testElementAtOrDefault_enumerable ()
     {
         // elementAtOrDefault (key)
         $this->assertEquals(
@@ -1980,6 +1980,295 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         $this->assertEnumEquals(
             array('a' => 1, 'b' => 2),
             E::from(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))->takeWhile('$k<"c"'));
+    }
+
+    #endregion
+
+    #region Conversion
+
+    /** @covers YaLinqo\Enumerable::toArray
+     */
+    function testToArray_array ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->toArray());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toArray());
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toArray());
+    }
+
+    /** @covers YaLinqo\Enumerable::toArray
+     */
+    function testToArray_enumerable ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->select('$v')->toArray());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->select('$v')->toArray());
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            E::from(array(1, 'a' => 2, 3))->select('$v')->toArray());
+    }
+
+    /** @covers YaLinqo\Enumerable::toArrayDeep
+     * @covers YaLinqo\Enumerable::toArrayDeepProc
+     */
+    function testToArrayDeep ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->toArrayDeep());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toArrayDeep());
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toArrayDeep());
+        $this->assertEquals(
+            array(1, 2, 6 => array(7 => array('a' => 'a'), array(8 => 4, 5))),
+            E::from(array(1, 2, 6 => E::from(array(7 => array('a' => 'a'), E::from(array(8 => 4, 5))))))->toArrayDeep());
+    }
+
+    /** @covers YaLinqo\Enumerable::toList
+     */
+    function testToList_array ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->toList());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toList());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toList());
+    }
+
+    /** @covers YaLinqo\Enumerable::toList
+     */
+    function testToList_enumerable ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->select('$v')->toList());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->select('$v')->toList());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 'a' => 2, 3))->select('$v')->toList());
+    }
+
+    /** @covers YaLinqo\Enumerable::toListDeep
+     * @covers YaLinqo\Enumerable::toListDeepProc
+     */
+    function testToListDeep ()
+    {
+        $this->assertEquals(
+            array(),
+            E::from(array())->toListDeep());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toListDeep());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toListDeep());
+        $this->assertEquals(
+            array(1, 2, array(array('a'), array(4, 5))),
+            E::from(array(1, 2, 6 => E::from(array(7 => array('a' => 'a'), E::from(array(8 => 4, 5))))))->toListDeep());
+    }
+
+    /** @covers YaLinqo\Enumerable::toDictionary
+     */
+    function testToDictionary ()
+    {
+        // toDictionary ()
+        $this->assertEquals(
+            array(),
+            E::from(array())->toDictionary()->toArray());
+        $this->assertEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toDictionary()->toArray());
+        $this->assertEquals(
+            array(1, 'a' => 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toDictionary()->toArray());
+
+        // toDictionary (keySelector)
+        $this->assertEquals(
+            array(),
+            E::from(array())->toDictionary('$v')->toArray());
+        $this->assertEquals(
+            array(1 => 1, 2 => 2, 3 => 3),
+            E::from(array(1, 2, 3))->toDictionary('$v')->toArray());
+        $this->assertEquals(
+            array(1 => 1, 2 => 2, 3 => 3),
+            E::from(array(1, 'a' => 2, 3))->toDictionary('$v')->toArray());
+
+        // toDictionary (keySelector, valueSelector)
+        $this->assertEquals(
+            array(),
+            E::from(array())->toDictionary('$v', '$k')->toArray());
+        $this->assertEquals(
+            array(1 => 0, 2 => 1, 3 => 2),
+            E::from(array(1, 2, 3))->toDictionary('$v', '$k')->toArray());
+        $this->assertEquals(
+            array(1 => 0, 2 => 'a', 3 => 1),
+            E::from(array(1, 'a' => 2, 3))->toDictionary('$v', '$k')->toArray());
+    }
+
+    /** @covers YaLinqo\Enumerable::toJSON
+     */
+    function testToJSON ()
+    {
+        $this->assertEquals(
+            '[]',
+            E::from(array())->toJSON());
+        $this->assertEquals(
+            '[1,2,3]',
+            E::from(array(1, 2, 3))->toJSON());
+        $this->assertEquals(
+            '{"0":1,"a":2,"1":3}',
+            E::from(array(1, 'a' => 2, 3))->toJSON());
+        $this->assertEquals(
+            '{"0":1,"1":2,"6":{"7":{"a":"a"},"8":{"8":4,"9":5}}}',
+            E::from(array(1, 2, 6 => E::from(array(7 => array('a' => 'a'), E::from(array(8 => 4, 5))))))->toJSON());
+    }
+
+    /** @covers YaLinqo\Enumerable::toLookup
+     */
+    function testToLookup ()
+    {
+        // toLookup ()
+        $this->assertEquals(
+            array(),
+            E::from(array())->toLookup()->toArray());
+        $this->assertEquals(
+            array(a(3), a(4), a(5)),
+            E::from(array(3, 4, 5))->toLookup()->toArray());
+        $this->assertEquals(
+            array('a' => a(3), 'b' => a(4), 'c' => a(5)),
+            E::from(array('a' => 3, 'b' => 4, 'c' => 5))->toLookup()->toArray());
+
+        // toLookup (keySelector)
+        $this->assertEquals(
+            array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1')->toArray());
+        $this->assertEquals(
+            array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('!($k%2)')->toArray());
+
+        // toLookup (keySelector, valueSelector)
+        $this->assertEquals(
+            array(a(3), a(5), a(7), a(9), a(11), a(13)),
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup(null, '$v+$k')->toArray());
+        $this->assertEquals(
+            array(0 => a(5, 9, 13), 1 => a(3, 7, 11)),
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1', '$v+$k')->toArray());
+        $this->assertEquals(
+            array(0 => a(3, 3, 5), 1 => a(3, 3, 4)),
+            E::from(array(3, 4, 5, 6, 8, 10))->toLookup('!($k%2)', '$v-$k')->toArray());
+    }
+
+    /** @covers YaLinqo\Enumerable::toKeys
+     */
+    function testToKeys ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->toKeys());
+        $this->assertEnumEquals(
+            array(0, 1, 2),
+            E::from(array(1, 2, 3))->toKeys());
+        $this->assertEnumEquals(
+            array(0, 'a', 1),
+            E::from(array(1, 'a' => 2, 3))->toKeys());
+    }
+
+    /** @covers YaLinqo\Enumerable::toValues
+     */
+    function testToValues ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->toValues());
+        $this->assertEnumEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->toValues());
+        $this->assertEnumEquals(
+            array(1, 2, 3),
+            E::from(array(1, 'a' => 2, 3))->toValues());
+    }
+
+    /** @covers YaLinqo\Enumerable::toObject
+     */
+    function testToObject ()
+    {
+        // toObject
+        $this->assertEquals(
+            new \stdClass,
+            E::from(array())->toObject());
+        $this->assertEquals(
+            (object)array('a' => 1, 'b' => true, 'c' => 'd'),
+            E::from(array('a' => 1, 'b' => true, 'c' => 'd'))->toObject());
+
+        // toObject (propertySelector)
+        $i = 0;
+        $this->assertEquals(
+            (object)array('prop1' => 1, 'prop2' => true, 'prop3' => 'd'),
+            E::from(array('a' => 1, 'b' => true, 'c' => 'd'))->toObject(function () use (&$i)
+            {
+                $i++;
+                return "prop$i";
+            }));
+
+        // toObject (valueSelector)
+        $this->assertEquals(
+            (object)array('propa1' => 'a=1', 'propb1' => 'b=1', 'propcd' => 'c=d'),
+            E::from(array('a' => 1, 'b' => true, 'c' => 'd'))->toObject('"prop$k$v"', '"$k=$v"'));
+    }
+
+    /** @covers YaLinqo\Enumerable::toString
+     */
+    function testToString ()
+    {
+        // toString ()
+        $this->assertEquals(
+            '',
+            E::from(array())->toString());
+        $this->assertEquals(
+            '123',
+            E::from(array(1, 2, 3))->toString());
+        $this->assertEquals(
+            '123',
+            E::from(array(1, 'a' => 2, 3))->toString());
+
+        // toString (separator)
+        $this->assertEquals(
+            '',
+            E::from(array())->toString(', '));
+        $this->assertEquals(
+            '1, 2, 3',
+            E::from(array(1, 2, 3))->toString(', '));
+        $this->assertEquals(
+            '1, 2, 3',
+            E::from(array(1, 'a' => 2, 3))->toString(', '));
+
+        // toString (separator, selector)
+        $this->assertEquals(
+            '',
+            E::from(array())->toString(', ', '"$k=$v"'));
+        $this->assertEquals(
+            '0=1, 1=2, 2=3',
+            E::from(array(1, 2, 3))->toString(', ', '"$k=$v"'));
+        $this->assertEquals(
+            '0=1, a=2, 1=3',
+            E::from(array(1, 'a' => 2, 3))->toString(', ', '"$k=$v"'));
     }
 
     #endregion

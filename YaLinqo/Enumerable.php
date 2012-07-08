@@ -790,7 +790,7 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$value);
         $count = 0;
 
-        foreach ($this as $k => $v)
+        foreach ($it as $k => $v)
             if (call_user_func($predicate, $v, $k))
                 $count++;
         return $count;
@@ -1449,8 +1449,13 @@ class Enumerable implements \IteratorAggregate
      */
     public function toArray ()
     {
+        /** @var $it \Iterator|\ArrayIterator */
+        $it = $this->getIterator();
+        if ($it instanceof \ArrayIterator)
+            return $it->getArrayCopy();
+
         $array = array();
-        foreach ($this as $k => $v)
+        foreach ($it as $k => $v)
             $array[$k] = $v;
         return $array;
     }
@@ -1486,8 +1491,13 @@ class Enumerable implements \IteratorAggregate
      */
     public function toList ()
     {
+        /** @var $it \Iterator|\ArrayIterator */
+        $it = $this->getIterator();
+        if ($it instanceof \ArrayIterator)
+            return array_values($it->getArrayCopy());
+
         $array = array();
-        foreach ($this as $v)
+        foreach ($it as $v)
             $array[] = $v;
         return $array;
     }
@@ -1509,7 +1519,7 @@ class Enumerable implements \IteratorAggregate
     {
         $array = array();
         foreach ($enum as $v)
-            $array[] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
+            $array[] = $v instanceof \Traversable || is_array($v) ? $this->toListDeepProc($v) : $v;
         return $array;
     }
 
@@ -1542,7 +1552,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function toJSON ($options = 0)
     {
-        return json_encode($this->toArray(), $options);
+        return json_encode($this->toArrayDeep(), $options);
     }
 
     /**
@@ -1576,6 +1586,17 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * <p><b>Syntax</b>: toValues ()
+     * <p>Returns a sequence of values from the source sequence; keys are discarded.
+     * @return Enumerable A sequence with the same values and sequental integers as keys.
+     * @see array_values
+     */
+    public function toValues ()
+    {
+        return $this->select(Functions::$value, Functions::increment());
+    }
+
+    /**
      * <p><b>Syntax</b>: toObject ([propertySelector {{(v, k) ==> name} [, valueSelector {{(v, k) ==> value}]])
      * <p>Transform the sequence to an object.
      * @param callback|null $propertySelector {(v, k) ==> name} A function to extract a property name from an element. Must return a valid PHP identifier. Default: key.
@@ -1597,33 +1618,15 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: toString ([separator [, selector]])
      * <p>Returns a string containing a string representation of all the sequence values, with the separator string between each element.
      * @param string $separator A string separating values in the result string. Default: ''.
-     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @param callback|null $valueSelector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @return string
      * @see implode
      */
-    public function toString ($separator = '', $selector = null)
+    public function toString ($separator = '', $valueSelector = null)
     {
-        if ($selector === null) {
-            /** @var $it \Iterator|\ArrayIterator */
-            $it = $this->getIterator();
-            if ($it instanceof \ArrayIterator)
-                return implode($separator, $it->getArrayCopy());
-        }
-
-        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
-
-        return implode($separator, $this->select($selector)->toArray());
-    }
-
-    /**
-     * <p><b>Syntax</b>: toValues ()
-     * <p>Returns a sequence of values from the source sequence; keys are discarded.
-     * @return Enumerable A sequence with the same values and sequental integers as keys.
-     * @see array_values
-     */
-    public function toValues ()
-    {
-        return $this->select(Functions::$value, Functions::increment());
+        $valueSelector = Utils::createLambda($valueSelector, 'v,k', false);
+        $array = $valueSelector ? $this->select($valueSelector)->toArray() : $this->toArray();
+        return implode($separator, $array);
     }
 
     #endregion
