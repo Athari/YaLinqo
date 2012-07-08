@@ -1272,12 +1272,12 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: findIndex (predicate {{(v, k) ==> result})
      * <p>Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the first occurrence.
      * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
-     * @param callback|null $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
+     * @param callback $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
      * @return mixed The key of the first occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
      */
-    public function findIndex ($predicate = null)
+    public function findIndex ($predicate)
     {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+        $predicate = Utils::createLambda($predicate, 'v,k');
 
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k))
@@ -1290,12 +1290,12 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: findLastIndex (predicate {{(v, k) ==> result})
      * <p>Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the last occurrence.
      * <p>To search for the zero-based index of the last occurence, call {@link toValues} method first.
-     * @param callback|null $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
+     * @param callback $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
      * @return mixed The key of the last occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
      */
-    public function findLastIndex ($predicate = null)
+    public function findLastIndex ($predicate)
     {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+        $predicate = Utils::createLambda($predicate, 'v,k');
 
         $key = null;
         foreach ($this as $k => $v) {

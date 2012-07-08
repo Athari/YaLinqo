@@ -1794,6 +1794,80 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    /** @covers YaLinqo\Enumerable::indexOf
+     */
+    function testIndexOf ()
+    {
+        // indexOf (value)
+        $this->assertEquals(
+            null,
+            E::from(array())->indexOf('a'));
+        $this->assertEquals(
+            1,
+            E::from(array(1, 2, 3))->indexOf(2));
+        $this->assertEquals(
+            1,
+            E::from(array(1, 2, 3, 2, 1))->indexOf(2));
+        $this->assertEquals(
+            4,
+            E::from(array(3 => 1, 2, 2, 'a' => 3))->indexOf(2));
+    }
+
+    /** @covers YaLinqo\Enumerable::lastIndexOf
+     */
+    function testLastIndexOf ()
+    {
+        // indexOf (value)
+        $this->assertEquals(
+            null,
+            E::from(array())->lastIndexOf('a'));
+        $this->assertEquals(
+            1,
+            E::from(array(1, 2, 3))->lastIndexOf(2));
+        $this->assertEquals(
+            3,
+            E::from(array(1, 2, 3, 2, 1))->lastIndexOf(2));
+        $this->assertEquals(
+            5,
+            E::from(array(3 => 1, 2, 2, 'a' => 3))->lastIndexOf(2));
+    }
+
+    /** @covers YaLinqo\Enumerable::findIndex
+     */
+    function testFindIndex ()
+    {
+        $this->assertEquals(
+            null,
+            E::from(array())->findIndex('$v>0'));
+        $this->assertEquals(
+            0,
+            E::from(array(1, 2, 3, 4))->findIndex('$v>0'));
+        $this->assertEquals(
+            1,
+            E::from(array(-1, 2, 3, -4))->findIndex('$v>0'));
+        $this->assertEquals(
+            null,
+            E::from(array(-1, -2, -3, -4))->findIndex('$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::findLastIndex
+     */
+    function testFindLastIndex ()
+    {
+        $this->assertEquals(
+            null,
+            E::from(array())->findLastIndex('$v>0'));
+        $this->assertEquals(
+            3,
+            E::from(array(1, 2, 3, 4))->findLastIndex('$v>0'));
+        $this->assertEquals(
+            2,
+            E::from(array(-1, 2, 3, -4))->findLastIndex('$v>0'));
+        $this->assertEquals(
+            null,
+            E::from(array(-1, -2, -3, -4))->findLastIndex('$v>0'));
+    }
+
     #endregion
 
     #region Testing
