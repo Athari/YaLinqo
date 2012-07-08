@@ -1868,6 +1868,120 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             E::from(array(-1, -2, -3, -4))->findLastIndex('$v>0'));
     }
 
+    /** @covers YaLinqo\Enumerable::skip
+     */
+    function testSkip ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->skip(-2));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->skip(0));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->skip(2));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skip(-2));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skip(0));
+        $this->assertEnumEquals(
+            array(2 => 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skip(2));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->skip(5));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->skip(6));
+        $this->assertEnumEquals(
+            array('c' => 3, 'd' => 4, 'e' => 5),
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))->skip(2));
+    }
+
+    /** @covers YaLinqo\Enumerable::skipWhile
+     */
+    function testSkipWhile ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->skipWhile('$v>2'));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skipWhile('$v<0'));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skipWhile('$k==-1'));
+        $this->assertEnumEquals(
+            array(2 => 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->skipWhile('$v+$k<4'));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->skipWhile('$v>0'));
+        $this->assertEnumEquals(
+            array('c' => 3, 'd' => 4, 'e' => 5),
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))->skipWhile('$k<"c"'));
+    }
+
+    /** @covers YaLinqo\Enumerable::take
+     */
+    function testTake ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->take(-2));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->take(0));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->take(2));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->take(-2));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->take(0));
+        $this->assertEnumEquals(
+            array(1, 2),
+            E::from(array(1, 2, 3, 4, 5))->take(2));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->take(5));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->take(6));
+        $this->assertEnumEquals(
+            array('a' => 1, 'b' => 2),
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))->take(2));
+    }
+
+    /** @covers YaLinqo\Enumerable::takeWhile
+     */
+    function testTakeWhile ()
+    {
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->takeWhile('$v>2'));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->takeWhile('$v<0'));
+        $this->assertEnumEquals(
+            array(),
+            E::from(array(1, 2, 3, 4, 5))->takeWhile('$k==-1'));
+        $this->assertEnumEquals(
+            array(1, 2),
+            E::from(array(1, 2, 3, 4, 5))->takeWhile('$v+$k<4'));
+        $this->assertEnumEquals(
+            array(1, 2, 3, 4, 5),
+            E::from(array(1, 2, 3, 4, 5))->takeWhile('$v>0'));
+        $this->assertEnumEquals(
+            array('a' => 1, 'b' => 2),
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))->takeWhile('$k<"c"'));
+    }
+
     #endregion
 
     #region Testing
