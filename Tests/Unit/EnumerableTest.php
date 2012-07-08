@@ -44,6 +44,8 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     }
 
     /** @covers YaLinqo\Enumerable::emptyEnum
+     * @covers YaLinqo\Enumerable::__construct
+     * @covers YaLinqo\Enumerable::getIterator
      */
     function testEmptyEnum ()
     {
@@ -1031,6 +1033,14 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             E::from(array(3, '4', '5b', 'a'))->average('$v*2+$k'));
     }
 
+    /** @covers YaLinqo\Enumerable::average
+     */
+    function testAverage_emptySource ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        E::from(array())->average();
+    }
+
     /** @covers YaLinqo\Enumerable::count
      */
     function testCount ()
@@ -1055,12 +1065,114 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             E::from(array(3, '4', '5b', 'a'))->count('$v*2+$k<10'));
     }
 
-    /** @covers YaLinqo\Enumerable::average
+    /** @covers YaLinqo\Enumerable::max
      */
-    function testAverage_emptySource ()
+    function testMax ()
+    {
+        // max ()
+        $this->assertEquals(
+            5,
+            E::from(array(3, 5, 4))->max());
+
+        // max (selector)
+        $this->assertEquals(
+            5,
+            E::from(array(3, 5, 4))->max('$v-$k*3+2')); // 5 4 0
+        $this->assertEquals(
+            5,
+            E::from(array(3, '5b', '4', 'a'))->max('$v-$k*3+2')); // 5 4 0 -7
+    }
+
+    /** @covers YaLinqo\Enumerable::max
+     */
+    function testMax_emptySource ()
     {
         $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
-        E::from(array())->average();
+        E::from(array())->max();
+    }
+
+    /** @covers YaLinqo\Enumerable::maxBy
+     */
+    function testMaxBy ()
+    {
+        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+
+        // max ()
+        $this->assertEquals(
+            3,
+            E::from(array(2, 3, 5, 4))->maxBy($compare));
+
+        // max (selector)
+        $this->assertEquals(
+            8,
+            E::from(array(2, 0, 3, 5, 6))->maxBy($compare, '$v+$k')); // 2 1 5 8 10
+        $this->assertEquals(
+            7,
+            E::from(array('5b', 3, 'a', '4'))->maxBy($compare, '$v+$k')); // 5 4 2 7
+    }
+
+    /** @covers YaLinqo\Enumerable::maxBy
+     */
+    function testMaxBy_emptySource ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+        E::from(array())->maxBy($compare);
+    }
+
+    /** @covers YaLinqo\Enumerable::min
+     */
+    function testMin ()
+    {
+        // min ()
+        $this->assertEquals(
+            3,
+            E::from(array(3, 5, 4))->min());
+
+        // min (selector)
+        $this->assertEquals(
+            0,
+            E::from(array(3, 5, 4))->min('$v-$k*3+2')); // 5 4 0
+        $this->assertEquals(
+            -7,
+            E::from(array(3, '5b', '4', 'a'))->min('$v-$k*3+2')); // 5 4 0 -7
+    }
+
+    /** @covers YaLinqo\Enumerable::min
+     */
+    function testMin_emptySource ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        E::from(array())->min();
+    }
+
+    /** @covers YaLinqo\Enumerable::minBy
+     */
+    function testMinBy ()
+    {
+        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+
+        // min ()
+        $this->assertEquals(
+            4,
+            E::from(array(2, 3, 5, 4))->minBy($compare));
+
+        // min (selector)
+        $this->assertEquals(
+            1,
+            E::from(array(2, 0, 3, 5, 6))->minBy($compare, '$v+$k')); // 2 1 5 8 10
+        $this->assertEquals(
+            4,
+            E::from(array('5b', 3, 'a', '4'))->minBy($compare, '$v+$k')); // 5 4 2 7
+    }
+
+    /** @covers YaLinqo\Enumerable::minBy
+     */
+    function testMinBy_emptySource ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+        E::from(array())->minBy($compare);
     }
 
     /** @covers YaLinqo\Enumerable::sum
@@ -1085,6 +1197,217 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(
             3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3,
             E::from(array(3, '4', '5b', 'a'))->sum('$v*2+$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::all
+     */
+    function testAll ()
+    {
+        // all (predicate)
+        $this->assertEquals(
+            true,
+            E::from(array())->all('$v>0'));
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->all('$v>0'));
+        $this->assertEquals(
+            false,
+            E::from(array(1, -2, 3))->all('$v>0'));
+        $this->assertEquals(
+            false,
+            E::from(array(-1, -2, -3))->all('$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::any
+     */
+    function testAny_fromArray ()
+    {
+        // any ()
+        $this->assertEquals(
+            false,
+            E::from(array())->any());
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->any());
+
+        // any (predicate)
+        $this->assertEquals(
+            false,
+            E::from(array())->any('$v>0'));
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->any('$v>0'));
+        $this->assertEquals(
+            true,
+            E::from(array(1, -2, 3))->any('$v>0'));
+        $this->assertEquals(
+            false,
+            E::from(array(-1, -2, -3))->any('$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::any
+     */
+    function testAny_fromEnumerable ()
+    {
+        // any ()
+        $this->assertEquals(
+            false,
+            E::from(array())->select('$v')->any());
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->select('$v')->any());
+
+        // any (predicate)
+        $this->assertEquals(
+            false,
+            E::from(array())->select('$v')->any('$v>0'));
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->select('$v')->any('$v>0'));
+        $this->assertEquals(
+            true,
+            E::from(array(1, -2, 3))->select('$v')->any('$v>0'));
+        $this->assertEquals(
+            false,
+            E::from(array(-1, -2, -3))->select('$v')->any('$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::contains
+     */
+    function testAny_contains ()
+    {
+        // contains (value)
+        $this->assertEquals(
+            false,
+            E::from(array())->contains(2));
+        $this->assertEquals(
+            true,
+            E::from(array(1, 2, 3))->contains(2));
+        $this->assertEquals(
+            false,
+            E::from(array(1, 2, 3))->contains(4));
+    }
+
+    #endregion
+
+    #region Pagination
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_array ()
+    {
+        // elementAt (key)
+        $this->assertEquals(
+            2,
+            E::from(array(1, 2, 3))->elementAt(1));
+        $this->assertEquals(
+            2,
+            E::from(array(3 => 1, 2, 'a' => 3))->elementAt(4));
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_emptyArray ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array())->elementAt(1);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_indexedArray ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array(1, 2, 3))->elementAt(4);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_assocArray ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array('a' => 1, 'b' => 2, 'c' => 3))->elementAt(0);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_Enumerable ()
+    {
+        // elementAt (key)
+        $this->assertEquals(
+            2,
+            E::from(array(1, 2, 3))->select('$v')->elementAt(1));
+        $this->assertEquals(
+            2,
+            E::from(array(3 => 1, 2, 'a' => 3))->select('$v')->elementAt(4));
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_emptyEnumerable ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array())->select('$v')->elementAt(1);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_indexedEnumerable ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array(1, 2, 3))->select('$v')->elementAt(4);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAt
+     */
+    function testElementAt_noKey_assocEnumerable ()
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        E::from(array('a' => 1, 'b' => 2, 'c' => 3))->select('$v')->elementAt(0);
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAtOrDefault
+     */
+    function testElementAtOrDefault_array ()
+    {
+        // contains (key)
+        $this->assertEquals(
+            null,
+            E::from(array())->elementAtOrDefault(1));
+        $this->assertEquals(
+            2,
+            E::from(array(1, 2, 3))->elementAtOrDefault(1));
+        $this->assertEquals(
+            null,
+            E::from(array(1, 2, 3))->elementAtOrDefault(4));
+        $this->assertEquals(
+            2,
+            E::from(array(3 => 1, 2, 'a' => 3))->elementAtOrDefault(4));
+        $this->assertEquals(
+            null,
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3))->elementAtOrDefault(0));
+    }
+
+    /** @covers YaLinqo\Enumerable::elementAtOrDefault
+     */
+    function testElementAtOrDefault_Enumerable ()
+    {
+        // contains (key)
+        $this->assertEquals(
+            null,
+            E::from(array())->select('$v')->elementAtOrDefault(1));
+        $this->assertEquals(
+            2,
+            E::from(array(1, 2, 3))->select('$v')->elementAtOrDefault(1));
+        $this->assertEquals(
+            null,
+            E::from(array(1, 2, 3))->select('$v')->elementAtOrDefault(4));
+        $this->assertEquals(
+            2,
+            E::from(array(3 => 1, 2, 'a' => 3))->select('$v')->elementAtOrDefault(4));
+        $this->assertEquals(
+            null,
+            E::from(array('a' => 1, 'b' => 2, 'c' => 3))->select('$v')->elementAtOrDefault(0));
     }
 
     #endregion

@@ -869,7 +869,7 @@ class Enumerable implements \IteratorAggregate
         if ($selector !== null)
             $enum = $enum->select($selector);
         return $enum->aggregate(function ($a, $b) use ($comparer)
-        { return call_user_func($comparer, $a, $b) > 0 ? $a : $b; });
+        { return call_user_func($comparer, $a, $b) < 0 ? $a : $b; });
     }
 
     /**
