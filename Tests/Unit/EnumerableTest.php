@@ -1627,7 +1627,176 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             E::from(array(-1, -2, -3))->lastOrFallback($fallback, '$v>0'));
     }
 
+    /** @covers YaLinqo\Enumerable::single
+     */
+    function testSingle ()
+    {
+        // single ()
+        $this->assertEquals(
+            2,
+            E::from(array(2))->single());
+
+        // single (predicate)
+        $this->assertEquals(
+            2,
+            E::from(array(-1, 2, -3))->single('$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::single
+     * @dataProvider dataProvider_testSingle_noMatches
+     */
+    function testSingle_noMatches ($source, $predicate)
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_MATCHES);
+        E::from($source)->single($predicate);
+    }
+
+    function dataProvider_testSingle_noMatches ()
+    {
+        return array(
+            // single ()
+            array(array(), null),
+            // single (predicate)
+            array(array(), '$v>0'),
+            array(array(-1, -2, -3), '$v>0'),
+        );
+    }
+
+    /** @covers YaLinqo\Enumerable::single
+     * @dataProvider dataProvider_testSingle_manyMatches
+     */
+    function testSingle_manyMatches ($source, $default, $predicate)
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        E::from($source)->single($default, $predicate);
+    }
+
+    function dataProvider_testSingle_manyMatches ()
+    {
+        return array(
+            // single ()
+            array(array(1, 2, 3), null, null),
+            array(array(3 => 1, 2, 'a' => 3), null, null),
+            // single (default)
+            array(array(1, 2, 3), 'a', null),
+            array(array(3 => 1, 2, 'a' => 3), 'a', null),
+            // single (default, predicate)
+            array(array(1, 2, 3), 'a', '$v>0'),
+            array(array(1, 2, -3), 'a', '$v>0'),
+        );
+    }
+
+    /** @covers YaLinqo\Enumerable::singleOrDefault
+     */
+    function testSingleOrDefault ()
+    {
+        // singleOrDefault ()
+        $this->assertEquals(
+            null,
+            E::from(array())->singleOrDefault());
+        $this->assertEquals(
+            2,
+            E::from(array(2))->singleOrDefault());
+
+        // singleOrDefault (default)
+        $this->assertEquals(
+            'a',
+            E::from(array())->singleOrDefault('a'));
+        $this->assertEquals(
+            2,
+            E::from(array(2))->singleOrDefault('a'));
+
+        // singleOrDefault (default, predicate)
+        $this->assertEquals(
+            'a',
+            E::from(array())->singleOrDefault('a', '$v>0'));
+        $this->assertEquals(
+            2,
+            E::from(array(-1, 2, -3))->singleOrDefault('a', '$v>0'));
+        $this->assertEquals(
+            'a',
+            E::from(array(-1, -2, -3))->singleOrDefault('a', '$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::singleOrDefault
+     * @dataProvider dataProvider_testSingleOrDefault_manyMatches
+     */
+    function testSingleOrDefault_manyMatches ($source, $default, $predicate)
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        E::from($source)->singleOrDefault($default, $predicate);
+    }
+
+    function dataProvider_testSingleOrDefault_manyMatches ()
+    {
+        return array(
+            // singleOrDefault ()
+            array(array(1, 2, 3), null, null),
+            array(array(3 => 1, 2, 'a' => 3), null, null),
+            // singleOrDefault (default)
+            array(array(1, 2, 3), 'a', null),
+            array(array(3 => 1, 2, 'a' => 3), 'a', null),
+            // singleOrDefault (default, predicate)
+            array(array(1, 2, 3), 'a', '$v>0'),
+            array(array(1, 2, -3), 'a', '$v>0'),
+        );
+    }
+
+    /** @covers YaLinqo\Enumerable::singleOrFallback
+     */
+    function testSingleOrFallback ()
+    {
+        $fallback = function () { return 'a'; };
+
+        // singleOrFallback (fallback)
+        $this->assertEquals(
+            'a',
+            E::from(array())->singleOrFallback($fallback));
+        $this->assertEquals(
+            2,
+            E::from(array(2))->singleOrFallback($fallback));
+
+        // singleOrFallback (fallback, predicate)
+        $this->assertEquals(
+            'a',
+            E::from(array())->singleOrFallback($fallback, '$v>0'));
+        $this->assertEquals(
+            2,
+            E::from(array(-1, 2, -3))->singleOrFallback($fallback, '$v>0'));
+        $this->assertEquals(
+            'a',
+            E::from(array(-1, -2, -3))->singleOrFallback($fallback, '$v>0'));
+    }
+
+    /** @covers YaLinqo\Enumerable::singleOrFallback
+     * @dataProvider dataProvider_testSingleOrFallback_manyMatches
+     */
+    function testSingleOrFallback_manyMatches ($source, $fallback, $predicate)
+    {
+        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        E::from($source)->singleOrFallback($fallback, $predicate);
+    }
+
+    function dataProvider_testSingleOrFallback_manyMatches ()
+    {
+        $fallback = function () { return 'a'; };
+
+        return array(
+            // singleOrFallback ()
+            array(array(1, 2, 3), null, null),
+            array(array(3 => 1, 2, 'a' => 3), null, null),
+            // singleOrFallback (fallback)
+            array(array(1, 2, 3), $fallback, null),
+            array(array(3 => 1, 2, 'a' => 3), $fallback, null),
+            // singleOrFallback (fallback, predicate)
+            array(array(1, 2, 3), $fallback, '$v>0'),
+            array(array(1, 2, -3), $fallback, '$v>0'),
+        );
+    }
+
     #endregion
+
+    #region Testing
 
     function assertEnumEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
@@ -1643,4 +1812,6 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals($expected, $actual->take($maxLength)->toValues());
     }
+
+    #endregion
 }

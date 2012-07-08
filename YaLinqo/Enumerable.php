@@ -1165,17 +1165,18 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
+                $value = $v;
             }
         }
         if (!$found)
             throw new \UnexpectedValueException(self::ERROR_NO_MATCHES);
-        return $v;
+        return $value;
     }
 
     /**
@@ -1194,15 +1195,16 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
+                $value = $v;
             }
         }
-        return $found ? $v : $default;
+        return $found ? $value : $default;
     }
 
     /**
@@ -1221,15 +1223,16 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         $found = false;
-        $v = null;
+        $value = null;
         foreach ($this as $k => $v) {
             if (call_user_func($predicate, $v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
+                $value = $v;
             }
         }
-        return $found ? $v : call_user_func($fallback);
+        return $found ? $value : call_user_func($fallback);
     }
 
     /**
