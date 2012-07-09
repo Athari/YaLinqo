@@ -217,7 +217,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-See also
-========
+Links
+=====
 
-* [linq.js](http://linqjs.codeplex.com/) - LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
+* [**linq.js**](http://linqjs.codeplex.com/) - LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
+* [**Underscore.js**](http://documentcloud.github.com/underscore/) - library for functional programming in JavaScript. Similar to LINQ, but different method names and no lazy evaluation.
+* [**Underscore.php**](http://brianhaveri.github.com/Underscore.php/) - port of Underscore.js to PHP. Identical functionality.
