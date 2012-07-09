@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
+require_once __DIR__ . '/../Testing/Common.php';
 
 class LinqTest extends PHPUnit_Framework_TestCase
 {

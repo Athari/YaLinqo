@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
+require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Enumerator as E;
 
 class EnumeratorTest extends PHPUnit_Framework_TestCase
