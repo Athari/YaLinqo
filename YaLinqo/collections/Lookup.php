@@ -8,8 +8,13 @@ class Lookup extends Dictionary
     /** {@inheritdoc} */
     public function offsetGet ($offset)
     {
-        $offset = $this->containsObjects ? spl_object_hash($offset) : $offset;
-        return isset($this->data[$offset]) ? $this->data[$offset] : array();
+        if ($this->containsObjects) {
+            $key = is_object($offset) ? spl_object_hash($offset) : $offset;
+            return isset($this->data[$key]) ? $this->data[$key][1] : array();
+        }
+        else {
+            return isset($this->data[$offset]) ? $this->data[$offset] : array();
+        }
     }
 
     /**

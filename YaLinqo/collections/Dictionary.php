@@ -6,7 +6,6 @@ use YaLinqo\collections, YaLinqo\exceptions as e;
 class Dictionary implements \Iterator, \ArrayAccess, \Countable
 {
     const ERROR_ARRAY_KEYS = 'Array keys are not supported.';
-    const ERROR_MIXED_OBJECT_INT_KEYS = 'Mixed integer and object keys are not supported.';
 
     /** @var array */
     protected $data = array();
@@ -58,20 +57,27 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
     public function offsetGet ($offset)
     {
         return $this->containsObjects
-                ? $this->data[spl_object_hash($offset)]
+                ? $this->data[spl_object_hash($offset)][1]
                 : $this->data[$offset];
     }
 
     /** {@inheritdoc} */
     public function offsetSet ($offset, $value)
     {
-        $this->data[$this->convertOffset($offset)] = $value;
+        $key = $this->convertOffset($offset);
+        if ($this->containsObjects)
+            $this->data[$key] = array($offset, $value);
+        else
+            $this->data[$key] = $value;
     }
 
     /** {@inheritdoc} */
     public function offsetUnset ($offset)
     {
-        unset($this->data[$this->containsObjects ? spl_object_hash($offset) : $offset]);
+        if ($this->containsObjects)
+            unset($this->data[is_object($offset) ? spl_object_hash($offset) : $offset]);
+        else
+            unset($this->data[$offset]);
     }
 
     /** {@inheritdoc} */
@@ -97,8 +103,6 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
         }
         elseif (is_array($offset))
             throw new e\NotSupportedException(self::ERROR_ARRAY_KEYS);
-        elseif (is_int($offset) && $this->containsObjects)
-            throw new e\NotSupportedException(self::ERROR_MIXED_OBJECT_INT_KEYS);
         return $offset;
     }
 
@@ -108,10 +112,7 @@ class Dictionary implements \Iterator, \ArrayAccess, \Countable
             return;
 
         $this->containsObjects = true;
-        foreach ($this->data as $k => $v) {
-            if (is_int($k))
-                throw new e\NotSupportedException(self::ERROR_MIXED_OBJECT_INT_KEYS);
+        foreach ($this->data as $k => $v)
             $this->data[$k] = array($k, $v);
-        }
     }
 }
