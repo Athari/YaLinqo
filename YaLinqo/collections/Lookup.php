@@ -5,6 +5,8 @@ use YaLinqo\collections, YaLinqo\exceptions as e;
 
 class Lookup extends Dictionary
 {
+    const ERROR_LOOKUP_VALUE_NOT_ARRAY = 'value must be array.';
+
     /** {@inheritdoc} */
     public function offsetGet ($offset)
     {
@@ -24,10 +26,26 @@ class Lookup extends Dictionary
      */
     public function append ($offset, $value)
     {
-        $offset = $this->convertOffset($offset);
-        if (isset($this->data[$offset]))
-            $this->data[$offset][] = $value;
-        else
-            $this->data[$offset] = array($value);
+        $key = $this->convertOffset($offset);
+        if ($this->containsObjects) {
+            if (isset($this->data[$key]))
+                $this->data[$key][1][] = $value;
+            else
+                $this->data[$key] = array($offset, array($value));
+        }
+        else {
+            if (isset($this->data[$key]))
+                $this->data[$key][] = $value;
+            else
+                $this->data[$key] = array($value);
+        }
+    }
+
+    /** {@inheritdoc} */
+    public function offsetSet ($offset, $value)
+    {
+        if (!is_array($value))
+            throw new \InvalidArgumentException(self::ERROR_LOOKUP_VALUE_NOT_ARRAY);
+        parent::offsetSet($offset, $value);
     }
 }

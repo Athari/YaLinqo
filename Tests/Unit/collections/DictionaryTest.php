@@ -1,11 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../../YaLinqo/Linq.php';
+require_once __DIR__ . '/../../Testing/Common.php';
 use YaLinqo\collections\Dictionary as D, \stdClass as O;
-
-function id ($o) { return spl_object_hash($o); }
-
-function a () { return func_get_args(); }
 
 /** @covers YaLinqo\collections\Dictionary
  */

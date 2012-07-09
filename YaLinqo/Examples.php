@@ -1,5 +1,7 @@
 <?php
 
+// @codeCoverageIgnoreStart
+
 require_once __DIR__ . '/Linq.php';
 use \YaLinqo\Enumerable, \YaLinqo\Functions;
 

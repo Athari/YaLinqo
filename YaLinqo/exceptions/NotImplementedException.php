@@ -5,8 +5,10 @@ use YaLinqo\exceptions;
 
 class NotImplementedException extends \RuntimeException
 {
-    public function __construct ($message = "", $code = 0, \Exception $previous = null)
+    const ERROR_NOT_IMPLEMENTED = 'The method or operation is not yet implemented.';
+
+    public function __construct ($message = self::ERROR_NOT_IMPLEMENTED, $code = 0, \Exception $previous = null)
     {
-        parent::__construct('Not implemented', $code, $previous);
+        parent::__construct($message, $code, $previous);
     }
 }

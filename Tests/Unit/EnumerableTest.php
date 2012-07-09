@@ -1,12 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
+require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, Tests\Stubs\AggregateIteratorWrapper;
-
-function a ()
-{
-    return func_get_args();
-}
 
 class EnumerableTest extends PHPUnit_Framework_TestCase
 {
