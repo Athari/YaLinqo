@@ -235,6 +235,8 @@ $categories = array(
     array('name' => 'Hardware',          'id' => 'hw'),
     array('name' => 'Operating systems', 'id' => 'os'),
 );
+
+// Full lambda syntax
 $result = from($categories)
     ->orderBy('$cat ==> $cat["name"]')
     ->groupJoin(
@@ -246,7 +248,35 @@ $result = from($categories)
         '$prod ==> $prod["catId"]',
         '($cat, $prods) ==> array("name" => $cat["name"], "products" => $prods)'
     );
+
+// Short lambda syntax
+$result2 = from($categories)
+    ->orderBy('$v["name"]')
+    ->groupJoin(
+        from($products)
+            ->where('$v["quantity"] > 0')
+            ->orderByDescending('$v["quantity"]')
+            ->thenBy('$v["name"]'),
+        '$v["id"]', '$v["catId"]', 'array("name" => $v["name"], "products" => $e)'
+    );
+
+// Closure syntax
+$result3 = from($categories)
+    ->orderBy(function ($cat) { return $cat['name']; })
+    ->groupJoin(
+        from($products)
+            ->where(function ($prod) { return $prod["quantity"] > 0; })
+            ->orderByDescending(function ($prod) { return $prod["quantity"]; })
+            ->thenBy(function ($prod) { return $prod["name"]; }),
+        function ($cat) { return $cat["id"]; },
+        function ($prod) { $prod["catId"]; },
+        function ($cat, $prods) { return array("name" => $cat["name"], "products" => $prods); }
+    );
+
 print_r($result->toArrayDeep());
+print_r($result2->toArrayDeep());
+print_r($result3->toArrayDeep());
+
 $result->writeLine(function ($cat) {
     return
         "<p><b>{$cat['name']}</b>:\n" .
