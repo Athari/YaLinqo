@@ -23,7 +23,7 @@ var_dump($enum->aggregate(function($a, $b) { return $a . '|' . $b; }));
 var_dump($enum->average(function($v, $k) { return $v + $k; }));
 var_dump($enum->average(function($v, $k) { return $k; }));
 var_dump($enum->average());
-var_dump(from(new \EmptyIterator)->average());
+//var_dump(from(new \EmptyIterator)->average());
 
 var_dump($enum->count(function($v) { return intval($v) != 0; }));
 var_dump(from(array(1, 2, 3))->count(function($v) { return $v > 1; }));
@@ -219,3 +219,39 @@ var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->take(9)->toString());
 var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v < 7')->toString());
 var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v == 0')->toString());
 var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v != 9')->toString());
+
+$products = array(
+    array('name' => 'Keyboard',    'catId' => 'hw', 'quantity' =>  10, 'id' => 1),
+    array('name' => 'Mouse',       'catId' => 'hw', 'quantity' =>  20, 'id' => 2),
+    array('name' => 'Monitor',     'catId' => 'hw', 'quantity' =>   0, 'id' => 3),
+    array('name' => 'Joystick',    'catId' => 'hw', 'quantity' =>  15, 'id' => 4),
+    array('name' => 'CPU',         'catId' => 'hw', 'quantity' =>  15, 'id' => 5),
+    array('name' => 'Motherboard', 'catId' => 'hw', 'quantity' =>  11, 'id' => 6),
+    array('name' => 'Windows',     'catId' => 'os', 'quantity' => 666, 'id' => 7),
+    array('name' => 'Linux',       'catId' => 'os', 'quantity' => 666, 'id' => 8),
+    array('name' => 'Mac',         'catId' => 'os', 'quantity' => 666, 'id' => 9),
+);
+$categories = array(
+    array('name' => 'Hardware',          'id' => 'hw'),
+    array('name' => 'Operating systems', 'id' => 'os'),
+);
+$result = from($categories)
+    ->orderBy('$cat ==> $cat["name"]')
+    ->groupJoin(
+        from($products)
+            ->where('$prod ==> $prod["quantity"] > 0')
+            ->orderByDescending('$prod ==> $prod["quantity"]')
+            ->thenBy('$prod ==> $prod["name"]'),
+        '$cat ==> $cat["id"]',
+        '$prod ==> $prod["catId"]',
+        '($cat, $prods) ==> array("name" => $cat["name"], "products" => $prods)'
+    );
+print_r($result->toArrayDeep());
+$result->writeLine(function ($cat) {
+    return
+        "<p><b>{$cat['name']}</b>:\n" .
+        $cat['products']->toString(', ', function ($prod) {
+            return "<a href='/products/{$prod["id"]}'>{$prod['name']}</a> ({$prod['quantity']})";
+        }) .
+        "</p>";
+});
