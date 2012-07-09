@@ -10,16 +10,6 @@ function a ()
 
 class EnumerableTest extends PHPUnit_Framework_TestCase
 {
-    public static function setUpBeforeClass ()
-    {
-        \PHPUnit_Framework_ComparatorFactory::getDefaultInstance()->register(new Tests\Testing\Comparator_ArrayEnumerable);
-    }
-
-    protected function setUp ()
-    {
-        $this->setOutputCallback(function ($str) { return str_replace("\r\n", "\n", $str); });
-    }
-
     #region Generation
 
     /** @covers YaLinqo\Enumerable::cycle
@@ -2379,6 +2369,16 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
     #endregion
 
     #region Testing
+
+    static function setUpBeforeClass ()
+    {
+        \PHPUnit_Framework_ComparatorFactory::getDefaultInstance()->register(new Tests\Testing\Comparator_ArrayEnumerable);
+    }
+
+    function setUp ()
+    {
+        $this->setOutputCallback(function ($str) { return str_replace("\r\n", "\n", $str); });
+    }
 
     function assertEnumEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
