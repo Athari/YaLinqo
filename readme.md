@@ -138,7 +138,7 @@ $result->writeLine(function ($cat) {
 Requirements
 ============
 
-* PHP 5.3 or higher to take advantage of closures. The library may work in older versions, if closures are avoided, but it has not been tested.
+* PHP 5.3 or higher.
 
 Usage
 =====
