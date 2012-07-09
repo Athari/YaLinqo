@@ -1,4 +1,4 @@
-**YaLinqo: Yet Another LINQ to Objects for PHP**
+# *YaLinqo: Yet Another LINQ to Objects for PHP*
 
 Features
 ========
@@ -49,6 +49,7 @@ $categories = array(
     array('name' => 'Hardware',          'id' => 'hw'),
     array('name' => 'Operating systems', 'id' => 'os'),
 );
+
 // Put products with non-zero quantity into matching categories; sort products by quantity descending, then by name
 $result = from($categories)
     ->orderBy('$cat ==> $cat["name"]')
@@ -63,7 +64,7 @@ $result = from($categories)
     );
 print_r($result->toArrayDeep());
 ```
-*Output (compact):*
+*Output (compacted):*
 ```
 Array (
     [hw] => Array (
@@ -109,6 +110,18 @@ $result->writeLine(function ($cat) {
 <a href='/products/8'>Linux</a> (666)</p>
 ```
 
+Usage
+=====
+
+```php
+require_once __DIR__ . '/lib/Linq.php'; // replace with your path
+use \YaLinqo\Enumerable; // optional, to shorten class name
+
+// 'from' can be called as a static method or via a global function shortcut
+Enumerable::from(array(1, 2, 3));
+from(array(1, 2, 3));
+```
+
 IMPORTANT! Please vote for these bugs!
 ======================================
 
@@ -145,4 +158,3 @@ You need to register in order to vote and comment.
 4. PhpDoc bugs
 
    [WI-8270](http://youtrack.jetbrains.com/issue/WI-8270) (Error in PhpDoc quick documentation if {@link} used twice in a line)
-
