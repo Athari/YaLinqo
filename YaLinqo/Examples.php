@@ -269,7 +269,7 @@ $result3 = from($categories)
             ->orderByDescending(function ($prod) { return $prod["quantity"]; })
             ->thenBy(function ($prod) { return $prod["name"]; }),
         function ($cat) { return $cat["id"]; },
-        function ($prod) { $prod["catId"]; },
+        function ($prod) { return $prod["catId"]; },
         function ($cat, $prods) { return array("name" => $cat["name"], "products" => $prods); }
     );
 
