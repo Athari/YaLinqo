@@ -1,9 +1,13 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, Tests\Stubs\AggregateIteratorWrapper;
 
-class EnumerableTest extends PHPUnit_Framework_TestCase
+/** @covers YaLinqo\Enumerable
+ */
+class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 {
     #region Generation
 
@@ -2359,35 +2363,6 @@ class EnumerableTest extends PHPUnit_Framework_TestCase
             array("0=1\n1=2\n2=3\n", array(1, 2, 3), '"$k=$v"'),
             array("0=1\na=2\n1=3\n", array(1, 'a' => 2, 3), '"$k=$v"'),
         );
-    }
-
-    #endregion
-
-    #region Testing
-
-    static function setUpBeforeClass ()
-    {
-        \PHPUnit_Framework_ComparatorFactory::getDefaultInstance()->register(new Tests\Testing\Comparator_ArrayEnumerable);
-    }
-
-    function setUp ()
-    {
-        $this->setOutputCallback(function ($str) { return str_replace("\r\n", "\n", $str); });
-    }
-
-    function assertEnumEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
-    {
-        $this->assertEquals($expected, $actual->take($maxLength));
-    }
-
-    function assertEnumOrderEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
-    {
-        $this->assertEquals($expected, $actual->take($maxLength)->select('array($k, $v)', Functions::increment()));
-    }
-
-    function assertEnumValuesEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
-    {
-        $this->assertEquals($expected, $actual->take($maxLength)->toValues());
     }
 
     #endregion

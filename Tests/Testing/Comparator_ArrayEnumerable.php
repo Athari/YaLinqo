@@ -1,6 +1,7 @@
 <?php
 
 namespace Tests\Testing;
+
 use \YaLinqo\Enumerable;
 
 class Comparator_ArrayEnumerable extends \PHPUnit_Framework_Comparator_Array

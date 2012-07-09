@@ -1,11 +1,13 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../../Testing/Common.php';
 use YaLinqo\collections\Dictionary as D, \stdClass as O;
 
 /** @covers YaLinqo\collections\Dictionary
  */
-class DictionaryTest extends PHPUnit_Framework_TestCase
+class DictionaryTest extends \PHPUnit_Framework_TestCase
 {
     function testSimpleOffsets ()
     {

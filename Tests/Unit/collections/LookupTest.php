@@ -1,11 +1,13 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../../Testing/Common.php';
 use YaLinqo\collections\Lookup as L, \stdClass as O;
 
 /** @covers YaLinqo\collections\Lookup
  */
-class LookupTest extends PHPUnit_Framework_TestCase
+class LookupTest extends \PHPUnit_Framework_TestCase
 {
     function testMixedOffsets ()
     {

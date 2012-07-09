@@ -1,40 +1,87 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Functions as F;
 
-class FunctionsTest extends PHPUnit_Framework_TestCase
+/** @covers YaLinqo\Functions
+ */
+class FunctionsTest extends \PHPUnit_Framework_TestCase
 {
-    /** @covers YaLinqo\Functions
-     */
-    function testFunctions ()
+    function testIdentity ()
     {
         /** @var $f callback */
         $f = F::$identity;
-        $this->assertEquals(2, $f(2));
+        $this->assertSame(2, $f(2));
+    }
+
+    function testKey ()
+    {
+        /** @var $f callback */
         $f = F::$key;
-        $this->assertEquals(3, $f(2, 3));
+        $this->assertSame(3, $f(2, 3));
+    }
+
+    function testValue ()
+    {
+        /** @var $f callback */
         $f = F::$value;
-        $this->assertEquals(2, $f(2, 3));
+        $this->assertSame(2, $f(2, 3));
+    }
+
+    function testTrue ()
+    {
+        /** @var $f callback */
         $f = F::$true;
-        $this->assertEquals(true, $f());
+        $this->assertSame(true, $f());
+    }
+
+    function testFalse ()
+    {
+        /** @var $f callback */
         $f = F::$false;
-        $this->assertEquals(false, $f());
+        $this->assertSame(false, $f());
+    }
+
+    function testBlank ()
+    {
+        /** @var $f callback */
         $f = F::$blank;
-        $this->assertEquals(null, $f());
+        $this->assertSame(null, $f());
+    }
+
+    function testCompareStrict ()
+    {
+        /** @var $f callback */
         $f = F::$compareStrict;
-        $this->assertEquals(-1, $f(2, 3));
-        $this->assertEquals(-1, $f(2, '2'));
-        $this->assertEquals(0, $f(2, 2));
-        $this->assertEquals(1, $f(3, 2));
+        $this->assertSame(-1, $f(2, 3));
+        $this->assertSame(-1, $f(2, '2'));
+        $this->assertSame(0, $f(2, 2));
+        $this->assertSame(1, $f(3, 2));
+    }
+
+    function testCompareLoose ()
+    {
+        /** @var $f callback */
         $f = F::$compareLoose;
-        $this->assertEquals(-1, $f(2, 3));
-        $this->assertEquals(0, $f(2, '2'));
-        $this->assertEquals(0, $f(2, 2));
-        $this->assertEquals(1, $f(3, 2));
+        $this->assertSame(-1, $f(2, 3));
+        $this->assertSame(0, $f(2, '2'));
+        $this->assertSame(0, $f(2, 2));
+        $this->assertSame(1, $f(3, 2));
+    }
+
+    function testIncrement ()
+    {
+        /** @var $f callback */
         $f = F::increment();
-        $this->assertEquals(0, $f());
-        $this->assertEquals(1, $f());
-        $this->assertEquals(2, $f());
+        $this->assertSame(0, $f());
+        $this->assertSame(1, $f());
+        $this->assertSame(2, $f());
+
+        $g = F::increment();
+        $this->assertSame(0, $g());
+        $this->assertSame(1, $g());
+        $this->assertSame(3, $f());
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../../Testing/Common.php';
 use YaLinqo\exceptions\NotSupportedException as E;
 
 /** @covers YaLinqo\exceptions\NotSupportedException
  */
-class NotSupportedExceptionTest extends PHPUnit_Framework_TestCase
+class NotSupportedExceptionTest extends \PHPUnit_Framework_TestCase
 {
     function testConstructor ()
     {

@@ -1,9 +1,11 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Utils as U;
 
-class UtilsTest extends PHPUnit_Framework_TestCase
+class UtilsTest extends \PHPUnit_Framework_TestCase
 {
     /** @covers YaLinqo\Utils::createLambda
      */

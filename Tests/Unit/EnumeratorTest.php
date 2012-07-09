@@ -1,12 +1,14 @@
 <?php
 
+namespace Tests\Unit;
+
 require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Enumerator as E;
 
-class EnumeratorTest extends PHPUnit_Framework_TestCase
+/** @covers YaLinqo\Enumerator
+ */
+class EnumeratorTest extends \PHPUnit_Framework_TestCase
 {
-    /** @covers YaLinqo\Enumerator
-     */
     function testEnumeration ()
     {
         $i = 0;
@@ -21,8 +23,6 @@ class EnumeratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(2 => 1, 3 => 2, 4 => 3), $a);
     }
 
-    /** @covers YaLinqo\Enumerator
-     */
     function testEnumeration_empty ()
     {
         $e = new E(function ()
@@ -33,8 +33,6 @@ class EnumeratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $e->valid());
     }
 
-    /** @covers YaLinqo\Enumerator
-     */
     function testEnumeration_throw ()
     {
         $this->setExpectedException('InvalidArgumentException', 'test');
