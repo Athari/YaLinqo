@@ -97,19 +97,19 @@ Array (
     [hw] => Array (
         [name] => Hardware
         [products] => Array (
-            [0] => Array ( [name] => Keyboard    [catId] => hw [quantity] =>  10 [id] => 1 )
-            [1] => Array ( [name] => Motherboard [catId] => hw [quantity] =>  11 [id] => 6 )
+            [0] => Array ( [name] => Mouse       [catId] => hw [quantity] =>  20 [id] => 2 )
+            [1] => Array ( [name] => CPU         [catId] => hw [quantity] =>  15 [id] => 5 )
             [2] => Array ( [name] => Joystick    [catId] => hw [quantity] =>  15 [id] => 4 )
-            [3] => Array ( [name] => CPU         [catId] => hw [quantity] =>  15 [id] => 5 )
-            [4] => Array ( [name] => Mouse       [catId] => hw [quantity] =>  20 [id] => 2 )
+            [3] => Array ( [name] => Motherboard [catId] => hw [quantity] =>  11 [id] => 6 )
+            [4] => Array ( [name] => Keyboard    [catId] => hw [quantity] =>  10 [id] => 1 )
         )
     )
     [os] => Array (
         [name] => Operating systems
         [products] => Array (
-            [0] => Array ( [name] => Windows     [catId] => os [quantity] => 666 [id] => 7 )
+            [0] => Array ( [name] => Linux       [catId] => os [quantity] => 666 [id] => 8 )
             [1] => Array ( [name] => Mac         [catId] => os [quantity] => 666 [id] => 9 )
-            [2] => Array ( [name] => Linux       [catId] => os [quantity] => 666 [id] => 8 )
+            [2] => Array ( [name] => Windows     [catId] => os [quantity] => 666 [id] => 7 )
         )
     )
 )
