@@ -1,5 +1,7 @@
 # *YaLinqo: Yet Another LINQ to Objects for PHP*
 
+https://github.com/Athari/YaLinqo
+
 Features
 ========
 
@@ -177,15 +179,11 @@ You need to register in order to vote and comment.
 
    [WI-2377](http://youtrack.jetbrains.com/issue/WI-2377) (No autocompletion for php variables inside string with injected language)
 
-2. PHP code formatting
-
-   [WI-2377](http://youtrack.jetbrains.com/issue/WI-11300) (Code format: simple methods in one line don't work)
-
-3. PHP inspections
+2. PHP inspections
 
    [WI-11110](http://youtrack.jetbrains.com/issue/WI-11110) (Undefined method: Undefined method wrongly reported when using closures)
 
-4. PhpDoc bugs
+3. PhpDoc bugs
 
    [WI-8270](http://youtrack.jetbrains.com/issue/WI-8270) (Error in PhpDoc quick documentation if {@link} used twice in a line)
 

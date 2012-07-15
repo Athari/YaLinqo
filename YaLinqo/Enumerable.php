@@ -17,6 +17,7 @@ use YaLinqo, YaLinqo\collections as c, YaLinqo\exceptions as e;
 // TODO: toTable, toCsv, toExcelCsv
 // TODO: foreach fails on object keys. Bug in PHP still not fixed. Transform all statements into ForEach calls?
 // TODO: document when keys are preserved/discarded
+// TODO: optimize toValues etc. for arrays
 // Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, call/each, InvalidOperationException => UnexpectedValueException
 
 class Enumerable implements \IteratorAggregate
