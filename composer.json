@@ -1,0 +1,16 @@
+{
+	"name": "athari/ya-linqo",
+	"description": "YaLinqo a LINQ Libray for PHP",
+	"license": "Simplified BSD",
+	"authors": [{
+		"name": "Alexander Prokhorov"
+	}],
+	"require" : {
+		"php": ">=5.3"
+	},
+	"autoload": {
+		"files": [
+			"YaLinqo/Linq.php"
+		]
+	}
+}
