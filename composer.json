@@ -1,7 +1,9 @@
 {
-	"name": "athari/ya-linqo",
-	"description": "YaLinqo a LINQ Libray for PHP",
+	"name": "athari/yalinqo",
+	"description": "YaLinqo, a LINQ-to-objects library for PHP",
 	"license": "Simplified BSD",
+	"homepage": "https://github.com/Athari/YaLinqo",
+	"keywords": ["linq", "linqo", "query", "statistic"],
 	"authors": [{
 		"name": "Alexander Prokhorov"
 	}],
