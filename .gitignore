@@ -1,4 +1,9 @@
+# IDE
 .project
-.DS_Store
 .buildpath
 .settings
+
+# OS
+Thumbs.db
+desktop.ini
+Thumbs.db
