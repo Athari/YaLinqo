@@ -1268,7 +1268,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
     /** @covers YaLinqo\Enumerable::contains
      */
-    function testAny_contains ()
+    function testContains ()
     {
         // contains (value)
         $this->assertEquals(
@@ -1280,6 +1280,33 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEquals(
             false,
             E::from(array(1, 2, 3))->contains(4));
+    }
+
+    /** @covers YaLinqo\Enumerable::distinct
+     */
+    function testDistinct ()
+    {
+        // distinct ()
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->distinct());
+        $this->assertEnumEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3))->distinct());
+        $this->assertEnumEquals(
+            array(1, 2, 3),
+            E::from(array(1, 2, 3, 1, 2))->distinct());
+
+        // distinct (selector)
+        $this->assertEnumEquals(
+            array(),
+            E::from(array())->distinct('$v*$k'));
+        $this->assertEnumEquals(
+            array(3 => 1, 2 => 2, 1 => 5),
+            E::from(array(3 => 1, 2 => 2, 1 => 5))->distinct('$v*$k'));
+        $this->assertEnumEquals(
+            array(4 => 1, 1 => 3),
+            E::from(array(4 => 1, 2 => 2, 1 => 3))->distinct('$v*$k'));
     }
 
     #endregion

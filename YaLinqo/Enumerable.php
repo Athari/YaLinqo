@@ -4,7 +4,7 @@ namespace YaLinqo;
 use YaLinqo, YaLinqo\collections as c, YaLinqo\exceptions as e;
 
 // TODO: string syntax: select("new { ... }")
-// TODO: linq.js must: Distinct[By], Except[By], Intersect, Union, Cast
+// TODO: linq.js must: Except[By], Intersect, Union, Cast
 // TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount, SequenceEqual, Reverse
 // TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, Shuffle
 // TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
@@ -800,7 +800,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: max ()
      * <p>Returns the maximum value in a sequence of values.
-     * <p><b>Syntax</b>: max ([selector {{(v, k) ==> value}])
+     * <p><b>Syntax</b>: max (selector {{(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value.
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \UnexpectedValueException If sequence contains no elements.
@@ -815,9 +815,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p><b>Syntax</b>: maxBy ()
+     * <p><b>Syntax</b>: maxBy (comparer {{(a, b) ==> diff})
      * <p>Returns the maximum value in a sequence of values, using specified comparer.
-     * <p><b>Syntax</b>: maxBy ([selector {{(v, k) ==> value}])
+     * <p><b>Syntax</b>: maxBy (comparer {{(a, b) ==> diff}, selector {{(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
@@ -838,7 +838,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * <p><b>Syntax</b>: min ()
      * <p>Returns the minimum value in a sequence of values.
-     * <p><b>Syntax</b>: min ([selector {{(v, k) ==> value}])
+     * <p><b>Syntax</b>: min (selector {{(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value.
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @throws \UnexpectedValueException If sequence contains no elements.
@@ -853,9 +853,9 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * <p><b>Syntax</b>: minBy ()
+     * <p><b>Syntax</b>: minBy (comparer {{(a, b) ==> diff})
      * <p>Returns the minimum value in a sequence of values, using specified comparer.
-     * <p><b>Syntax</b>: minBy ([selector {{(v, k) ==> value}])
+     * <p><b>Syntax</b>: minBy (comparer {{(a, b) ==> diff}, selector {{(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value, using specified comparer.
      * @param callback $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
@@ -952,6 +952,28 @@ class Enumerable implements \IteratorAggregate
                 return true;
         }
         return false;
+    }
+
+    /**
+     * <p><b>Syntax</b>: distinct ()
+     * <p>Returns distinct elements from a sequence.
+     * <p><b>Syntax</b>: distinct (selector {{(v, k) ==> value})
+     * <p>Invokes a transform function on each element of a sequence and returns distinct elements.
+     * @param callback|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @return Enumerable A sequence that contains distinct elements of the input sequence.
+     */
+    public function distinct ($selector = null)
+    {
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        $dic = new c\Dictionary();
+        return $this->where(function ($v, $k) use ($dic, $selector) {
+            $key = call_user_func($selector, $v, $k);
+            if ($dic->offsetExists($key))
+                return false;
+            $dic->offsetSet($key, true);
+            return true;
+        });
     }
 
     #endregion
