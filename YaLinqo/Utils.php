@@ -9,12 +9,12 @@ class Utils
     const ERROR_CLOSURE_NOT_CALLABLE = 'closure must be callable';
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
     /**
-     * @param callback|null $closure
+     * @param callable|null $closure
      * @param string $closureArgs
-     * @param Closure|boolean|null $default
+     * @param \Closure|boolean|null $default
      * @throws \InvalidArgumentException Both closure and default are null.
      * @throws \InvalidArgumentException Incorrect lambda syntax.
-     * @return callback|null
+     * @return callable|null
      */
     public static function createLambda ($closure, $closureArgs, $default = null)
     {

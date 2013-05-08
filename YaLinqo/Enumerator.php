@@ -9,9 +9,9 @@ class Enumerator implements \Iterator
     const STATE_RUNNING = 1;
     const STATE_AFTER = 2;
 
-    /** @var Closure */
+    /** @var \Closure */
     private $funNext;
-    /** @var Closure */
+    /** @var \Closure */
     private $funYield;
     private $state = self::STATE_RUNNING;
     private $valid = true;
@@ -19,7 +19,7 @@ class Enumerator implements \Iterator
     public $currentKey = null;
 
     /**
-     * @param Closure $funNext
+     * @param \Closure $funNext
      */
     public function __construct ($funNext)
     {

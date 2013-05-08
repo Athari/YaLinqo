@@ -5,21 +5,21 @@ use YaLinqo;
 
 class Functions
 {
-    /** @var callback {(x) ==> x} */
+    /** @var callable {(x) ==> x} */
     public static $identity;
-    /** @var callback {(v, k) ==> k} */
+    /** @var callable {(v, k) ==> k} */
     public static $key;
-    /** @var callback {(v, k) ==> v} */
+    /** @var callable {(v, k) ==> v} */
     public static $value;
-    /** @var callback {() ==> true} */
+    /** @var callable {() ==> true} */
     public static $true;
-    /** @var callback {() ==> false} */
+    /** @var callable {() ==> false} */
     public static $false;
-    /** @var callback {() ==> {}} */
+    /** @var callable {() ==> {}} */
     public static $blank;
-    /** @var callback */
+    /** @var callable */
     public static $compareStrict;
-    /** @var callback */
+    /** @var callable */
     public static $compareLoose;
 
     public static function init ()
