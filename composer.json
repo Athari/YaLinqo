@@ -1,23 +1,28 @@
 {
-	"name": "fabricius/yalinqo",
-	"description": "YaLinqo, a LINQ-to-objects library for PHP",
-	"license": "Simplified BSD",
-	"homepage": "https://github.com/Athari/YaLinqo",
-	"keywords": ["linq", "linqo", "query", "statistic"],
-	"authors": [{
-		"name": "Alexander Prokhorov"
-	}],
-	"require" : {
-		"php": ">=5.3"
-	},
-	"autoload": {
-		"files": [
-			"YaLinqo/Linq.php"
-		]
-	},
-	"extra": {
-    "branch-alias": {
-        "dev-master": "1.0.x-dev"
+    "name": "fabricius/yalinqo",
+    "description": "YaLinqo, a LINQ-to-objects library for PHP",
+    "license": "Simplified BSD",
+    "homepage": "https://github.com/fabricius/YaLinqo",
+    "keywords": ["linq", "linqo", "query", "statistic"],
+    "authors": [
+        {
+            "name": "Alexander Prokhorov"
+        },
+        {
+            "name": "Robin van der Vleuten"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "files": [
+            "YaLinqo/Linq.php"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
-	}
 }
