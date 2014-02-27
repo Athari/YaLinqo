@@ -1,9 +1,1 @@
-# IDE
-.project
-.buildpath
-.settings
-
-# OS
-Thumbs.db
-desktop.ini
-Thumbs.db
+/vendor/
