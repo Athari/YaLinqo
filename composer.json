@@ -16,9 +16,7 @@
         "php": ">=5.3"
     },
     "autoload": {
-        "files": [
-            "YaLinqo/Linq.php"
-        ]
+        "psr-0": { "YaLinqo\\": "src" }
     },
     "extra": {
         "branch-alias": {
