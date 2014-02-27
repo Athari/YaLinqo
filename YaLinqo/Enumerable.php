@@ -116,7 +116,7 @@ class Enumerable implements \IteratorAggregate
     public static function from ($source)
     {
         $it = null;
-        if ($source instanceof Enumerable)
+        if ($source instanceof static)
             return $source;
         if (is_array($source))
             $it = new \ArrayIterator($source);
@@ -125,7 +125,7 @@ class Enumerable implements \IteratorAggregate
         elseif ($source instanceof \IteratorAggregate)
             $it = $source->getIterator();
         if ($it !== null) {
-            return new Enumerable(function () use ($it)
+            return new static(function () use ($it)
             {
                 return $it;
             });
