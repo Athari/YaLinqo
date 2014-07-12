@@ -2,7 +2,7 @@
 
 namespace YaLinqo;
 
-use YaLinqo, YaLinqo\collections as c, YaLinqo\exceptions as e;
+use YaLinqo, YaLinqo\exceptions as e;
 
 // TODO: string syntax: select("new { ... }")
 // TODO: linq.js must: Except[By], Intersect, Union, Cast
@@ -108,7 +108,7 @@ class Enumerable implements \IteratorAggregate
         $it = null;
         if ($source instanceof Enumerable)
             return $source;
-        if (is_array($source))
+        else if (is_array($source))
             $it = new \ArrayIterator($source);
         elseif ($source instanceof \Iterator)
             $it = $source;
@@ -479,24 +479,12 @@ class Enumerable implements \IteratorAggregate
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
 
         return new Enumerable(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
-            /** @var $inner Enumerable */
-            $it = $this->getIterator();
-            $it->rewind();
             $lookup = $inner->toLookup($innerKeySelector);
-
-            return new Enumerator(function ($yield) use ($it, $lookup, $outerKeySelector, $resultSelectorValue, $resultSelectorKey) {
-                /** @var $it \Iterator */
-                /** @var $lookup \YaLinqo\collections\Lookup */
-                if (!$it->valid())
-                    return false;
-                $key = $outerKeySelector($it->current(), $it->key());
-                $v = $it->current();
-                $e = self::from($lookup[$key]);
-                $k = $key;
-                $yield($resultSelectorValue($v, $e, $k), $resultSelectorKey($v, $e, $k));
-                $it->next();
-                return true;
-            });
+            foreach ($this as $k => $v) {
+                $key = $outerKeySelector($v, $k);
+                $e = isset($lookup[$key]) ? self::from($lookup[$key]) : self::emptyEnum();
+                yield $resultSelectorKey($v, $e, $key) => $resultSelectorValue($v, $e, $key);
+            }
         });
     }
 
@@ -524,34 +512,13 @@ class Enumerable implements \IteratorAggregate
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
 
         return new Enumerable(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
-            /** @var $inner Enumerable */
-            /** @var $arrIn array */
-            $itOut = $this->getIterator();
-            $itOut->rewind();
             $lookup = $inner->toLookup($innerKeySelector);
-            $arrIn = null;
-            $posIn = 0;
-            $key = null;
-
-            return new Enumerator(function ($yield) use ($itOut, $lookup, &$arrIn, &$posIn, &$key, $outerKeySelector, $resultSelectorValue, $resultSelectorKey) {
-                /** @var $itOut \Iterator */
-                /** @var $lookup \YaLinqo\collections\Lookup */
-                while ($arrIn === null || $posIn >= count($arrIn)) {
-                    if ($arrIn !== null)
-                        $itOut->next();
-                    if (!$itOut->valid())
-                        return false;
-                    $key = $outerKeySelector($itOut->current(), $itOut->key());
-                    $arrIn = $lookup[$key];
-                    $posIn = 0;
-                }
-                $v1 = $itOut->current();
-                $v2 = $arrIn[$posIn];
-                $k = $key;
-                $yield($resultSelectorValue($v1, $v2, $k), $resultSelectorKey($v1, $v2, $k));
-                $posIn++;
-                return true;
-            });
+            foreach ($this as $ok => $ov) {
+                $key = $outerKeySelector($ov, $ok);
+                if (isset($lookup[$key]))
+                    foreach ($lookup[$key] as $iv)
+                        yield $resultSelectorKey($ov, $iv, $key) => $resultSelectorValue($ov, $iv, $key);
+            }
         });
     }
 
@@ -874,12 +841,12 @@ class Enumerable implements \IteratorAggregate
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
-        $dic = new c\Dictionary();
-        return $this->where(function ($v, $k) use ($dic, $selector) {
+        $dic = array();
+        return $this->where(function ($v, $k) use (&$dic, $selector) {
             $key = $selector($v, $k);
-            if ($dic->offsetExists($key))
+            if (isset($dic[$key]))
                 return false;
-            $dic->offsetSet($key, true);
+            $dic[$key] = true;
             return true;
         });
     }
@@ -1416,20 +1383,20 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p><b>Syntax</b>: toDictionary ([keySelector {{(v, k) ==> key} [, valueSelector {{(v, k) ==> value}]])
-     * <p>Creates a {@link Dictionary} from a sequence according to specified key selector and value selector functions.
-     * <p>The toDictionary method returns a Dictionary, a one-to-one dictionary that maps keys to values. If the source sequence contains multiple values with the same key, the result dictionary will only contain the latter value.
+     * <p>Creates an array from a sequence according to specified key selector and value selector functions.
+     * <p>The toDictionary method returns an array, a one-to-one dictionary that maps keys to values. If the source sequence contains multiple values with the same key, the result array will only contain the latter value.
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from each element. Default: key.
      * @param callable|null $valueSelector {(v, k) ==> value} A transform function to produce a result value from each element. Default: value.
-     * @return collections\Dictionary A Dictionary that contains values selected from the input sequence.
+     * @return array An array that contains keys and values selected from the input sequence.
      */
     public function toDictionary ($keySelector = null, $valueSelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $dic = new c\Dictionary();
+        $dic = array();
         foreach ($this as $k => $v)
-            $dic->offsetSet($keySelector($v, $k), $valueSelector($v, $k));
+            $dic[$keySelector($v, $k)] = $valueSelector($v, $k);
         return $dic;
     }
 
@@ -1448,20 +1415,20 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * <p><b>Syntax</b>: toLookup ([keySelector {{(v, k) ==> key} [, valueSelector {{(v, k) ==> value}]])
-     * <p>Creates a {@link Lookup} from a sequence according to specified key selector and value selector functions.
-     * <p>The toLookup method returns a Lookup, a one-to-many dictionary that maps keys to collections of values.
+     * <p>Creates an array from a sequence according to specified key selector and value selector functions.
+     * <p>The toLookup method returns an array, a one-to-many dictionary that maps keys to arrays of values.
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from each element. Default: key.
      * @param callable|null $valueSelector {(v, k) ==> value} A transform function to produce a result value from each element. Default: value.
-     * @return collections\Lookup A Lookup that contains values selected from the input sequence.
+     * @return array An array that contains keys and value arrays selected from the input sequence.
      */
     public function toLookup ($keySelector = null, $valueSelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $lookup = new c\Lookup();
+        $lookup = array();
         foreach ($this as $k => $v)
-            $lookup->append($keySelector($v, $k), $valueSelector($v, $k));
+            $lookup[$keySelector($v, $k)][] = $valueSelector($v, $k);
         return $lookup;
     }
 

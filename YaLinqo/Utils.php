@@ -1,6 +1,7 @@
 <?php
 
 namespace YaLinqo;
+
 use YaLinqo;
 
 class Utils
@@ -8,6 +9,7 @@ class Utils
     const ERROR_CLOSURE_NULL = 'closure must not be null.';
     const ERROR_CLOSURE_NOT_CALLABLE = 'closure must be callable';
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
+
     /**
      * @param callable|null $closure
      * @param string $closureArgs

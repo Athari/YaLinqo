@@ -2112,35 +2112,35 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
         // toDictionary ()
         $this->assertEquals(
             array(),
-            E::from(array())->toDictionary()->toArray());
+            E::from(array())->toDictionary());
         $this->assertEquals(
             array(1, 2, 3),
-            E::from(array(1, 2, 3))->toDictionary()->toArray());
+            E::from(array(1, 2, 3))->toDictionary());
         $this->assertEquals(
             array(1, 'a' => 2, 3),
-            E::from(array(1, 'a' => 2, 3))->toDictionary()->toArray());
+            E::from(array(1, 'a' => 2, 3))->toDictionary());
 
         // toDictionary (keySelector)
         $this->assertEquals(
             array(),
-            E::from(array())->toDictionary('$v')->toArray());
+            E::from(array())->toDictionary('$v'));
         $this->assertEquals(
             array(1 => 1, 2 => 2, 3 => 3),
-            E::from(array(1, 2, 3))->toDictionary('$v')->toArray());
+            E::from(array(1, 2, 3))->toDictionary('$v'));
         $this->assertEquals(
             array(1 => 1, 2 => 2, 3 => 3),
-            E::from(array(1, 'a' => 2, 3))->toDictionary('$v')->toArray());
+            E::from(array(1, 'a' => 2, 3))->toDictionary('$v'));
 
         // toDictionary (keySelector, valueSelector)
         $this->assertEquals(
             array(),
-            E::from(array())->toDictionary('$v', '$k')->toArray());
+            E::from(array())->toDictionary('$v', '$k'));
         $this->assertEquals(
             array(1 => 0, 2 => 1, 3 => 2),
-            E::from(array(1, 2, 3))->toDictionary('$v', '$k')->toArray());
+            E::from(array(1, 2, 3))->toDictionary('$v', '$k'));
         $this->assertEquals(
             array(1 => 0, 2 => 'a', 3 => 1),
-            E::from(array(1, 'a' => 2, 3))->toDictionary('$v', '$k')->toArray());
+            E::from(array(1, 'a' => 2, 3))->toDictionary('$v', '$k'));
     }
 
     /** @covers YaLinqo\Enumerable::toJSON
@@ -2168,32 +2168,32 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
         // toLookup ()
         $this->assertEquals(
             array(),
-            E::from(array())->toLookup()->toArray());
+            E::from(array())->toLookup());
         $this->assertEquals(
             array(a(3), a(4), a(5)),
-            E::from(array(3, 4, 5))->toLookup()->toArray());
+            E::from(array(3, 4, 5))->toLookup());
         $this->assertEquals(
             array('a' => a(3), 'b' => a(4), 'c' => a(5)),
-            E::from(array('a' => 3, 'b' => 4, 'c' => 5))->toLookup()->toArray());
+            E::from(array('a' => 3, 'b' => 4, 'c' => 5))->toLookup());
 
         // toLookup (keySelector)
         $this->assertEquals(
             array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
-            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1')->toArray());
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1'));
         $this->assertEquals(
             array(0 => a(4, 6, 8), 1 => a(3, 5, 7)),
-            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('!($k%2)')->toArray());
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('!($k%2)'));
 
         // toLookup (keySelector, valueSelector)
         $this->assertEquals(
             array(a(3), a(5), a(7), a(9), a(11), a(13)),
-            E::from(array(3, 4, 5, 6, 7, 8))->toLookup(null, '$v+$k')->toArray());
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup(null, '$v+$k'));
         $this->assertEquals(
             array(0 => a(5, 9, 13), 1 => a(3, 7, 11)),
-            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1', '$v+$k')->toArray());
+            E::from(array(3, 4, 5, 6, 7, 8))->toLookup('$v&1', '$v+$k'));
         $this->assertEquals(
             array(0 => a(3, 3, 5), 1 => a(3, 3, 4)),
-            E::from(array(3, 4, 5, 6, 8, 10))->toLookup('!($k%2)', '$v-$k')->toArray());
+            E::from(array(3, 4, 5, 6, 8, 10))->toLookup('!($k%2)', '$v-$k'));
     }
 
     /** @covers YaLinqo\Enumerable::toKeys

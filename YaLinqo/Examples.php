@@ -6,8 +6,8 @@ require_once __DIR__ . '/Linq.php';
 use \YaLinqo\Enumerable, \YaLinqo\Functions;
 
 $enum = from(array('a', 'bbb', 'c', 1, 'a' => 2, '10' => 3))
-        ->where(function($v, $k) { return is_numeric($k); })
-        ->select(function($v, $k) { return "$v($k)"; });
+    ->where(function ($v, $k) { return is_numeric($k); })
+    ->select(function ($v, $k) { return "$v($k)"; });
 
 function compare_strlen ($a, $b)
 {
@@ -17,32 +17,32 @@ function compare_strlen ($a, $b)
 foreach ($enum as $k => $v)
     echo "($k): ($v)\n";
 
-var_dump($enum->aggregate(function($a, $b) { return $a . '|' . $b; }, 'ooo'));
-var_dump($enum->aggregate(function($a, $b) { return $a . '|' . $b; }));
+var_dump($enum->aggregate(function ($a, $b) { return $a . '|' . $b; }, 'ooo'));
+var_dump($enum->aggregate(function ($a, $b) { return $a . '|' . $b; }));
 
-var_dump($enum->average(function($v, $k) { return $v + $k; }));
-var_dump($enum->average(function($v, $k) { return $k; }));
+var_dump($enum->average(function ($v, $k) { return $v + $k; }));
+var_dump($enum->average(function ($v, $k) { return $k; }));
 var_dump($enum->average());
 //var_dump(from(new \EmptyIterator)->average());
 
-var_dump($enum->count(function($v) { return intval($v) != 0; }));
-var_dump(from(array(1, 2, 3))->count(function($v) { return $v > 1; }));
+var_dump($enum->count(function ($v) { return intval($v) != 0; }));
+var_dump(from(array(1, 2, 3))->count(function ($v) { return $v > 1; }));
 var_dump($enum->count());
 var_dump(from(new \EmptyIterator)->count());
 
-var_dump($enum->max(function($v, $k) { return intval($k); }));
-var_dump(from(array(1, 2, 3))->max(function($v) { return $v * $v; }));
+var_dump($enum->max(function ($v, $k) { return intval($k); }));
+var_dump(from(array(1, 2, 3))->max(function ($v) { return $v * $v; }));
 var_dump(from(array(1, 2, 3))->max());
 var_dump($enum->max());
 //var_dump(from(new \EmptyIterator)->max());
 
-var_dump($enum->min(function($v, $k) { return intval($k); }));
-var_dump(from(array(1, 2, 3))->min(function($v) { return $v * $v; }));
+var_dump($enum->min(function ($v, $k) { return intval($k); }));
+var_dump(from(array(1, 2, 3))->min(function ($v) { return $v * $v; }));
 var_dump(from(array(1, 2, 3))->min());
 var_dump($enum->min());
 //var_dump(from(new \EmptyIterator)->min());
 
-var_dump($enum->maxBy(__NAMESPACE__ . '\compare_strlen', function($v, $k) { return $v . ' ' . $k; }));
+var_dump($enum->maxBy(__NAMESPACE__ . '\compare_strlen', function ($v, $k) { return $v . ' ' . $k; }));
 
 var_dump($enum->toArray());
 var_dump($enum->toValues()->toArray());
@@ -60,18 +60,17 @@ var_dump(Enumerable::repeat('d', 2)->toArray());
 var_dump(Enumerable::repeat('e', INF)->take(2)->toArray());
 
 var_dump(Enumerable::generate(
-    function($v, $k)
-    { return $k * $k - $v * 2; }
+    function ($v, $k) { return $k * $k - $v * 2; }
 )->take(20)->toArray());
 
 var_dump(Enumerable::generate(
-    function($v, $k) { return $v + $k; }, 1,
-    function($v) { return $v; }, 1
+    function ($v, $k) { return $v + $k; }, 1,
+    function ($v) { return $v; }, 1
 )->take(10)->toArray());
 
 var_dump(Enumerable::generate(
-    function($v) { return array($v[1], $v[0] + $v[1]); }, array(1, 1),
-    function($v) { return $v[1]; }, 1
+    function ($v) { return array($v[1], $v[0] + $v[1]); }, array(1, 1),
+    function ($v) { return $v[1]; }, 1
 )->toKeys()->take(10)->toArray());
 
 var_dump(Enumerable::generate(function ($v, $k) { return pow(-1, $k) / (2 * $k + 1); }, 0)->take(1000)->sum() * 4);
@@ -86,13 +85,6 @@ var_dump(from(array(1, 2, 3, 4, 5, 6))->where('$v > 2')->where('$v>3')->select('
 
 var_dump(Enumerable::split('1 2 3 4 5 6', '# #')->toArray());
 var_dump(Enumerable::matches('1 2 3 4 5 6', '#\d+#')->select('$v[0]')->maxBy(Functions::$compareStrict));
-
-var_dump(from(array(1, 2))->selectMany('$v ==> array(1, 2)', '"$v1 $v2"', '"$k1 $k2"')->toArray());
-var_dump(from(array(1, 2))->selectMany('$v ==> array(1, 2)', '"$k1=$v1 $k2=$v2"')->toArray());
-var_dump(from(array(1, 2))->selectMany('$v ==> array(1, 2)', 'array($v1, $v2)')->toArray());
-var_dump(from(array(1, 2))->selectMany('$v ==> array()', '"$v1 $v2"', '"$k1 $k2"')->toArray());
-var_dump(from(array())->selectMany('$v ==> array(1, 2)', '"$v1 $v2"', '"$k1 $k2"')->toArray());
-var_dump(from(array('a' => array(1, 2), 'b' => array(3)))->selectMany('$v')->toArray());
 
 var_dump(from(array(
     array(1, 3, 4),
@@ -114,14 +106,14 @@ var_dump(from(
         array('id' => 12, 'name' => 'cat3'),
     )
 )->join(
-    array(
-        array('name' => 'prod1', 'catId' => 10),
-        array('name' => 'prod2', 'catId' => 10),
-        array('name' => 'prod3', 'catId' => 11),
-        array('name' => 'prod4', 'catId' => 13),
-    ),
-    '$v["id"]', '$v["catId"]',
-    function ($cat, $prod) { return "prod {$prod['name']} from {$cat['name']}"; })->toLookup()->toArray());
+        array(
+            array('name' => 'prod1', 'catId' => 10),
+            array('name' => 'prod2', 'catId' => 10),
+            array('name' => 'prod3', 'catId' => 11),
+            array('name' => 'prod4', 'catId' => 13),
+        ),
+        '$v["id"]', '$v["catId"]',
+        function ($cat, $prod) { return "prod {$prod['name']} from {$cat['name']}"; })->toLookup());
 
 var_dump(from(array('a', 'b', 'c', 10 => 'z'))->groupJoin(array('d', 'e', 10 => 'y', 11 => 'x'), null, null, 'array($v, $e->toArray())')->toArray());
 var_dump(from(
@@ -131,20 +123,19 @@ var_dump(from(
         array('id' => 12, 'name' => 'cat3'),
     )
 )->groupJoin(
-    array(
-        array('name' => 'prod1', 'catId' => 10),
-        array('name' => 'prod2', 'catId' => 10),
-        array('name' => 'prod3', 'catId' => 11),
-        array('name' => 'prod4', 'catId' => 13),
-    ),
-    '$v["id"]', '$v["catId"]',
-    function ($cat, $prods)
-    {
-        /** @var $prods \YaLinqo\Enumerable */
-        return $prods->any()
+        array(
+            array('name' => 'prod1', 'catId' => 10),
+            array('name' => 'prod2', 'catId' => 10),
+            array('name' => 'prod3', 'catId' => 11),
+            array('name' => 'prod4', 'catId' => 13),
+        ),
+        '$v["id"]', '$v["catId"]',
+        function ($cat, $prods) {
+            /** @var $prods \YaLinqo\Enumerable */
+            return $prods->any()
                 ? "Prods from {$cat['name']}: " . $prods->toString(', ', '$v["name"]') . '.'
                 : "Cat {$cat['name']} is empty.";
-    })->toArray());
+        })->toArray());
 
 var_dump(from(
     array(
@@ -221,18 +212,18 @@ var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v == 0')->toString());
 var_dump(from(array(1, 2, 3, 4, 5, 6, 7, 8))->takeWhile('$v != 9')->toString());
 
 $products = array(
-    array('name' => 'Keyboard',    'catId' => 'hw', 'quantity' =>  10, 'id' => 1),
-    array('name' => 'Mouse',       'catId' => 'hw', 'quantity' =>  20, 'id' => 2),
-    array('name' => 'Monitor',     'catId' => 'hw', 'quantity' =>   0, 'id' => 3),
-    array('name' => 'Joystick',    'catId' => 'hw', 'quantity' =>  15, 'id' => 4),
-    array('name' => 'CPU',         'catId' => 'hw', 'quantity' =>  15, 'id' => 5),
-    array('name' => 'Motherboard', 'catId' => 'hw', 'quantity' =>  11, 'id' => 6),
-    array('name' => 'Windows',     'catId' => 'os', 'quantity' => 666, 'id' => 7),
-    array('name' => 'Linux',       'catId' => 'os', 'quantity' => 666, 'id' => 8),
-    array('name' => 'Mac',         'catId' => 'os', 'quantity' => 666, 'id' => 9),
+    array('name' => 'Keyboard', 'catId' => 'hw', 'quantity' => 10, 'id' => 1),
+    array('name' => 'Mouse', 'catId' => 'hw', 'quantity' => 20, 'id' => 2),
+    array('name' => 'Monitor', 'catId' => 'hw', 'quantity' => 0, 'id' => 3),
+    array('name' => 'Joystick', 'catId' => 'hw', 'quantity' => 15, 'id' => 4),
+    array('name' => 'CPU', 'catId' => 'hw', 'quantity' => 15, 'id' => 5),
+    array('name' => 'Motherboard', 'catId' => 'hw', 'quantity' => 11, 'id' => 6),
+    array('name' => 'Windows', 'catId' => 'os', 'quantity' => 666, 'id' => 7),
+    array('name' => 'Linux', 'catId' => 'os', 'quantity' => 666, 'id' => 8),
+    array('name' => 'Mac', 'catId' => 'os', 'quantity' => 666, 'id' => 9),
 );
 $categories = array(
-    array('name' => 'Hardware',          'id' => 'hw'),
+    array('name' => 'Hardware', 'id' => 'hw'),
     array('name' => 'Operating systems', 'id' => 'os'),
 );
 
