@@ -1,6 +1,7 @@
 <?php
 
 namespace YaLinqo\exceptions;
+
 use YaLinqo\exceptions;
 
 class NotSupportedException extends \RuntimeException

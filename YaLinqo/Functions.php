@@ -1,6 +1,7 @@
 <?php
 
 namespace YaLinqo;
+
 use YaLinqo;
 
 class Functions
@@ -38,8 +39,7 @@ class Functions
 
         self::$blank = function () { };
 
-        self::$compareStrict = function ($a, $b)
-        {
+        self::$compareStrict = function ($a, $b) {
             if ($a === $b)
                 return 0;
             elseif ($a > $b)
@@ -48,8 +48,7 @@ class Functions
                 return -1;
         };
 
-        self::$compareLoose = function ($a, $b)
-        {
+        self::$compareLoose = function ($a, $b) {
             if ($a == $b)
                 return 0;
             elseif ($a > $b)

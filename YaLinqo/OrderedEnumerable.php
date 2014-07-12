@@ -1,6 +1,7 @@
 <?php
 
 namespace YaLinqo;
+
 use YaLinqo;
 
 class OrderedEnumerable extends Enumerable
@@ -97,16 +98,17 @@ class OrderedEnumerable extends Enumerable
             $order = $orders[$i];
             $comparer = $order->comparer;
             if ($order->desc)
-                $comparer = function ($a, $b) use ($comparer) { return -call_user_func($comparer, $a, $b); };
+                $comparer = function ($a, $b) use ($comparer) { return -$comparer($a, $b); };
             $comparers[] = $comparer;
-            for ($j = 0; $j < count($map); ++$j)
-                $map[$j][] = call_user_func($order->keySelector, $map[$j]['v'], $map[$j]['k']);
+            for ($j = 0; $j < count($map); ++$j) {
+                $keySelector = $order->keySelector;
+                $map[$j][] = $keySelector($map[$j]['v'], $map[$j]['k']);
+            }
         }
 
-        usort($map, function ($a, $b) use ($comparers)
-        {
+        usort($map, function ($a, $b) use ($comparers) {
             for ($i = 0; $i < count($comparers); ++$i) {
-                $diff = call_user_func($comparers[$i], $a[$i], $b[$i]);
+                $diff = $comparers[$i]($a[$i], $b[$i]);
                 if ($diff != 0)
                     return $diff;
             }

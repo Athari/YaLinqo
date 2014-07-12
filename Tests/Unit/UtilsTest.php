@@ -56,11 +56,11 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
         $o = new \Tests\Stubs\Temp(2);
         /** @var $f callback */
         $f = U::createLambda(array($o, 'foo'), 'a');
-        $this->assertSame(5, call_user_func($f, 3)); // PHP doesn't support $f() syntax for arrays yet
+        $this->assertSame(5, $f(3));
         $f = U::createLambda(array('Tests\Stubs\Temp', 'bar'), 'a');
-        $this->assertSame(4, call_user_func($f, 4));
+        $this->assertSame(4, $f(4));
         $f = U::createLambda(array(get_class($o), 'bar'), 'a');
-        $this->assertSame(6, call_user_func($f, 6));
+        $this->assertSame(6, $f(6));
     }
 
     /** @covers YaLinqo\Utils::createLambda

@@ -37,7 +37,7 @@ class OrderedEnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEnumValuesEquals(
             array(22, 2, 444, 11, 22, 1, 333),
             E::from(array(333, 1, 11, 22, 2, 444, 22))
-                    ->orderBy('(int)(-$k/2)')->thenByDir(false, null, 'strncmp($a,$b,1)'));
+                ->orderBy('(int)(-$k/2)')->thenByDir(false, null, 'strncmp($a,$b,1)'));
     }
 
     function testThenByDir_desc ()
@@ -68,7 +68,7 @@ class OrderedEnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEnumValuesEquals(
             array(333, 1, 22, 11, 444, 2, 22),
             E::from(array(333, 1, 11, 22, 2, 444, 22))
-                    ->orderBy('(int)($k/2)')->thenByDir(true, null, 'strncmp($a,$b,1)'));
+                ->orderBy('(int)($k/2)')->thenByDir(true, null, 'strncmp($a,$b,1)'));
     }
 
     function testThenBy ()
@@ -99,7 +99,7 @@ class OrderedEnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEnumValuesEquals(
             array(22, 2, 444, 11, 22, 1, 333),
             E::from(array(333, 1, 11, 22, 2, 444, 22))
-                    ->orderBy('(int)(-$k/2)')->thenBy(null, 'strncmp($a,$b,1)'));
+                ->orderBy('(int)(-$k/2)')->thenBy(null, 'strncmp($a,$b,1)'));
     }
 
     function testThenByDescending ()
@@ -130,7 +130,7 @@ class OrderedEnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEnumValuesEquals(
             array(333, 1, 22, 11, 444, 2, 22),
             E::from(array(333, 1, 11, 22, 2, 444, 22))
-                    ->orderBy('(int)($k/2)')->thenByDescending(null, 'strncmp($a,$b,1)'));
+                ->orderBy('(int)($k/2)')->thenByDescending(null, 'strncmp($a,$b,1)'));
     }
 
     function testThenByAll_multiple ()

@@ -149,7 +149,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
             array('3'),
             array(true),
             array(null),
-            array(function() { }),
+            array(function () { }),
             array(new \stdClass),
         );
     }
@@ -454,7 +454,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
     function testOfType ()
     {
         $a = from(array(
-            1, array(2), '6', function() { }, 1.2, null, new \stdClass, 3, 4.5, 'ab', array(), new \Exception
+            1, array(2), '6', function () { }, 1.2, null, new \stdClass, 3, 4.5, 'ab', array(), new \Exception
         ));
 
         // ofType (empty)
@@ -480,10 +480,10 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
         // ofType (callable)
         $this->assertEnumValuesEquals(
-            array(function() { }),
+            array(function () { }),
             $a->ofType('callable'));
         $this->assertEnumValuesEquals(
-            array(function() { }),
+            array(function () { }),
             $a->ofType('callback'));
 
         // ofType (float)
@@ -519,7 +519,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
         // ofType (object)
         $this->assertEnumValuesEquals(
-            array(function() { }, new \stdClass, new \Exception),
+            array(function () { }, new \stdClass, new \Exception),
             $a->ofType('object'));
 
         // ofType (Exception)
@@ -2242,8 +2242,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $i = 0;
         $this->assertEquals(
             (object)array('prop1' => 1, 'prop2' => true, 'prop3' => 'd'),
-            E::from(array('a' => 1, 'b' => true, 'c' => 'd'))->toObject(function () use (&$i)
-            {
+            E::from(array('a' => 1, 'b' => true, 'c' => 'd'))->toObject(function () use (&$i) {
                 $i++;
                 return "prop$i";
             }));
