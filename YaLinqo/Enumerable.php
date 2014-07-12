@@ -142,10 +142,10 @@ class Enumerable implements \IteratorAggregate
             $value = $seedValue === null ? $funcValue($seedValue, $seedKey) : $seedValue;
             yield $key => $value;
             while (true) {
-                list($value, $key) = array(
+                list($value, $key) = [
                     $funcValue($value, $key),
                     $funcKey ? $funcKey($value, $key) : $key + 1,
-                );
+                ];
                 yield $key => $value;
             }
         });
@@ -474,7 +474,7 @@ class Enumerable implements \IteratorAggregate
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function ($v, $e, $k) { return array($v, $e); });
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function ($v, $e, $k) { return [$v, $e]; });
         /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
 
@@ -507,7 +507,7 @@ class Enumerable implements \IteratorAggregate
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function ($v1, $v2, $k) { return array($v1, $v2); });
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function ($v1, $v2, $k) { return [$v1, $v2]; });
         /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
 
@@ -841,7 +841,7 @@ class Enumerable implements \IteratorAggregate
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
-        $dic = array();
+        $dic = [];
         return $this->where(function ($v, $k) use (&$dic, $selector) {
             $key = $selector($v, $k);
             if (isset($dic[$key]))
@@ -1312,7 +1312,7 @@ class Enumerable implements \IteratorAggregate
         if ($it instanceof \ArrayIterator)
             return $it->getArrayCopy();
 
-        $array = array();
+        $array = [];
         foreach ($it as $k => $v)
             $array[$k] = $v;
         return $array;
@@ -1333,7 +1333,7 @@ class Enumerable implements \IteratorAggregate
 
     protected function toArrayDeepProc ($enum)
     {
-        $array = array();
+        $array = [];
         foreach ($enum as $k => $v)
             $array[$k] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
         return $array;
@@ -1354,7 +1354,7 @@ class Enumerable implements \IteratorAggregate
         if ($it instanceof \ArrayIterator)
             return array_values($it->getArrayCopy());
 
-        $array = array();
+        $array = [];
         foreach ($it as $v)
             $array[] = $v;
         return $array;
@@ -1375,7 +1375,7 @@ class Enumerable implements \IteratorAggregate
 
     protected function toListDeepProc ($enum)
     {
-        $array = array();
+        $array = [];
         foreach ($enum as $v)
             $array[] = $v instanceof \Traversable || is_array($v) ? $this->toListDeepProc($v) : $v;
         return $array;
@@ -1394,7 +1394,7 @@ class Enumerable implements \IteratorAggregate
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $dic = array();
+        $dic = [];
         foreach ($this as $k => $v)
             $dic[$keySelector($v, $k)] = $valueSelector($v, $k);
         return $dic;
@@ -1426,7 +1426,7 @@ class Enumerable implements \IteratorAggregate
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $lookup = array();
+        $lookup = [];
         foreach ($this as $k => $v)
             $lookup[$keySelector($v, $k)][] = $valueSelector($v, $k);
         return $lookup;

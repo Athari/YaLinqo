@@ -85,14 +85,14 @@ class OrderedEnumerable extends Enumerable
     /** {@inheritdoc} */
     public function getIterator ()
     {
-        $orders = array();
+        $orders = [];
 
         for ($order = $this; $order != null; $order = $order->parent)
             $orders[] = $order;
         $orders = array_reverse($orders);
 
-        $map = $this->source->select(function ($v, $k) { return array('v' => $v, 'k' => $k); })->toList();
-        $comparers = array();
+        $map = $this->source->select(function ($v, $k) { return ['v' => $v, 'k' => $k]; })->toList();
+        $comparers = [];
 
         for ($i = 0; $i < count($orders); ++$i) {
             $order = $orders[$i];

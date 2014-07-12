@@ -13,6 +13,7 @@ Features
 * Keys are as important as values. Most callback functions receive both values and the keys; transformations can be applied to both values and the keys; keys are never lost during transformation, if possible.
 * SPL interfaces `Iterator`, `IteratorAggregate` etc. are used throughout the code and can be used interchangeably with Enumerable.
 * Composer support with autoloading ([package](https://packagist.org/packages/athari/yalinqo) on Packagist).
+* No external dependencies.
 
 Implemented methods
 ===================
