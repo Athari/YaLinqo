@@ -141,7 +141,8 @@ $result->writeLine(function ($cat) {
 Requirements
 ============
 
-* PHP 5.3 or higher.
+* Version 1: PHP 5.3 or higher.
+* Version 2: PHP 5.5 or higher.
 
 Usage
 =====
@@ -160,15 +161,6 @@ IMPORTANT! Please vote for these bugs!
 
 If you want to make using the library more pleasurable, you are welcome to vote for the following bugs and features to get them noticed and fixed.
 
-PHP
----
-
-1. Iterator::key() is not allowed to return anything but int or string
-
-   [45684](https://bugs.php.net/bug.php?id=45684) (A request for foreach to be key-type agnostic)
-
-2. Unfortunately, a feature request for simpler Closure syntax was rejected, so you can't vote for it. :-(
-
 PhpStorm IDE
 ------------
 
@@ -178,15 +170,10 @@ You need to register in order to vote and comment.
 
    [WI-3477](http://youtrack.jetbrains.com/issue/WI-3477) (Inject PHP language inside assert('literal'), eval and similar)
 
-   [WI-2377](http://youtrack.jetbrains.com/issue/WI-2377) (No autocompletion for php variables inside string with injected language)
+PHP
+---
 
-2. PHP inspections
-
-   [WI-11110](http://youtrack.jetbrains.com/issue/WI-11110) (Undefined method: Undefined method wrongly reported when using closures)
-
-3. PhpDoc bugs
-
-   [WI-8270](http://youtrack.jetbrains.com/issue/WI-8270) (Error in PhpDoc quick documentation if {@link} used twice in a line)
+1. Unfortunately, a feature request for simpler Closure syntax was rejected, so you can't vote for it. :-(
 
 License
 =======
