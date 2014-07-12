@@ -10,7 +10,10 @@
         }
     ],
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
         "files": [
@@ -19,7 +22,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     }
 }

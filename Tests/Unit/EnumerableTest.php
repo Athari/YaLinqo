@@ -34,7 +34,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
     function testCycle_emptySource ()
     {
         $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
-        E::cycle(array())->getIterator();
+        E::cycle(array())->toArray();
     }
 
     /** @covers YaLinqo\Enumerable::emptyEnum

@@ -1,6 +1,7 @@
 <?php
 
 namespace YaLinqo;
+
 use YaLinqo, YaLinqo\collections as c, YaLinqo\exceptions as e;
 
 // TODO: string syntax: select("new { ... }")
@@ -34,20 +35,21 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * @internal
-     * @param \Closure $iterator
+     * @param \Closure $getIterator
      */
-    private function __construct ($iterator)
+    private function __construct ($getIterator)
     {
-        $this->getIterator = $iterator;
+        $this->getIterator = $getIterator;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     * @return \Iterator
+     */
     public function getIterator ()
     {
-        /** @var $it \Iterator */
-        $it = call_user_func($this->getIterator);
-        $it->rewind();
-        return $it;
+        $getIterator = $this->getIterator;
+        return $getIterator();
     }
 
     #region Generation
@@ -63,27 +65,18 @@ class Enumerable implements \IteratorAggregate
      */
     public static function cycle ($source)
     {
-        $source = Enumerable::from($source);
+        $source = self::from($source);
 
-        return new Enumerable(function () use ($source)
-        {
-            $it = new \EmptyIterator;
-            $i = 0;
-
-            return new Enumerator(function ($yield) use ($source, &$it, &$i)
-            {
-                /** @var $source Enumerable */
-                /** @var $it \Iterator */
-                if (!$it->valid()) {
-                    $it = $source->getIterator();
-                    $it->rewind();
-                    if (!$it->valid())
-                        throw new \UnexpectedValueException(Enumerable::ERROR_NO_ELEMENTS);
+        return new Enumerable(function () use ($source) {
+            $isEmpty = true;
+            while (true) {
+                foreach ($source as $v) {
+                    yield $v;
+                    $isEmpty = false;
                 }
-                $yield($it->current(), $i++);
-                $it->next();
-                return true;
-            });
+                if ($isEmpty)
+                    throw new \UnexpectedValueException(self::ERROR_NO_ELEMENTS);
+            }
         });
     }
 
@@ -94,10 +87,7 @@ class Enumerable implements \IteratorAggregate
      */
     public static function emptyEnum ()
     {
-        return new Enumerable(function ()
-        {
-            return new \EmptyIterator;
-        });
+        return self::from(new \EmptyIterator);
     }
 
     /**
@@ -125,8 +115,7 @@ class Enumerable implements \IteratorAggregate
         elseif ($source instanceof \IteratorAggregate)
             $it = $source->getIterator();
         if ($it !== null) {
-            return new Enumerable(function () use ($it)
-            {
+            return new Enumerable(function () use ($it) {
                 return $it;
             });
         }
@@ -148,24 +137,17 @@ class Enumerable implements \IteratorAggregate
         $funcValue = Utils::createLambda($funcValue, 'v,k');
         $funcKey = Utils::createLambda($funcKey, 'v,k', false);
 
-        return new Enumerable(function () use ($funcValue, $funcKey, $seedValue, $seedKey)
-        {
-            $isFirst = true;
-
-            return new Enumerator(function ($yield) use ($funcValue, $funcKey, $seedValue, $seedKey, &$value, &$key, &$isFirst)
-            {
-                if ($isFirst) {
-                    $key = $seedKey === null ? ($funcKey ? call_user_func($funcKey, $seedValue, $seedKey) : 0) : $seedKey;
-                    $value = $seedValue === null ? call_user_func($funcValue, $seedValue, $seedKey) : $seedValue;
-                    $isFirst = false;
-                    return $yield($value, $key);
-                }
+        return new Enumerable(function () use ($funcValue, $funcKey, $seedValue, $seedKey) {
+            $key = $seedKey === null ? ($funcKey ? $funcKey($seedValue, $seedKey) : 0) : $seedKey;
+            $value = $seedValue === null ? $funcValue($seedValue, $seedKey) : $seedValue;
+            yield $key => $value;
+            while (true) {
                 list($value, $key) = array(
-                    call_user_func($funcValue, $value, $key),
-                    $funcKey ? call_user_func($funcKey, $value, $key) : $key + 1,
+                    $funcValue($value, $key),
+                    $funcKey ? $funcKey($value, $key) : $key + 1,
                 );
-                return $yield($value, $key);
-            });
+                yield $key => $value;
+            }
         });
     }
 
@@ -178,15 +160,10 @@ class Enumerable implements \IteratorAggregate
      */
     public static function toInfinity ($start = 0, $step = 1)
     {
-        return new Enumerable(function () use ($start, $step)
-        {
-            $i = -1;
+        return new Enumerable(function () use ($start, $step) {
             $value = $start - $step;
-
-            return new Enumerator(function ($yield) use ($step, &$value, &$i)
-            {
-                return $yield($value += $step, ++$i);
-            });
+            while (true)
+                yield $value += $step;
         });
     }
 
@@ -201,10 +178,9 @@ class Enumerable implements \IteratorAggregate
      */
     public static function matches ($subject, $pattern, $flags = PREG_SET_ORDER)
     {
-        return new Enumerable(function () use ($subject, $pattern, $flags)
-        {
+        return new Enumerable(function () use ($subject, $pattern, $flags) {
             preg_match_all($pattern, $subject, $matches, $flags);
-            return Enumerable::from($matches)->getIterator();
+            return self::from($matches)->getIterator();
         });
     }
 
@@ -277,8 +253,8 @@ class Enumerable implements \IteratorAggregate
         if ($step <= 0)
             throw new \InvalidArgumentException(self::ERROR_STEP_NEGATIVE);
         return $start < $end
-                ? self::toInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v < $end; })
-                : self::toNegativeInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v > $end; });
+            ? self::toInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v < $end; })
+            : self::toNegativeInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v > $end; });
     }
 
     /**
@@ -296,16 +272,9 @@ class Enumerable implements \IteratorAggregate
     {
         if ($count < 0)
             throw new \InvalidArgumentException(self::ERROR_COUNT_LESS_THAN_ZERO);
-        return new Enumerable(function () use ($element, $count)
-        {
-            $i = 0;
-
-            return new Enumerator(function ($yield) use ($element, $count, &$i)
-            {
-                if ($count !== null && $i >= $count)
-                    return false;
-                return $yield($element, $i++);
-            });
+        return new Enumerable(function () use ($element, $count) {
+            for ($i = 0; $i < $count || $count === null; $i++)
+                yield $element;
         });
     }
 
@@ -320,9 +289,8 @@ class Enumerable implements \IteratorAggregate
      */
     public static function split ($subject, $pattern, $flags = 0)
     {
-        return new Enumerable(function () use ($subject, $pattern, $flags)
-        {
-            return Enumerable::from(preg_split($pattern, $subject, -1, $flags))->getIterator();
+        return new Enumerable(function () use ($subject, $pattern, $flags) {
+            return self::from(preg_split($pattern, $subject, -1, $flags))->getIterator();
         });
     }
 
@@ -378,28 +346,12 @@ class Enumerable implements \IteratorAggregate
      */
     public function select ($selectorValue, $selectorKey = null)
     {
-        $self = $this;
         $selectorValue = Utils::createLambda($selectorValue, 'v,k');
         $selectorKey = Utils::createLambda($selectorKey, 'v,k', Functions::$key);
 
-        return new Enumerable(function () use ($self, $selectorValue, $selectorKey)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-
-            return new Enumerator(function ($yield) use ($it, $selectorValue, $selectorKey)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                $yield(
-                    call_user_func($selectorValue, $it->current(), $it->key()),
-                    call_user_func($selectorKey, $it->current(), $it->key())
-                );
-                $it->next();
-                return true;
-            });
+        return new Enumerable(function () use ($selectorValue, $selectorKey) {
+            foreach ($this as $k => $v)
+                yield $selectorKey($v, $k) => $selectorValue($v, $k);
         });
     }
 
@@ -417,37 +369,16 @@ class Enumerable implements \IteratorAggregate
      */
     public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
     {
-        $self = $this;
         $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,k1,k2', Functions::$value);
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,k1,k2', false);
         if ($resultSelectorKey === false)
             $resultSelectorKey = Functions::increment();
 
-        return new Enumerable(function () use ($self, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
-        {
-            /** @var $self Enumerable */
-            $itOut = $self->getIterator();
-            $itOut->rewind();
-            $itIn = null;
-
-            return new Enumerator(function ($yield) use ($itOut, &$itIn, $collectionSelector, $resultSelectorValue, $resultSelectorKey)
-            {
-                /** @var $itOut \Iterator */
-                /** @var $itIn \Iterator */
-                while ($itIn === null || !$itIn->valid()) {
-                    if ($itIn !== null)
-                        $itOut->next();
-                    if (!$itOut->valid())
-                        return false;
-                    $itIn = Enumerable::from(call_user_func($collectionSelector, $itOut->current(), $itOut->key()))->getIterator();
-                    $itIn->rewind();
-                }
-                $args = array($itIn->current(), $itOut->key(), $itIn->key());
-                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
-                $itIn->next();
-                return true;
-            });
+        return new Enumerable(function () use ($collectionSelector, $resultSelectorValue, $resultSelectorKey) {
+            foreach ($this as $ok => $ov)
+                foreach ($collectionSelector($ov, $ok) as $ik => $iv)
+                    yield $resultSelectorKey($iv, $ok, $ik) => $resultSelectorValue($iv, $ok, $ik);
         });
     }
 
@@ -459,30 +390,12 @@ class Enumerable implements \IteratorAggregate
      */
     public function where ($predicate)
     {
-        $self = $this;
         $predicate = Utils::createLambda($predicate, 'v,k');
 
-        return new Enumerable(function () use ($self, $predicate)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-
-            return new Enumerator(function ($yield) use ($it, $predicate)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                do {
-                    if (call_user_func($predicate, $it->current(), $it->key())) {
-                        $yield($it->current(), $it->key());
-                        $it->next();
-                        return true;
-                    }
-                    $it->next();
-                } while ($it->valid());
-                return false;
-            });
+        return new Enumerable(function () use ($predicate) {
+            foreach ($this as $k => $v)
+                if ($predicate($v, $k))
+                    yield $k => $v;
         });
     }
 
@@ -557,7 +470,6 @@ class Enumerable implements \IteratorAggregate
      */
     public function groupJoin ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
-        $self = $this;
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
@@ -566,23 +478,22 @@ class Enumerable implements \IteratorAggregate
         /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
 
-        return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
-        {
-            /** @var $self Enumerable */
+        return new Enumerable(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
             /** @var $inner Enumerable */
-            $it = $self->getIterator();
+            $it = $this->getIterator();
             $it->rewind();
             $lookup = $inner->toLookup($innerKeySelector);
 
-            return new Enumerator(function ($yield) use ($it, $lookup, $outerKeySelector, $resultSelectorValue, $resultSelectorKey)
-            {
+            return new Enumerator(function ($yield) use ($it, $lookup, $outerKeySelector, $resultSelectorValue, $resultSelectorKey) {
                 /** @var $it \Iterator */
                 /** @var $lookup \YaLinqo\collections\Lookup */
                 if (!$it->valid())
                     return false;
-                $key = call_user_func($outerKeySelector, $it->current(), $it->key());
-                $args = array($it->current(), Enumerable::from($lookup[$key]), $key);
-                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
+                $key = $outerKeySelector($it->current(), $it->key());
+                $v = $it->current();
+                $e = self::from($lookup[$key]);
+                $k = $key;
+                $yield($resultSelectorValue($v, $e, $k), $resultSelectorKey($v, $e, $k));
                 $it->next();
                 return true;
             });
@@ -604,7 +515,6 @@ class Enumerable implements \IteratorAggregate
      */
     public function join ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
-        $self = $this;
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
@@ -613,20 +523,17 @@ class Enumerable implements \IteratorAggregate
         /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
 
-        return new Enumerable(function () use ($self, $inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey)
-        {
-            /** @var $self Enumerable */
+        return new Enumerable(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
             /** @var $inner Enumerable */
             /** @var $arrIn array */
-            $itOut = $self->getIterator();
+            $itOut = $this->getIterator();
             $itOut->rewind();
             $lookup = $inner->toLookup($innerKeySelector);
             $arrIn = null;
             $posIn = 0;
             $key = null;
 
-            return new Enumerator(function ($yield) use ($itOut, $lookup, &$arrIn, &$posIn, &$key, $outerKeySelector, $resultSelectorValue, $resultSelectorKey)
-            {
+            return new Enumerator(function ($yield) use ($itOut, $lookup, &$arrIn, &$posIn, &$key, $outerKeySelector, $resultSelectorValue, $resultSelectorKey) {
                 /** @var $itOut \Iterator */
                 /** @var $lookup \YaLinqo\collections\Lookup */
                 while ($arrIn === null || $posIn >= count($arrIn)) {
@@ -634,12 +541,14 @@ class Enumerable implements \IteratorAggregate
                         $itOut->next();
                     if (!$itOut->valid())
                         return false;
-                    $key = call_user_func($outerKeySelector, $itOut->current(), $itOut->key());
+                    $key = $outerKeySelector($itOut->current(), $itOut->key());
                     $arrIn = $lookup[$key];
                     $posIn = 0;
                 }
-                $args = array($itOut->current(), $arrIn[$posIn], $key);
-                $yield(call_user_func_array($resultSelectorValue, $args), call_user_func_array($resultSelectorKey, $args));
+                $v1 = $itOut->current();
+                $v2 = $arrIn[$posIn];
+                $k = $key;
+                $yield($resultSelectorValue($v1, $v2, $k), $resultSelectorKey($v1, $v2, $k));
                 $posIn++;
                 return true;
             });
@@ -670,7 +579,7 @@ class Enumerable implements \IteratorAggregate
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'e,k', Functions::$key);
 
         return self::from($this->toLookup($keySelector, $valueSelector))
-                ->select($resultSelectorValue, $resultSelectorKey);
+            ->select($resultSelectorValue, $resultSelectorKey);
     }
 
     #endregion
@@ -694,14 +603,14 @@ class Enumerable implements \IteratorAggregate
         $result = $seed;
         if ($seed !== null) {
             foreach ($this as $k => $v) {
-                $result = call_user_func($func, $result, $v, $k);
+                $result = $func($result, $v, $k);
             }
         }
         else {
             $assigned = false;
             foreach ($this as $k => $v) {
                 if ($assigned) {
-                    $result = call_user_func($func, $result, $v, $k);
+                    $result = $func($result, $v, $k);
                 }
                 else {
                     $result = $v;
@@ -732,14 +641,14 @@ class Enumerable implements \IteratorAggregate
 
         if ($seed !== null) {
             foreach ($this as $k => $v) {
-                $result = call_user_func($func, $result, $v, $k);
+                $result = $func($result, $v, $k);
                 $assigned = true;
             }
         }
         else {
             foreach ($this as $k => $v) {
                 if ($assigned) {
-                    $result = call_user_func($func, $result, $v, $k);
+                    $result = $func($result, $v, $k);
                 }
                 else {
                     $result = $v;
@@ -765,7 +674,7 @@ class Enumerable implements \IteratorAggregate
         $sum = $count = 0;
 
         foreach ($this as $k => $v) {
-            $sum += call_user_func($selector, $v, $k);
+            $sum += $selector($v, $k);
             $count++;
         }
         if ($count === 0)
@@ -793,7 +702,7 @@ class Enumerable implements \IteratorAggregate
         $count = 0;
 
         foreach ($it as $k => $v)
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 $count++;
         return $count;
     }
@@ -832,8 +741,7 @@ class Enumerable implements \IteratorAggregate
 
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) use ($comparer)
-        { return call_user_func($comparer, $a, $b) > 0 ? $a : $b; });
+        return $enum->aggregate(function ($a, $b) use ($comparer) { return $comparer($a, $b) > 0 ? $a : $b; });
     }
 
     /**
@@ -850,7 +758,7 @@ class Enumerable implements \IteratorAggregate
         $enum = $this;
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function($a, $b) { return min($a, $b); });
+        return $enum->aggregate(function ($a, $b) { return min($a, $b); });
     }
 
     /**
@@ -870,8 +778,7 @@ class Enumerable implements \IteratorAggregate
 
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) use ($comparer)
-        { return call_user_func($comparer, $a, $b) < 0 ? $a : $b; });
+        return $enum->aggregate(function ($a, $b) use ($comparer) { return $comparer($a, $b) < 0 ? $a : $b; });
     }
 
     /**
@@ -906,7 +813,7 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k');
 
         foreach ($this as $k => $v) {
-            if (!call_user_func($predicate, $v, $k))
+            if (!$predicate($v, $k))
                 return false;
         }
         return true;
@@ -926,7 +833,7 @@ class Enumerable implements \IteratorAggregate
 
         if ($predicate) {
             foreach ($this as $k => $v) {
-                if (call_user_func($predicate, $v, $k))
+                if ($predicate($v, $k))
                     return true;
             }
             return false;
@@ -969,7 +876,7 @@ class Enumerable implements \IteratorAggregate
 
         $dic = new c\Dictionary();
         return $this->where(function ($v, $k) use ($dic, $selector) {
-            $key = call_user_func($selector, $v, $k);
+            $key = $selector($v, $k);
             if ($dic->offsetExists($key))
                 return false;
             $dic->offsetSet($key, true);
@@ -1047,7 +954,7 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 return $v;
         }
         throw new \UnexpectedValueException(self::ERROR_NO_MATCHES);
@@ -1068,7 +975,7 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 return $v;
         }
         return $default;
@@ -1080,7 +987,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: firstOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
      * <p>Returns the first element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the firstOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link firstOrDefault}.
-     * @param mixed $fallback A fallback function to return the default element.
+     * @param callable $fallback A fallback function to return the default element.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the first element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.
      */
@@ -1089,10 +996,10 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
 
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 return $v;
         }
-        return call_user_func($fallback);
+        return $fallback();
     }
 
     /**
@@ -1113,7 +1020,7 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 $found = true;
                 $value = $v;
             }
@@ -1140,7 +1047,7 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 $found = true;
                 $value = $v;
             }
@@ -1154,7 +1061,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: lastOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
      * <p>Returns the last element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the lastOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link lastOrDefault}.
-     * @param mixed $fallback A fallback function to return the default element.
+     * @param callable $fallback A fallback function to return the default element.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the last element in source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the last element in source that passes the test specified by predicate.
      */
@@ -1165,12 +1072,12 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 $found = true;
                 $value = $v;
             }
         }
-        return $found ? $value : call_user_func($fallback);
+        return $found ? $value : $fallback();
     }
 
     /**
@@ -1191,7 +1098,7 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
@@ -1221,7 +1128,7 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
@@ -1237,7 +1144,7 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: singleOrFallback ([fallback [, predicate {{(v, k) ==> result}]])
      * <p>Returns the only element of the sequence that satisfies a condition or the result of calling a fallback function if no such element is found.
      * <p>The fallback function is not executed if a matching element is found. Use the singleOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link singleOrDefault}.
-     * @param mixed $fallback A fallback function to return the default element.
+     * @param callable $fallback A fallback function to return the default element.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
      * @throws \UnexpectedValueException If source contains more than one matching element.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the single element of the source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
@@ -1249,14 +1156,14 @@ class Enumerable implements \IteratorAggregate
         $found = false;
         $value = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k)) {
+            if ($predicate($v, $k)) {
                 if ($found)
                     throw new \UnexpectedValueException(self::ERROR_MANY_MATCHES);
                 $found = true;
                 $value = $v;
             }
         }
-        return $found ? $value : call_user_func($fallback);
+        return $found ? $value : $fallback();
     }
 
     /**
@@ -1304,7 +1211,7 @@ class Enumerable implements \IteratorAggregate
         $predicate = Utils::createLambda($predicate, 'v,k');
 
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 return $k;
         }
         return null; // not -1
@@ -1323,7 +1230,7 @@ class Enumerable implements \IteratorAggregate
 
         $key = null;
         foreach ($this as $k => $v) {
-            if (call_user_func($predicate, $v, $k))
+            if ($predicate($v, $k))
                 $key = $k;
         }
         return $key; // not -1
@@ -1339,25 +1246,15 @@ class Enumerable implements \IteratorAggregate
      */
     public function skip ($count)
     {
-        $self = $this;
-
-        return new Enumerable(function () use ($self, $count)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
+        return new Enumerable(function () use ($count) {
+            $it = $this->getIterator();
             $it->rewind();
             for ($i = 0; $i < $count && $it->valid(); ++$i)
                 $it->next();
-
-            return new Enumerator(function ($yield) use ($it)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                $yield($it->current(), $it->key());
+            while ($it->valid()) {
+                yield $it->key() => $it->current();
                 $it->next();
-                return true;
-            });
+            }
         });
     }
 
@@ -1371,26 +1268,16 @@ class Enumerable implements \IteratorAggregate
      */
     public function skipWhile ($predicate)
     {
-        $self = $this;
         $predicate = Utils::createLambda($predicate, 'v,k');
 
-        return new Enumerable(function () use ($self, $predicate)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-            while ($it->valid() && call_user_func($predicate, $it->current(), $it->key()))
-                $it->next();
-
-            return new Enumerator(function ($yield) use ($it)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                $yield($it->current(), $it->key());
-                $it->next();
-                return true;
-            });
+        return new Enumerable(function () use ($predicate) {
+            $yielding = false;
+            foreach ($this as $k => $v) {
+                if (!$yielding && !$predicate($v, $k))
+                    $yielding = true;
+                if ($yielding)
+                    yield $k => $v;
+            }
         });
     }
 
@@ -1407,24 +1294,14 @@ class Enumerable implements \IteratorAggregate
         if ($count <= 0)
             return self::emptyEnum();
 
-        $self = $this;
-
-        return new Enumerable(function () use ($self, $count)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-            $i = 0;
-
-            return new Enumerator(function ($yield) use ($it, &$i, $count)
-            {
-                /** @var $it \Iterator */
-                if ($i++ >= $count || !$it->valid())
-                    return false;
-                $yield($it->current(), $it->key());
-                $it->next();
-                return true;
-            });
+        return new Enumerable(function () use ($count) {
+            if ($count <= 0)
+                return;
+            foreach ($this as $k => $v) {
+                yield $k => $v;
+                if (--$count == 0)
+                    break;
+            }
         });
     }
 
@@ -1438,24 +1315,14 @@ class Enumerable implements \IteratorAggregate
      */
     public function takeWhile ($predicate)
     {
-        $self = $this;
         $predicate = Utils::createLambda($predicate, 'v,k');
 
-        return new Enumerable(function () use ($self, $predicate)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-
-            return new Enumerator(function ($yield) use ($it, &$i, $predicate)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid() || !call_user_func($predicate, $it->current(), $it->key()))
-                    return false;
-                $yield($it->current(), $it->key());
-                $it->next();
-                return true;
-            });
+        return new Enumerable(function () use ($predicate) {
+            foreach ($this as $k => $v) {
+                if (!$predicate($v, $k))
+                    break;
+                yield $k => $v;
+            }
         });
     }
 
@@ -1562,7 +1429,7 @@ class Enumerable implements \IteratorAggregate
 
         $dic = new c\Dictionary();
         foreach ($this as $k => $v)
-            $dic->offsetSet(call_user_func($keySelector, $v, $k), call_user_func($valueSelector, $v, $k));
+            $dic->offsetSet($keySelector($v, $k), $valueSelector($v, $k));
         return $dic;
     }
 
@@ -1594,7 +1461,7 @@ class Enumerable implements \IteratorAggregate
 
         $lookup = new c\Lookup();
         foreach ($this as $k => $v)
-            $lookup->append(call_user_func($keySelector, $v, $k), call_user_func($valueSelector, $v, $k));
+            $lookup->append($keySelector($v, $k), $valueSelector($v, $k));
         return $lookup;
     }
 
@@ -1634,7 +1501,7 @@ class Enumerable implements \IteratorAggregate
 
         $obj = new \stdClass();
         foreach ($this as $k => $v)
-            $obj->{call_user_func($propertySelector, $v, $k)} = call_user_func($valueSelector, $v, $k);
+            $obj->{$propertySelector($v, $k)} = $valueSelector($v, $k);
         return $obj;
     }
 
@@ -1667,25 +1534,13 @@ class Enumerable implements \IteratorAggregate
      */
     public function call ($action)
     {
-        $self = $this;
         $action = Utils::createLambda($action, 'v,k');
 
-        return new Enumerable(function () use ($self, $action)
-        {
-            /** @var $self Enumerable */
-            $it = $self->getIterator();
-            $it->rewind();
-
-            return new Enumerator(function ($yield) use ($it, $action)
-            {
-                /** @var $it \Iterator */
-                if (!$it->valid())
-                    return false;
-                call_user_func($action, $it->current(), $it->key());
-                $yield($it->current(), $it->key());
-                $it->next();
-                return true;
-            });
+        return new Enumerable(function () use ($action) {
+            foreach ($this as $k => $v) {
+                $action($v, $k);
+                yield $k => $v;
+            }
         });
     }
 
@@ -1701,7 +1556,7 @@ class Enumerable implements \IteratorAggregate
         $action = Utils::createLambda($action, 'v,k', Functions::$blank);
 
         foreach ($this as $k => $v)
-            call_user_func($action, $v, $k);
+            $action($v, $k);
     }
 
     /**
@@ -1728,7 +1583,7 @@ class Enumerable implements \IteratorAggregate
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
         foreach ($this as $k => $v) {
-            echo call_user_func($selector, $v, $k), PHP_EOL;
+            echo $selector($v, $k), PHP_EOL;
         }
     }
 
