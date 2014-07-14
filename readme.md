@@ -54,7 +54,9 @@ $categories = array(
     array('name' => 'Operating systems', 'id' => 'os'),
 );
 
-// Put products with non-zero quantity into matching categories; sort products by quantity descending, then by name
+// Put products with non-zero quantity into matching categories;
+// sort categories by name;
+// sort products within categories by quantity descending, then by name.
 $result = from($categories)
     ->orderBy('$cat ==> $cat["name"]')
     ->groupJoin(
@@ -62,9 +64,11 @@ $result = from($categories)
             ->where('$prod ==> $prod["quantity"] > 0')
             ->orderByDescending('$prod ==> $prod["quantity"]')
             ->thenBy('$prod ==> $prod["name"]'),
-        '$cat ==> $cat["id"]',
-        '$prod ==> $prod["catId"]',
-        '($cat, $prods) ==> array("name" => $cat["name"], "products" => $prods)'
+        '$cat ==> $cat["id"]', '$prod ==> $prod["catId"]',
+        '($cat, $prods) ==> array(
+            "name" => $cat["name"],
+            "products" => $prods
+        )'
     );
 
 // Alternative shorter syntax using default variable names
@@ -75,7 +79,11 @@ $result2 = from($categories)
             ->where('$v["quantity"] > 0')
             ->orderByDescending('$v["quantity"]')
             ->thenBy('$v["name"]'),
-        '$v["id"]', '$v["catId"]', 'array("name" => $v["name"], "products" => $e)'
+        '$v["id"]', '$v["catId"]',
+        'array(
+            "name" => $v["name"],
+            "products" => $e
+        )'
     );
 
 // Closure syntax, maximum support in IDEs, but verbose and hard to read
@@ -88,7 +96,12 @@ $result3 = from($categories)
             ->thenBy(function ($prod) { return $prod["name"]; }),
         function ($cat) { return $cat["id"]; },
         function ($prod) { return $prod["catId"]; },
-        function ($cat, $prods) { return array("name" => $cat["name"], "products" => $prods); }
+        function ($cat, $prods) {
+            return array(
+                "name" => $cat["name"],
+                "products" => $prods
+            );
+        }
     );
 
 print_r($result->toArrayDeep());
@@ -178,9 +191,9 @@ PHP
 
 License
 =======
-**TL;DR: Simplified BSD License**
+**Simplified BSD License**
 
-Copyright (c) 2012, Alexander Prokhorov
+Copyright © 2012–2014, Alexander Prokhorov
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -207,6 +220,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Links
 =====
 
+##### YaLinqo
+* **Habrahabr** articles *(Russian)*: [comparison of LINQ libraries](http://habrahabr.ru/post/147612/), [YaLinqo 1.0 with updated comparison](http://habrahabr.ru/post/147848/), [YaLinqo 2.0](http://habrahabr.ru/post/229763/).
+
+##### LINQ ported to other languages:
 * [**linq.js**](http://linqjs.codeplex.com/) - LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
 * [**Underscore.js**](http://documentcloud.github.com/underscore/) - library for functional programming in JavaScript. Similar to LINQ, but different method names and no lazy evaluation.
 * [**Underscore.php**](http://brianhaveri.github.com/Underscore.php/) - port of Underscore.js to PHP. Identical functionality.
