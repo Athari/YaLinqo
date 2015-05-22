@@ -8,12 +8,14 @@ spl_autoload_register(function ($class) {
 });
 // @codeCoverageIgnoreEnd
 
-/**
- * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
- * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
- * @return \YaLinqo\Enumerable
- */
-function from ($source)
-{
-    return \YaLinqo\Enumerable::from($source);
+if (!function_exists('from')) {
+    /**
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
+     * @return \YaLinqo\Enumerable
+     */
+    function from ($source)
+    {
+        return \YaLinqo\Enumerable::from($source);
+    }
 }
