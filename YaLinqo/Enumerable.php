@@ -31,6 +31,7 @@ use YaLinqo;
  * A sequence of values indexed by keys, the primary class of YaLinqo.
  * <p>A sequence of values indexed by keys, which supports various operations: generation, projection, filtering, ordering, joining, grouping, aggregation etc.
  * <p>To create a Enumerable, call {@link Enumerable::from} (aliased as a global function {@link from}) or any of the generation functions. To convert to array, call {@link Enumerable::toArrayDeep} or any of the conversion functions.
+ * <p>Internally, it is a wrapper around a lazily created iterator. The wrapped iterator is evaluated when {@link getIterator} is called.
  * @see from
  * @package YaLinqo
  */
@@ -51,7 +52,11 @@ class Enumerable implements \IteratorAggregate
     /** Error message: "step must be a positive value." */
     const ERROR_STEP_NEGATIVE = 'step must be a positive value.';
 
-    /** Iterator getter. @var callable */
+    /**
+     * Callback returning a wrapped iterator.
+     * <p>Iterator creation has to be lazy because a substantial piece of code can be executed during creation of {@link \Iterator}, not when {@link \Iterator::rewind} is called.
+     * @var callable
+     */
     private $getIterator;
 
     /**
