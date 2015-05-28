@@ -1,20 +1,31 @@
 <?php
 
+/**
+ * OrderedEnumerable class.
+ * @author Alexander Prokhorov
+ * @license Simplified BSD
+ * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
+ */
+
 namespace YaLinqo;
 
 use YaLinqo;
 
+/**
+ * Subclass of Enumerable supporting ordering by multiple conditions.
+ * @package YaLinqo
+ */
 class OrderedEnumerable extends Enumerable
 {
-    /** @var Enumerable */
+    /** Source sequence. @var Enumerable */
     private $source;
-    /** @var \YaLinqo\OrderedEnumerable */
+    /** Parent ordered sequence. @var \YaLinqo\OrderedEnumerable */
     private $parent;
-    /** @var bool */
+    /** Whether to sort in descending or ascending order. @var bool */
     private $desc;
-    /** @var callable {(v, k) ==> key} */
+    /** Key selector. @var callable {(v, k) ==> key} */
     private $keySelector;
-    /** @var callable {(a, b) ==> diff} */
+    /** Comprarer function. @var callable {(a, b) ==> diff} */
     private $comparer;
 
     /**
@@ -85,14 +96,14 @@ class OrderedEnumerable extends Enumerable
     /** {@inheritdoc} */
     public function getIterator ()
     {
-        $orders = [];
+        $orders = [ ];
 
         for ($order = $this; $order != null; $order = $order->parent)
             $orders[] = $order;
         $orders = array_reverse($orders);
 
-        $map = $this->source->select(function ($v, $k) { return ['v' => $v, 'k' => $k]; })->toList();
-        $comparers = [];
+        $map = $this->source->select(function ($v, $k) { return [ 'v' => $v, 'k' => $k ]; })->toList();
+        $comparers = [ ];
 
         for ($i = 0; $i < count($orders); ++$i) {
             $order = $orders[$i];

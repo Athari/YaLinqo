@@ -1,28 +1,64 @@
 <?php
 
+/**
+ * Functions class.
+ * @author Alexander Prokhorov
+ * @license Simplified BSD
+ * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
+ */
+
 namespace YaLinqo;
 
 use YaLinqo;
 
+/**
+ * Container for standard functions in the form of closures.
+ * @package YaLinqo
+ */
 class Functions
 {
-    /** @var callable {(x) ==> x} */
+    /**
+     * Identity function: returns the only argument.
+     * @var callable {(x) ==> x}
+     */
     public static $identity;
-    /** @var callable {(v, k) ==> k} */
+    /**
+     * Key function: returns the second argument of two.
+     * @var callable {(v, k) ==> k}
+     */
     public static $key;
-    /** @var callable {(v, k) ==> v} */
+    /**
+     * Value function: returns the first argument of two.
+     * @var callable {(v, k) ==> v}
+     */
     public static $value;
-    /** @var callable {() ==> true} */
+    /**
+     * True function: returns true.
+     * @var callable {() ==> true}
+     */
     public static $true;
-    /** @var callable {() ==> false} */
+    /**
+     * False function: returns false.
+     * @var callable {() ==> false}
+     */
     public static $false;
-    /** @var callable {() ==> {}} */
+    /**
+     * Blank function: does nothing.
+     * @var callable {() ==> {}}
+     */
     public static $blank;
-    /** @var callable */
+    /**
+     * Compare strict function: returns -1, 0 or 1 based on === and > operators.
+     * @var callable
+     */
     public static $compareStrict;
-    /** @var callable */
+    /**
+     * Compare loose function: returns -1, 0 or 1 based on == and > operators.
+     * @var callable
+     */
     public static $compareLoose;
 
+    /** @internal */
     public static function init ()
     {
         self::$identity = function ($x) { return $x; };
@@ -58,6 +94,10 @@ class Functions
         };
     }
 
+    /**
+     * Increment function: returns incremental integers starting from 0.
+     * @return callable
+     */
     public static function increment ()
     {
         $i = 0;

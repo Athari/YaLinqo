@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>YaLinqo</title>
+    <parser>
+        <target>phpdocs/output</target>
+    </parser>
+    <transformer>
+        <target>phpdocs/docs</target>
+    </transformer>
+    <transformations>
+        <template name="clean"/>
+        <!--<template name="zend"/>-->
+    </transformations>
+    <files>
+        <directory>YaLinqo</directory>
+        <ignore>YaLinqo/Examples.php</ignore>
+    </files>
+</phpdoc>

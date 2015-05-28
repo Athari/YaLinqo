@@ -1,9 +1,21 @@
 <?php
 
+/**
+ * Utils class.
+ * @author Alexander Prokhorov
+ * @license Simplified BSD
+ * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
+ */
+
 namespace YaLinqo;
 
 use YaLinqo;
 
+/**
+ * Functions for creating lambdas.
+ * @internal
+ * @package YaLinqo
+ */
 class Utils
 {
     const ERROR_CLOSURE_NULL = 'closure must not be null.';
@@ -11,6 +23,7 @@ class Utils
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
 
     /**
+     * Convert string lambda to callable function. If callable is passed, return as is.
      * @param callable|null $closure
      * @param string $closureArgs
      * @param \Closure|boolean|null $default
@@ -35,6 +48,7 @@ class Utils
     }
 
     /**
+     * Convert string lambda to callable function.
      * @param string $closure
      * @param string $closureArgs
      * @throws \InvalidArgumentException Incorrect lambda syntax.
