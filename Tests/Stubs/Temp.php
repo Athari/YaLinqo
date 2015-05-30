@@ -2,6 +2,8 @@
 
 namespace Tests\Stubs;
 
+// @codeCoverageIgnoreStart
+
 class Temp
 {
     var $v;

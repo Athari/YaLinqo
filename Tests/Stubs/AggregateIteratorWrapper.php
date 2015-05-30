@@ -2,6 +2,8 @@
 
 namespace Tests\Stubs;
 
+// @codeCoverageIgnoreStart
+
 class AggregateIteratorWrapper implements \IteratorAggregate
 {
     private $iterator;
