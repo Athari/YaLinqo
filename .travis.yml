@@ -10,7 +10,11 @@ matrix:
     - php: nightly
 
 install:
-  - composer install
+  - composer install --dev
 
 script:
-  - phpunit --coverage-text Tests
+  - mkdir -p build/logs
+  - phpunit --coverage-clover build/logs/clover.xml Tests
+
+after_script:
+  - vendor/bin/coveralls -v
