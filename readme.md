@@ -2,6 +2,11 @@
 
 https://github.com/Athari/YaLinqo
 
+[![Travis CI Status](https://img.shields.io/travis/Athari/YaLinqo.svg)](https://travis-ci.org/Athari/YaLinqo)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
+[![Packagist Version](https://img.shields.io/packagist/v/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
+[![GitHub License](https://img.shields.io/github/license/Athari/YaLinqo.svg)](license.md)
+
 Features
 ========
 
