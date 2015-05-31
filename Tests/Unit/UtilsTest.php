@@ -68,7 +68,6 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
      */
     function testCreateLambda_lambdaString ()
     {
-        $o = new \Tests\Stubs\Temp(2);
         /** @var $f callback */
         $f = U::createLambda('$val+1', 'val');
         $this->assertSame(3, $f(2));

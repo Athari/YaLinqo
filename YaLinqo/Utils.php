@@ -32,7 +32,7 @@ class Utils
      * Convert string lambda to callable function. If callable is passed, return as is.
      * @param callable|null $closure
      * @param string $closureArgs
-     * @param \Closure|boolean|null $default
+     * @param \Closure|callable|null $default
      * @throws \InvalidArgumentException Both closure and default are null.
      * @throws \InvalidArgumentException Incorrect lambda syntax.
      * @return callable|null

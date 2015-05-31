@@ -214,7 +214,7 @@ class Enumerable implements \IteratorAggregate
     {
         return new Enumerable(function () use ($subject, $pattern, $flags) {
             preg_match_all($pattern, $subject, $matches, $flags);
-            return self::from($matches)->getIterator();
+            return $matches !== false ? self::from($matches)->getIterator() : self::emptyEnum();
         });
     }
 

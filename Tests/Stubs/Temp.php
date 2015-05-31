@@ -6,19 +6,19 @@ namespace Tests\Stubs;
 
 class Temp
 {
-    var $v;
+    public $v;
 
-    function __construct ($v)
+    public function __construct ($v)
     {
         $this->v = $v;
     }
 
-    function foo ($a)
+    public function foo ($a)
     {
         return $this->v + $a;
     }
 
-    static function bar ($a)
+    public static function bar ($a)
     {
         return $a;
     }

@@ -7,23 +7,23 @@ use YaLinqo\Enumerable as E, YaLinqo\Functions;
 
 class TestCase_Enumerable extends \PHPUnit_Framework_TestCase
 {
-    function setUp ()
+    protected function setUp ()
     {
         $this->setOutputCallback(function ($str) { return str_replace("\r\n", "\n", $str); });
     }
 
-    function assertEnumEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    public static function assertEnumEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        $this->assertEquals($expected, $actual->take($maxLength)->toArrayDeep());
+        self::assertEquals($expected, $actual->take($maxLength)->toArrayDeep());
     }
 
-    function assertEnumOrderEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    public static function assertEnumOrderEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        $this->assertEquals($expected, $actual->take($maxLength)->select('array($k, $v)', Functions::increment())->toArrayDeep());
+        self::assertEquals($expected, $actual->take($maxLength)->select('array($k, $v)', Functions::increment())->toArrayDeep());
     }
 
-    function assertEnumValuesEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    public static function assertEnumValuesEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        $this->assertEquals($expected, $actual->take($maxLength)->toValues()->toArrayDeep());
+        self::assertEquals($expected, $actual->take($maxLength)->toValues()->toArrayDeep());
     }
 }
