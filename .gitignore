@@ -1,6 +1,7 @@
 /vendor/
 /phpdocs/
 composer.lock
+tmp.php
 
 # IDE
 .project

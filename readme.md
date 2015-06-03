@@ -10,14 +10,16 @@ https://github.com/Athari/YaLinqo
 Features
 ========
 
-* The most complete port of .NET 4 LINQ to PHP, with many additional methods. Some methods are still missing, but it is a work in progress.
-* Lazy evaluation, exceptions' messages and other behavior of original LINQ.
-* Detailed PHPDoc for all methods. Articles are adapted from original LINQ documentation from MSDN.
+* The most complete port of .NET 4 LINQ to PHP, with [many additional methods](#implemented-methods).
+* Lazy evaluation, error messages and other behavior of original LINQ.
+* [Detailed PHPDoc and online reference](http://athari.github.io/YaLinqo) based on PHPDoc for all methods. Articles are adapted from original LINQ documentation from MSDN.
 * 100% unit test coverage.
+* Best performance among full-featured LINQ ports (YaLinqo, Ginq, Pinq), at least 2x faster than the closest competitor, see [performance tests](https://github.com/Athari/YaLinqoPerf).
 * Callback functions can be specified as closures (like `function ($v) { return $v; }`), PHP "function pointers" (either strings like `'strnatcmp'` or arrays like `array($object, 'methodName')`), string "lambdas" using various syntaxes (`'"$k = $v"'`, `'$v ==> $v+1'`, `'($v, $k) ==> $v + $k'`, `'($v, $k) ==> { return $v + $k; }'`).
-* Keys are as important as values. Most callback functions receive both values and the keys; transformations can be applied to both values and the keys; keys are never lost during transformation, if possible.
+* Keys are as important as values. Most callback functions receive both values and the keys; transformations can be applied to both values and the keys; keys are never lost during transformations, if possible.
 * SPL interfaces `Iterator`, `IteratorAggregate` etc. are used throughout the code and can be used interchangeably with Enumerable.
-* Composer support with autoloading ([package](https://packagist.org/packages/athari/yalinqo) on Packagist).
+* Redundant collection classes are avoided, native PHP arrays are used everywhere.
+* Composer support ([package](https://packagist.org/packages/athari/yalinqo) on Packagist).
 * No external dependencies.
 
 Implemented methods
@@ -41,6 +43,7 @@ Example
 =======
 
 *Process sample data:*
+
 ```php
 // Data
 $products = array(
@@ -111,7 +114,9 @@ $result3 = from($categories)
 
 print_r($result->toArrayDeep());
 ```
+
 *Output (compacted):*
+
 ```
 Array (
     [hw] => Array (
@@ -134,7 +139,9 @@ Array (
     )
 )
 ```
+
 *Convert to HTML:*
+
 ```php
 $result->writeLine(function ($cat) {
     return
@@ -145,8 +152,10 @@ $result->writeLine(function ($cat) {
         "</p>";
 });
 ```
+
 *Output (reformatted):*
-```
+
+```html
 <p><b>Hardware</b>:
 <a href='/products/1'>Keyboard</a> (10), <a href='/products/6'>Motherboard</a> (11),
 <a href='/products/4'>Joystick</a> (15), <a href='/products/5'>CPU</a> (15),
@@ -165,6 +174,20 @@ Requirements
 
 Usage
 =====
+
+#### With Composer
+
+Add to `composer.json`:
+
+```json
+{
+    "require": {
+        "athari/yalinqo": "~2.0"
+    }
+}
+```
+
+#### Without Composer
 
 ```php
 require_once __DIR__ . '/lib/Linq.php'; // replace with your path
@@ -196,6 +219,7 @@ PHP
 
 License
 =======
+
 **Simplified BSD License**
 
 Copyright © 2012–2014, Alexander Prokhorov
@@ -226,9 +250,21 @@ Links
 =====
 
 ##### YaLinqo
-* **Habrahabr** articles *(Russian)*: [comparison of LINQ libraries](http://habrahabr.ru/post/147612/), [YaLinqo 1.0 with updated comparison](http://habrahabr.ru/post/147848/), [YaLinqo 2.0](http://habrahabr.ru/post/229763/).
+
+* **CodeProject** articles *(English):*
+  * [LINQ for PHP comparison: YaLinqo, Ginq, Pinq](http://www.codeproject.com/Articles/997238/LINQ-for-PHP-comparison-YaLinqo-Ginq-Pinq) — performance comparison of full-featured LINQ ports, with some additional information.
+
+* **Habrahabr** articles *(Russian):*
+  * [Comparison of old LINQ libraries](http://habrahabr.ru/post/147612/) — comparison of *LINQ for PHP*, *Phinq*, *PHPLinq* and *Plinq*, also *Underscore.php*.
+  * [YaLinqo 1.0 with updated comparison](http://habrahabr.ru/post/147848/) — explanation of architecture and design decisions.
+  * [YaLinqo 2.0](http://habrahabr.ru/post/229763/) — switch to PHP 5.5 with generators support and related changes.
+  * [LINQ for PHP: speed matters](http://habrahabr.ru/post/259155/) — performance comparison of full-featured LINQ ports (YaLinqo, Ginq, Pinq).
+
+* Related projects:
+  * [**YaLinqoPerf**](https://github.com/Athari/YaLinqoPerf) — collection of performance tests comparing raw PHP, array functions, YaLinqo, YaLinqo with string lambdas, Ginq, Ginq with property accessors, Pinq.
 
 ##### LINQ ported to other languages:
-* [**linq.js**](http://linqjs.codeplex.com/) - LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
-* [**Underscore.js**](http://documentcloud.github.com/underscore/) - library for functional programming in JavaScript. Similar to LINQ, but different method names and no lazy evaluation.
-* [**Underscore.php**](http://brianhaveri.github.com/Underscore.php/) - port of Underscore.js to PHP. Identical functionality.
+
+* [**linq.js**](http://linqjs.codeplex.com/) — LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
+* [**Underscore.js**](http://documentcloud.github.com/underscore/) — library for functional programming in JavaScript. Similar to LINQ, but different method names and no lazy evaluation.
+* [**Underscore.php**](http://brianhaveri.github.com/Underscore.php/) — port of Underscore.js to PHP. Identical functionality.
