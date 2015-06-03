@@ -12,6 +12,10 @@
     "require": {
         "php": ">=5.3"
     },
+    "require-dev": {
+        "phpunit/phpunit": "<4.6",
+        "satooshi/php-coveralls": "dev-master"
+    },
     "autoload": {
         "files": [
             "YaLinqo/Linq.php"
@@ -19,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "1.x-dev"
         }
     }
 }
