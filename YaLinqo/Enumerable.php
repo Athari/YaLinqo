@@ -256,7 +256,13 @@ class Enumerable implements \IteratorAggregate
      */
     public static function range ($start, $count, $step = 1)
     {
-        return self::toInfinity($start, $step)->take($count);
+        if ($count <= 0)
+            return self::emptyEnum();
+        return new Enumerable(function () use ($start, $count, $step) {
+            $value = $start - $step;
+            while ($count-- > 0)
+                yield $value += $step;
+        });
     }
 
     /**
@@ -291,14 +297,22 @@ class Enumerable implements \IteratorAggregate
     {
         if ($step <= 0)
             throw new \InvalidArgumentException(self::ERROR_STEP_NEGATIVE);
-        return $start < $end
-            ? self::toInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v < $end; })
-            : self::toNegativeInfinity($start, $step)->takeWhile(function ($v) use ($end) { return $v > $end; });
+        return new Enumerable(function () use ($start, $end, $step) {
+            if ($start <= $end) {
+                for ($i = $start; $i < $end; $i += $step)
+                    yield $i;
+            }
+            else {
+                for ($i = $start; $i > $end; $i -= $step)
+                    yield $i;
+            }
+        });
     }
 
     /**
-     * Generates an endless sequence that contains one repeated value.
+     * Generates an sequence that contains one repeated value.
      * <p><b>Syntax</b>: repeat (element)
+     * <p>Generates an endless sequence that contains one repeated value.
      * <p><b>Syntax</b>: repeat (element, count)
      * <p>Generates a sequence of specified length that contains one repeated value.
      * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
@@ -331,7 +345,7 @@ class Enumerable implements \IteratorAggregate
     public static function split ($subject, $pattern, $flags = 0)
     {
         return new Enumerable(function () use ($subject, $pattern, $flags) {
-            return self::from(preg_split($pattern, $subject, -1, $flags))->getIterator();
+            return new \ArrayIterator(preg_split($pattern, $subject, -1, $flags));
         });
     }
 
@@ -400,8 +414,10 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * Projects each element of a sequence to a sequence and flattens the resulting sequences into one sequence.
+     * <p><b>Syntax</b>: selectMany ()
+     * <p>The selectMany method enumerates the input sequence, where each element is a sequence, and then enumerates and yields the elements of each such sequence. That is, for each element of source, selectorValue and selectorKey are invoked and a sequence of key-value pairs is returned. selectMany then flattens this two-dimensional collection of collections into a one-dimensional sequence and returns it. For example, if a query uses selectMany to obtain the orders for each customer in a database, the result is a sequence of orders. If instead the query uses {@link select} to obtain the orders, the collection of collections of orders is not combined and the result is a sequence of sequences of orders.
      * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum})
-     * <p>The selectMany method enumerates the input sequence, uses transform functions to map each element to a sequence, and then enumerates and yields the elements of each such sequence. That is, for each element of source, selectorValue and selectorKey are invoked and a sequence of key-value pairs is returned. selectMany then flattens this two-dimensional collection of collections into a one-dimensional sequence and returns it. For example, if a query uses selectMany to obtain the orders for each customer in a database, the result is a sequence of orders. If instead the query uses {@link select} to obtain the orders, the collection of collections of orders is not combined and the result is a sequence of sequences of orders.
+     * <p>The selectMany method enumerates the input sequence, uses transform functions to map each element to a sequence, and then enumerates and yields the elements of each such sequence.
      * <p><b>Syntax</b>: selectMany (collectionSelector {{(v, k) ==> enum} [, resultSelectorValue {{(v, k1, k2) ==> value} [, resultSelectorKey {{(v, k1, k2) ==> key}]])
      * <p>Projects each element of a sequence to a sequence, flattens the resulting sequences into one sequence, and invokes a result selector functions on each element therein.
      * <p>The selectMany method is useful when you have to keep the elements of source in scope for query logic that occurs after the call to selectMany. If there is a bidirectional relationship between objects in the source sequence and objects returned from collectionSelector, that is, if a sequence returned from collectionSelector provides a property to retrieve the object that produced it, you do not need this overload of selectMany. Instead, you can use simpler selectMany overload and navigate back to the source object through the returned sequence.
@@ -411,9 +427,9 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
      * @package YaLinqo\Projection and filtering
      */
-    public function selectMany ($collectionSelector, $resultSelectorValue = null, $resultSelectorKey = null)
+    public function selectMany ($collectionSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
-        $collectionSelector = Utils::createLambda($collectionSelector, 'v,k');
+        $collectionSelector = Utils::createLambda($collectionSelector, 'v,k', Functions::$value);
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,k1,k2', Functions::$value);
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,k1,k2', false);
         if ($resultSelectorKey === false)
@@ -744,10 +760,17 @@ class Enumerable implements \IteratorAggregate
      */
     public function max ($selector = null)
     {
-        $enum = $this;
-        if ($selector !== null)
-            $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) { return max($a, $b); });
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        $max = -PHP_INT_MAX;
+        $assigned = false;
+        foreach ($this as $k => $v) {
+            $max = max($max, $selector($v, $k));
+            $assigned = true;
+        }
+        if (!$assigned)
+            throw new \UnexpectedValueException(self::ERROR_NO_ELEMENTS);
+        return $max;
     }
 
     /**
@@ -785,10 +808,17 @@ class Enumerable implements \IteratorAggregate
      */
     public function min ($selector = null)
     {
-        $enum = $this;
-        if ($selector !== null)
-            $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) { return min($a, $b); });
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        $min = PHP_INT_MAX;
+        $assigned = false;
+        foreach ($this as $k => $v) {
+            $min = min($min, $selector($v, $k));
+            $assigned = true;
+        }
+        if (!$assigned)
+            throw new \UnexpectedValueException(self::ERROR_NO_ELEMENTS);
+        return $min;
     }
 
     /**
@@ -826,10 +856,12 @@ class Enumerable implements \IteratorAggregate
      */
     public function sum ($selector = null)
     {
-        $enum = $this;
-        if ($selector !== null)
-            $enum = $enum->select($selector);
-        return $enum->aggregateOrDefault(function ($a, $b) { return $a + $b; }, 0);
+        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+
+        $sum = 0;
+        foreach ($this as $k => $v)
+            $sum += $selector($v, $k);
+        return $sum;
     }
 
     #endregion
