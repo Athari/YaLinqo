@@ -60,7 +60,7 @@ class OrderedEnumerable extends Enumerable
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
         $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
-        return new OrderedEnumerable($this->source, $desc, $keySelector, $comparer, $this);
+        return new self($this->source, $desc, $keySelector, $comparer, $this);
     }
 
     /**
