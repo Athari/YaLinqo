@@ -355,6 +355,7 @@ class Enumerable implements \IteratorAggregate
             case 'double':
                 return $this->select(function ($v) { return (float)$v; });
             case 'null':
+            case 'unset':
                 return $this->select(function ($v) { return (unset)$v; });
             case 'object':
                 return $this->select(function ($v) { return (object)$v; });
@@ -952,42 +953,50 @@ class Enumerable implements \IteratorAggregate
      * <p>Returns distinct elements from a sequence.
      * <p><b>Syntax</b>: distinct (selector {{(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns distinct elements.
-     * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @param callable|null $keySelector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @return Enumerable A sequence that contains distinct elements of the input sequence.
      * @package YaLinqo\Sets
      */
-    public function distinct ($selector = null)
+    public function distinct ($keySelector = null)
     {
-        $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        $dic = [ ];
-        return $this->where(function ($v, $k) use (&$dic, $selector) {
-            $key = $selector($v, $k);
-            if (isset($dic[$key]))
-                return false;
-            $dic[$key] = true;
-            return true;
+        return new Enumerable(function () use ($keySelector) {
+            $set = [ ];
+            foreach ($this as $k => $v) {
+                $key = $keySelector($v, $k);
+                if (isset($set[$key]))
+                    continue;
+                $set[$key] = true;
+                yield $k => $v;
+            }
         });
     }
 
     /**
      * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @param callable|null $keySelector {(v, k) ==> key}
      * @return Enumerable
      */
-    public function except ($other)
+    public function except ($other, $keySelector = null)
     {
         $other = self::from($other);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        $set = [ ];
-        foreach ($other as $v) {
-            $set[$v] = true;
-        }
-        foreach ($this as $k => $v) {
-            if (isset($set[$v]))
-                continue;
-            $set[$v] = true;
-            yield $k => $v;
-        }
+        return new Enumerable(function () use ($other, $keySelector) {
+            $set = [ ];
+            foreach ($other as $k => $v) {
+                $key = $keySelector($v, $k);
+                $set[$key] = true;
+            }
+            foreach ($this as $k => $v) {
+                $key = $keySelector($v, $k);
+                if (isset($set[$key]))
+                    continue;
+                $set[$key] = true;
+                yield $k => $v;
+            }
+        });
     }
 
     /**
@@ -995,43 +1004,25 @@ class Enumerable implements \IteratorAggregate
      * @param callable|null $keySelector {(v, k) ==> key}
      * @return Enumerable
      */
-    public function exceptBy ($other, $keySelector)
-    {
-        $keySelector = Utils::createLambda($keySelector, 'v,k');
-        $other = self::from($other);
-
-        $set = [ ];
-        foreach ($other as $k => $v) {
-            $key = $keySelector($v, $k);
-            $set[$key] = true;
-        }
-        foreach ($this as $k => $v) {
-            $key = $keySelector($v, $k);
-            if (isset($set[$key]))
-                continue;
-            $set[$key] = true;
-            yield $k => $v;
-        }
-    }
-
-    /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @return Enumerable
-     */
-    public function intersect ($other)
+    public function intersect ($other, $keySelector = null)
     {
         $other = self::from($other);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        $set = [ ];
-        foreach ($other as $v) {
-            $set[$v] = true;
-        }
-        foreach ($this as $k => $v) {
-            if (!isset($set[$v]))
-                continue;
-            unset($set[$v]);
-            yield $k => $v;
-        }
+        return new Enumerable(function () use ($other, $keySelector) {
+            $set = [ ];
+            foreach ($other as $k => $v) {
+                $key = $keySelector($v, $k);
+                $set[$key] = true;
+            }
+            foreach ($this as $k => $v) {
+                $key = $keySelector($v, $k);
+                if (!isset($set[$key]))
+                    continue;
+                unset($set[$key]);
+                yield $k => $v;
+            }
+        });
     }
 
     /**
@@ -1039,73 +1030,28 @@ class Enumerable implements \IteratorAggregate
      * @param callable|null $keySelector {(v, k) ==> key}
      * @return Enumerable
      */
-    public function intersectBy ($other, $keySelector)
-    {
-        $keySelector = Utils::createLambda($keySelector, 'v,k');
-        $other = self::from($other);
-
-        $set = [ ];
-        foreach ($other as $k => $v) {
-            $key = $keySelector($v, $k);
-            $set[$key] = true;
-        }
-        foreach ($this as $k => $v) {
-            $key = $keySelector($v, $k);
-            if (!isset($set[$key]))
-                continue;
-            unset($set[$key]);
-            yield $k => $v;
-        }
-    }
-
-    /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @return Enumerable
-     */
-    public function union ($other)
+    public function union ($other, $keySelector = null)
     {
         $other = self::from($other);
+        $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        $set = [ ];
-        foreach ($this as $k => $v) {
-            if (isset($set[$v]))
-                continue;
-            $set[$v] = true;
-            yield $k => $v;
-        }
-        foreach ($other as $k => $v) {
-            if (isset($set[$v]))
-                continue;
-            $set[$v] = true;
-            yield $k => $v;
-        }
-    }
-
-    /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @param callable|null $keySelector {(v, k) ==> key}
-     * @return Enumerable
-     */
-    public function unionBy ($other, $keySelector)
-    {
-        $keySelector = Utils::createLambda($keySelector, 'v,k');
-        $other = self::from($other);
-
-        $set = [ ];
-        foreach ($this as $k => $v) {
-            $key = $keySelector($v, $k);
-            if (isset($set[$key]))
-                continue;
-            $set[$key] = true;
-            yield $k => $v;
-        }
-        foreach ($other as $k => $v) {
-            $key = $keySelector($v, $k);
-            if (isset($set[$key]))
-                continue;
-            $set[$key] = true;
-            yield $k => $v;
-        }
+        return new Enumerable(function () use ($other, $keySelector) {
+            $set = [ ];
+            foreach ($this as $k => $v) {
+                $key = $keySelector($v, $k);
+                if (isset($set[$key]))
+                    continue;
+                $set[$key] = true;
+                yield $k => $v;
+            }
+            foreach ($other as $k => $v) {
+                $key = $keySelector($v, $k);
+                if (isset($set[$key]))
+                    continue;
+                $set[$key] = true;
+                yield $k => $v;
+            }
+        });
     }
 
     #endregion

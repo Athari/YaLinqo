@@ -449,6 +449,73 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
     #region Projection and filtering
 
+    /** @covers YaLinqo\Enumerable::cast
+     */
+    function testCast ()
+    {
+        $c = new \stdClass;
+        $c->c = 'd';
+        $o = new \stdClass;
+        $e = new \Exception;
+        $v = function ($v) {
+            $r = new \stdClass;
+            $r->scalar = $v;
+            return $r;
+        };
+
+        // cast (empty)
+        $this->assertEnumValuesEquals([ ], E::from([ ])->cast('array'));
+
+        // cast (array)
+        $sourceArrays = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c ];
+        $expectedArrays = [ [ ], [ 1 ], [ 1.2 ], [ '1.3' ], [ 'abc' ], [ true ], [ false ], [ ], [ 1 => 2 ], [ 'a' => 'b' ], [ 'c' => 'd' ] ];
+        $this->assertEnumValuesEquals($expectedArrays, from($sourceArrays)->cast('array'));
+
+        // cast (int)
+        $sourceInts = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ] ];
+        $expectedInts = [ 0, 1, 1, 1, 0, 1, 0, 0, 1, 1 ];
+        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('int'));
+        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('integer'));
+        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('long'));
+
+        // cast (float)
+        $sourceFloats = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ] ];
+        $expectedFloats = [ 0, 1, 1.2, 1.3, 0, 1, 0, 0, 1, 1 ];
+        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('float'));
+        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('real'));
+        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('double'));
+
+        // cast (null)
+        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
+        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
+        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
+
+        // cast (null)
+        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
+        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
+        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
+
+        // cast (object)
+        $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $expectedObjects = [ $o, $v(1), $v(1.2), $v('1.3'), $v('abc'), $v(true), $v(false), $o, (object)[ 1 => 2 ], (object)[ 'a' => 'b' ], $c, $e ];
+        $this->assertEnumValuesEquals($expectedObjects, from($sourceObjects)->cast('object'));
+
+        // cast (string)
+        $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, $e ];
+        $expectedObjects = [ '', '1', '1.2', '1.3', 'abc', '1', '', (string)$e ];
+        $this->assertEnumValuesEquals($expectedObjects, from($sourceObjects)->cast('string'));
+    }
+
+    /** @covers YaLinqo\Enumerable::cast
+     */
+    function testCast_notBuiltinType ()
+    {
+        $this->setExpectedException('\InvalidArgumentException', E::ERROR_UNSUPPORTED_BUILTIN_TYPE);
+        from([ 0 ])->cast('unsupported');
+    }
+
     /** @covers YaLinqo\Enumerable::ofType
      */
     function testOfType ()
@@ -1297,7 +1364,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
             array(1, 2, 3),
             E::from(array(1, 2, 3, 1, 2))->distinct());
 
-        // distinct (selector)
+        // distinct (keySelector)
         $this->assertEnumEquals(
             array(),
             E::from(array())->distinct('$v*$k'));
@@ -1307,6 +1374,177 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
         $this->assertEnumEquals(
             array(4 => 1, 1 => 3),
             E::from(array(4 => 1, 2 => 2, 1 => 3))->distinct('$v*$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::except
+     */
+    function testExcept ()
+    {
+        // except ()
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->except([ ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->except([ ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->except([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ]));
+
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, 2, 3 ])->except([ '1', '2', '3' ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ '1', '2', '3' ])->except([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, '2', 3 ])->except([ '1', 2, '3' ]));
+
+        $this->assertEnumEquals(
+            [ 1 => 2, 3 => 4 ],
+            E::from([ 1, 2, 3, 4 ])->except([ 1, 3 ]));
+        $this->assertEnumEquals(
+            [ 1 => 2, 3 => 4 ],
+            E::from([ 1, 2, 3, 4 ])->except([ 1, 3, 5, 7 ]));
+
+        // except (keySelector)
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->except([ ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->except([ ], '$k'));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->except([ 1, 2, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ], '$k'));
+
+        $this->assertEnumEquals(
+            [ 2 => 3, 3 => 4 ],
+            E::from([ 1, 2, 3, 4 ])->except([ 1, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ 3 => 4 ],
+            E::from([ 1, 2, 3, 4 ])->except([ 1, 3, 5 ], '$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::intersect
+     */
+    function testIntersect ()
+    {
+        // intersect ()
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->intersect([ ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, 2, 3 ])->intersect([ ]));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->intersect([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ]));
+
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->intersect([ '1', '2', '3' ]));
+        $this->assertEnumEquals(
+            [ '1', '2', '3' ],
+            E::from([ '1', '2', '3' ])->intersect([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ 1, '2', 3 ],
+            E::from([ 1, '2', 3 ])->intersect([ '1', 2, '3' ]));
+
+        $this->assertEnumEquals(
+            [ 0 => 1, 2 => 3 ],
+            E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3 ]));
+        $this->assertEnumEquals(
+            [ 0 => 1, 2 => 3 ],
+            E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5, 7 ]));
+
+        // intersect (keySelector)
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->intersect([ ], '$k'));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ 1, 2, 3 ])->intersect([ ], '$k'));
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->intersect([ 1, 2, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ], '$k'));
+
+        $this->assertEnumEquals(
+            [ 0 => 1, 1 => 2 ],
+            E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ 0 => 1, 1 => 2, 2 => 3 ],
+            E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5 ], '$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::union
+     */
+    function testUnion ()
+    {
+        // intersect ()
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->union([ ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ ])->union([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ]));
+
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ '1', '2', '3' ]));
+        $this->assertEnumEquals(
+            [ '1', '2', '3' ],
+            E::from([ '1', '2', '3' ])->union([ 1, 2, 3 ]));
+        $this->assertEnumEquals(
+            [ 1, '2', 3 ],
+            E::from([ 1, '2', 3 ])->union([ '1', 2, '3' ]));
+
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ 1, 3 ]));
+        $this->assertEnumOrderEquals(
+            [ [ 0, 1 ], [ 1, 2 ], [ 2, 3 ], [ 2, 5 ] ],
+            E::from([ 1, 2, 3 ])->union([ 1, 3, 5 ]));
+
+        // intersect (keySelector)
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->union([ ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ ])->union([ 1, 2, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ], '$k'));
+
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->union([ 1, 3 ], '$k'));
+        $this->assertEnumEquals(
+            [ 1, 2, 3, 7 ],
+            E::from([ 1, 2, 3 ])->union([ 1, 3, 5, 7 ], '$k'));
     }
 
     #endregion

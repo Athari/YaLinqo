@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 require_once __DIR__ . '/../Testing/Common.php';
+use Tests\Stubs\Temp;
 use YaLinqo\Utils as U;
 
 class UtilsTest extends \PHPUnit_Framework_TestCase
@@ -35,7 +36,6 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
      */
     function testCreateLambda_closure ()
     {
-        /** @var $f callback */
         $f = U::createLambda(function ($a, $b) { return $a + $b; }, 'a,b');
         $this->assertSame(5, $f(2, 3));
     }
@@ -44,7 +44,6 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
      */
     function testCreateLambda_callableString ()
     {
-        /** @var $f callback */
         $f = U::createLambda('strlen', 's');
         $this->assertSame(3, $f('abc'));
     }
@@ -53,8 +52,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
      */
     function testCreateLambda_callableArray ()
     {
-        $o = new \Tests\Stubs\Temp(2);
-        /** @var $f callback */
+        $o = new Temp(2);
         $f = U::createLambda(array($o, 'foo'), 'a');
         $this->assertSame(5, $f(3));
         $f = U::createLambda(array('Tests\Stubs\Temp', 'bar'), 'a');
@@ -68,7 +66,9 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
      */
     function testCreateLambda_lambdaString ()
     {
-        /** @var $f callback */
+        $f = U::createLambda('strcmp', 'a,b');
+        $this->assertSame(0, $f('a', 'a'));
+
         $f = U::createLambda('$val+1', 'val');
         $this->assertSame(3, $f(2));
         $f = U::createLambda('$a+$b', 'a,b');
