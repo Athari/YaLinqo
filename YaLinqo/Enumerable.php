@@ -11,20 +11,6 @@ namespace YaLinqo;
 
 use YaLinqo;
 
-// TODO: string syntax: select("new { ... }")
-// TODO: linq.js must: Except[By], Intersect, Union, Cast
-// TODO: linq.js must: Zip, Concat, Insert, Let, Memoize, MemoizeAll, BufferWithCount, SequenceEqual, Reverse
-// TODO: linq.js high: CascadeBreadthFirst, CascadeDepthFirst, Flatten, Scan, PreScan, Alternate, DefaultIfEmpty, Shuffle
-// TODO: linq.js maybe: Pairwise, PartitionBy, TakeExceptLast, TakeFromLast, Share
-// TODO: Interactive: Defer, Case, DoWhile, If, IsEmpty, (Skip|Take)Last, StartWith, While
-// TODO: MoreLinq: Batch(Chunk?), Pad, (Skip|Take)Until, (Skip|Take)Every, Zip(Shortest|Longest)
-// TODO: EvenMoreLinq: Permutations, Subsets, PermutedSubsets, Random, RandomSubset, Slice
-// TODO: LinqLib: Permutations, Combinations, Statistical
-// TODO: PHP Iterators: Recursive*Iterator
-// TODO: PHP arrays: combine, flip, merge[_recursive], rand, replace[_recursive], walk_recursive, extract
-// TODO: toTable, toCsv, toExcelCsv
-// TODO: document when keys are preserved/discarded
-// TODO: optimize toValues etc. for arrays
 // Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, call/each, InvalidOperationException => UnexpectedValueException
 
 /**
@@ -51,6 +37,8 @@ class Enumerable implements \IteratorAggregate
     const ERROR_COUNT_LESS_THAN_ZERO = 'count must be a non-negative value.';
     /** Error message: "step must be a positive value." */
     const ERROR_STEP_NEGATIVE = 'step must be a positive value.';
+    /** Error message: "type must by one of built-in types." */
+    const ERROR_UNSUPPORTED_BUILTIN_TYPE = 'type must by one of built-in types.';
 
     /**
      * Callback returning a wrapped iterator.
@@ -352,6 +340,30 @@ class Enumerable implements \IteratorAggregate
     #endregion
 
     #region Projection and filtering
+
+    public function cast ($type)
+    {
+        switch ($type) {
+            case 'array':
+                return $this->select(function ($v) { return (array)$v; });
+            case 'int':
+            case 'integer':
+            case 'long':
+                return $this->select(function ($v) { return (int)$v; });
+            case 'float':
+            case 'real':
+            case 'double':
+                return $this->select(function ($v) { return (float)$v; });
+            case 'null':
+                return $this->select(function ($v) { return (unset)$v; });
+            case 'object':
+                return $this->select(function ($v) { return (object)$v; });
+            case 'string':
+                return $this->select(function ($v) { return (string)$v; });
+            default:
+                throw new \InvalidArgumentException(self::ERROR_UNSUPPORTED_BUILTIN_TYPE);
+        }
+    }
 
     /**
      * Filters the elements of a sequence based on a specified type.
@@ -956,6 +968,144 @@ class Enumerable implements \IteratorAggregate
             $dic[$key] = true;
             return true;
         });
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @return Enumerable
+     */
+    public function except ($other)
+    {
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($other as $v) {
+            $set[$v] = true;
+        }
+        foreach ($this as $k => $v) {
+            if (isset($set[$v]))
+                continue;
+            $set[$v] = true;
+            yield $k => $v;
+        }
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @param callable|null $keySelector {(v, k) ==> key}
+     * @return Enumerable
+     */
+    public function exceptBy ($other, $keySelector)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k');
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($other as $k => $v) {
+            $key = $keySelector($v, $k);
+            $set[$key] = true;
+        }
+        foreach ($this as $k => $v) {
+            $key = $keySelector($v, $k);
+            if (isset($set[$key]))
+                continue;
+            $set[$key] = true;
+            yield $k => $v;
+        }
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @return Enumerable
+     */
+    public function intersect ($other)
+    {
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($other as $v) {
+            $set[$v] = true;
+        }
+        foreach ($this as $k => $v) {
+            if (!isset($set[$v]))
+                continue;
+            unset($set[$v]);
+            yield $k => $v;
+        }
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @param callable|null $keySelector {(v, k) ==> key}
+     * @return Enumerable
+     */
+    public function intersectBy ($other, $keySelector)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k');
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($other as $k => $v) {
+            $key = $keySelector($v, $k);
+            $set[$key] = true;
+        }
+        foreach ($this as $k => $v) {
+            $key = $keySelector($v, $k);
+            if (!isset($set[$key]))
+                continue;
+            unset($set[$key]);
+            yield $k => $v;
+        }
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @return Enumerable
+     */
+    public function union ($other)
+    {
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($this as $k => $v) {
+            if (isset($set[$v]))
+                continue;
+            $set[$v] = true;
+            yield $k => $v;
+        }
+        foreach ($other as $k => $v) {
+            if (isset($set[$v]))
+                continue;
+            $set[$v] = true;
+            yield $k => $v;
+        }
+    }
+
+    /**
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
+     * @param callable|null $keySelector {(v, k) ==> key}
+     * @return Enumerable
+     */
+    public function unionBy ($other, $keySelector)
+    {
+        $keySelector = Utils::createLambda($keySelector, 'v,k');
+        $other = self::from($other);
+
+        $set = [ ];
+        foreach ($this as $k => $v) {
+            $key = $keySelector($v, $k);
+            if (isset($set[$key]))
+                continue;
+            $set[$key] = true;
+            yield $k => $v;
+        }
+        foreach ($other as $k => $v) {
+            $key = $keySelector($v, $k);
+            if (isset($set[$key]))
+                continue;
+            $set[$key] = true;
+            yield $k => $v;
+        }
     }
 
     #endregion

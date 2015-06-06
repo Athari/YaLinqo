@@ -29,16 +29,16 @@ Implemented methods
 Some methods had to be renamed, because their names are reserved keywords. Original methods names are given in parenthesis.
 
 * **Generation**: cycle, emptyEnum (empty), from, generate, toInfinity, toNegativeInfinity, matches, returnEnum (return), range, rangeDown, rangeTo, repeat, split;
-* **Projection and filtering**: ofType, select, selectMany, where;
+* **Projection and filtering**: cast, ofType, select, selectMany, where;
 * **Ordering**: orderBy, orderByDescending, orderByDir, thenBy, thenByDescending, thenByDir;
 * **Joining and grouping**: groupJoin, join, groupBy;
 * **Aggregation**: aggregate, aggregateOrDefault, average, count, max, maxBy, min, minBy, sum;
-* **Set**: all, any, contains;
+* **Set**: all, any, contains, distinct, except, exceptBy, intersect, intersectBy, union, unionBy;
 * **Pagination**: elementAt, elementAtOrDefault, first, firstOrDefault, firstOrFallback, last, lastOrDefault, lastOrFallback, single, singleOrDefault, singleOrFallback, indexOf, lastIndexOf, findIndex, findLastIndex, skip, skipWhile, take, takeWhile;
 * **Conversion**: toArray, toArrayDeep, toList, toListDeep, toDictionary, toJSON, toLookup, toKeys, toValues, toObject, toString;
 * **Actions**: call (do), each (forEach), write, writeLine.
 
-In total, more than 70 methods.
+In total, more than 80 methods.
 
 Example
 =======
