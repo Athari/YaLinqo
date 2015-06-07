@@ -520,8 +520,9 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testOfType ()
     {
+        $f = function () { };
         $a = from(array(
-            1, array(2), '6', function () { }, 1.2, null, new \stdClass, 3, 4.5, 'ab', array(), new \Exception
+            1, array(2), '6', $f, 1.2, null, new \stdClass, 3, 4.5, 'ab', array(), new \Exception
         ));
 
         // ofType (empty)
@@ -547,10 +548,10 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
         // ofType (callable)
         $this->assertEnumValuesEquals(
-            array(function () { }),
+            array($f),
             $a->ofType('callable'));
         $this->assertEnumValuesEquals(
-            array(function () { }),
+            array($f),
             $a->ofType('callback'));
 
         // ofType (float)
@@ -586,7 +587,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
 
         // ofType (object)
         $this->assertEnumValuesEquals(
-            array(function () { }, new \stdClass, new \Exception),
+            array($f, new \stdClass, new \Exception),
             $a->ofType('object'));
 
         // ofType (Exception)
