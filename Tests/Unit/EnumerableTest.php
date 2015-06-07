@@ -3,7 +3,8 @@
 namespace Tests\Unit;
 
 require_once __DIR__ . '/../../YaLinqo/Linq.php';
-use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, Tests\Stubs\AggregateIteratorWrapper;
+use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, YaLinqo\Errors;
+use Tests\Stubs\AggregateIteratorWrapper;
 
 /** @covers YaLinqo\Enumerable
  */
@@ -33,7 +34,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testCycle_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         E::cycle([ ])->toArray();
     }
 
@@ -381,7 +382,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testRangeTo_zeroStep ()
     {
-        $this->setExpectedException('InvalidArgumentException', E::ERROR_STEP_NEGATIVE);
+        $this->setExpectedException('InvalidArgumentException', Errors::STEP_NEGATIVE);
         E::rangeTo(3, 7, 0);
     }
 
@@ -389,7 +390,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testRangeTo_negativeStep ()
     {
-        $this->setExpectedException('InvalidArgumentException', E::ERROR_STEP_NEGATIVE);
+        $this->setExpectedException('InvalidArgumentException', Errors::STEP_NEGATIVE);
         E::rangeTo(3, 7, -1);
     }
 
@@ -419,7 +420,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testRepeat_negativeCount ()
     {
-        $this->setExpectedException('InvalidArgumentException', E::ERROR_COUNT_LESS_THAN_ZERO);
+        $this->setExpectedException('InvalidArgumentException', Errors::COUNT_LESS_THAN_ZERO);
         E::repeat(3, -2);
     }
 
@@ -512,7 +513,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testCast_notBuiltinType ()
     {
-        $this->setExpectedException('\InvalidArgumentException', E::ERROR_UNSUPPORTED_BUILTIN_TYPE);
+        $this->setExpectedException('\InvalidArgumentException', Errors::UNSUPPORTED_BUILTIN_TYPE);
         from([ 0 ])->cast('unsupported');
     }
 
@@ -1035,7 +1036,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testAggregate_emptySourceNoSeed ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         E::from([ ])->aggregate('$a+$v');
     }
 
@@ -1099,7 +1100,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testAverage_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         E::from([ ])->average();
     }
 
@@ -1149,7 +1150,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testMax_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         E::from([ ])->max();
     }
 
@@ -1177,7 +1178,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testMaxBy_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
         E::from([ ])->maxBy($compare);
     }
@@ -1204,7 +1205,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testMin_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         E::from([ ])->min();
     }
 
@@ -1232,7 +1233,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testMinBy_emptySource ()
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_ELEMENTS);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
         $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
         E::from([ ])->minBy($compare);
     }
@@ -1585,7 +1586,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testElementAt_noKey ($enum, $key)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_KEY);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_KEY);
         $enum->elementAt($key);
     }
 
@@ -1673,7 +1674,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testFirst_noMatches ($source, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->first($predicate);
     }
 
@@ -1787,7 +1788,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testLast_noMatches ($source, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->last($predicate);
     }
 
@@ -1895,7 +1896,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testSingle_noMatches ($source, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_NO_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->single($predicate);
     }
 
@@ -1915,7 +1916,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testSingle_manyMatches ($source, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->single($predicate);
     }
 
@@ -1968,7 +1969,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testSingleOrDefault_manyMatches ($source, $default, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->singleOrDefault($default, $predicate);
     }
 
@@ -2018,7 +2019,7 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
      */
     function testSingleOrFallback_manyMatches ($source, $fallback, $predicate)
     {
-        $this->setExpectedException('UnexpectedValueException', E::ERROR_MANY_MATCHES);
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->singleOrFallback($fallback, $predicate);
     }
 

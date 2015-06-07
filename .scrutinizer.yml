@@ -1,3 +1,10 @@
 filter:
   excluded_paths:
     - Tests/*
+
+checks:
+  php:
+    # create_function is the only way to implement string lambdas, and they are optional.
+    no_eval: false
+    # Duplication is critical for performance, callbacks slow down execution considerably.
+    duplication: false
