@@ -4,7 +4,10 @@ https://github.com/Athari/YaLinqo
 
 [![Travis CI Status](https://img.shields.io/travis/Athari/YaLinqo.svg)](https://travis-ci.org/Athari/YaLinqo)
 [![Coveralls Coverage](https://img.shields.io/coveralls/Athari/YaLinqo/master.svg)](https://coveralls.io/r/Athari/YaLinqo)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Athari/YaLinqo.svg)](https://scrutinizer-ci.com/g/Athari/YaLinqo)
+[![VersionEye Dependencies](https://www.versioneye.com/php/athari:yalinqo/badge.svg)](https://www.versioneye.com/php/athari:yalinqo)<br>
 [![Packagist Downloads](https://img.shields.io/packagist/dt/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
+[![VersionEye References](https://www.versioneye.com/php/athari:yalinqo/reference_badge.svg)](https://www.versioneye.com/php/athari:yalinqo/references)
 [![Packagist Version](https://img.shields.io/packagist/v/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
 [![GitHub License](https://img.shields.io/github/license/Athari/YaLinqo.svg)](license.md)
 
@@ -260,6 +263,9 @@ Links
   * [YaLinqo 1.0 with updated comparison](http://habrahabr.ru/post/147848/) — explanation of architecture and design decisions.
   * [YaLinqo 2.0](http://habrahabr.ru/post/229763/) — switch to PHP 5.5 with generators support and related changes.
   * [LINQ for PHP: speed matters](http://habrahabr.ru/post/259155/) — performance comparison of full-featured LINQ ports (YaLinqo, Ginq, Pinq).
+
+* **Other**:
+  * Tute Wall: [How to use Linq in PHP](http://tutewall.com/how-to-use-linq-in-php-part-01/) by *Mr. X* — a series of posts covering basic usage of YaLinqo. 
 
 * Related projects:
   * [**YaLinqoPerf**](https://github.com/Athari/YaLinqoPerf) — collection of performance tests comparing raw PHP, array functions, YaLinqo, YaLinqo with string lambdas, Ginq, Ginq with property accessors, Pinq.
