@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Functions as F;
 
 /** @covers YaLinqo\Functions

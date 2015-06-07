@@ -2,7 +2,6 @@
 
 namespace Tests\Testing;
 
-require_once __DIR__ . '/../Testing/Common.php';
 use YaLinqo\Enumerable as E, YaLinqo\Functions;
 
 class TestCase_Enumerable extends \PHPUnit_Framework_TestCase
@@ -19,7 +18,7 @@ class TestCase_Enumerable extends \PHPUnit_Framework_TestCase
 
     public static function assertEnumOrderEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        self::assertEquals($expected, $actual->take($maxLength)->select('array($k, $v)', Functions::increment())->toArrayDeep());
+        self::assertEquals($expected, $actual->take($maxLength)->select('[ $k, $v ]', Functions::increment())->toArrayDeep());
     }
 
     public static function assertEnumValuesEquals (array $expected, E $actual, $maxLength = PHP_INT_MAX)

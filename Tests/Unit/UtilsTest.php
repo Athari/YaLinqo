@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-require_once __DIR__ . '/../Testing/Common.php';
 use Tests\Stubs\Temp;
 use YaLinqo\Utils as U;
 
@@ -53,11 +52,11 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
     function testCreateLambda_callableArray ()
     {
         $o = new Temp(2);
-        $f = U::createLambda(array($o, 'foo'), 'a');
+        $f = U::createLambda([ $o, 'foo' ], 'a');
         $this->assertSame(5, $f(3));
-        $f = U::createLambda(array('Tests\Stubs\Temp', 'bar'), 'a');
+        $f = U::createLambda([ 'Tests\Stubs\Temp', 'bar' ], 'a');
         $this->assertSame(4, $f(4));
-        $f = U::createLambda(array(get_class($o), 'bar'), 'a');
+        $f = U::createLambda([ get_class($o), 'bar' ], 'a');
         $this->assertSame(6, $f(6));
     }
 
