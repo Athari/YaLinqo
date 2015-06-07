@@ -712,8 +712,8 @@ class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
             array(2, 33, 111, 4444),
             E::from(array(111, 2, 33, 4444))->orderByDir(false, null, $compareLen));
         $this->assertEnumValuesEquals(
-            array(33, 3, 999, 4444),
-            E::from(array(999, 3, 33, 4444))->orderByDir(false, '$v-33', $compareLen));
+            array(33, 30, 999, 4444),
+            E::from(array(999, 30, 33, 4444))->orderByDir(false, '$v-33', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
