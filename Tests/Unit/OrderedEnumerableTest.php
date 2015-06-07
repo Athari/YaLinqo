@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+require_once __DIR__ . '/../../YaLinqo/Linq.php';
 use YaLinqo\Enumerable as E, YaLinqo\OrderedEnumerable as OE, YaLinqo\Utils, YaLinqo\Functions;
 
 /** @covers YaLinqo\OrderedEnumerable

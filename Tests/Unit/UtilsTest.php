@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+require_once __DIR__ . '/../../YaLinqo/Linq.php';
 use Tests\Stubs\Temp;
 use YaLinqo\Utils as U;
 
