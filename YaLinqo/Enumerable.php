@@ -339,6 +339,15 @@ class Enumerable implements \IteratorAggregate
 
     #region Projection and filtering
 
+    /**
+     * Casts the elements of a sequence to the specified type.
+     * <p><b>Syntax</b>: cast (type)
+     * <p>The cast method causes an error if an element cannot be cast (exact error depends on the implementation of PHP casting), to get only elements of the specified type, use {@link ofType}.
+     * @param string $type The type to cast the elements to. Can be one of the built-in types: array, int (integer, long), float (real, double), null (unset), object, string.
+     * @return Enumerable An sequence that contains each element of the source sequence cast to the specified type.
+     * @link http://php.net/manual/language.types.type-juggling.php Type Juggling
+     * @package YaLinqo\Projection and filtering
+     */
     public function cast ($type)
     {
         switch ($type) {
@@ -367,7 +376,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * Filters the elements of a sequence based on a specified type.
      * <p><b>Syntax</b>: ofType (type)
-     * <p>The ofType method returns only those elements in source that can be cast to the specified type. To instead receive an exception if an element cannot be cast, use {@link cast()}.
+     * <p>The ofType method returns only elements of the specified type. To instead receive an error if an element cannot be cast, use {@link cast}.
      * @param string $type The type to filter the elements of the sequence on. Can be either class name or one of the predefined types: array, int (integer, long), callable (callable), float (real, double), null, string, object, numeric, scalar.
      * @return Enumerable A sequence that contains elements from the input sequence of the specified type.
      * @package YaLinqo\Projection and filtering
@@ -947,11 +956,12 @@ class Enumerable implements \IteratorAggregate
 
     /**
      * Returns distinct elements from a sequence.
+     * <p>Element keys are values identifying elements. They are used as array keys and are subject to the same rules as array keys, for example, integer 100 and string "100" are considered equal.
      * <p><b>Syntax</b>: distinct ()
-     * <p>Returns distinct elements from a sequence.
-     * <p><b>Syntax</b>: distinct (selector {(v, k) ==> value})
-     * <p>Invokes a transform function on each element of a sequence and returns distinct elements.
-     * @param callable|null $keySelector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * <p>Returns distinct elements from a sequence using values as element keys.
+     * <p><b>Syntax</b>: distinct (keySelector {(v, k) ==> value})
+     * <p>Returns distinct elements from a sequence using values produced by keySelector as element keys.
+     * @param callable|null $keySelector {(v, k) ==> value} A function to extract the element key from each element. Default: value.
      * @return Enumerable A sequence that contains distinct elements of the input sequence.
      * @package YaLinqo\Sets
      */
@@ -972,9 +982,16 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @param callable|null $keySelector {(v, k) ==> key}
-     * @return Enumerable
+     * Produces the set difference of two sequences. The set difference of two sets is defined as the members of the first set that do not appear in the second set.
+     * <p>Element keys are values identifying elements. They are used as array keys and are subject to the same rules as array keys, for example, integer 100 and string "100" are considered equal.
+     * <p><b>Syntax</b>: distinct (other)
+     * <p>Produces the set difference of two sequences using values as element keys.
+     * <p><b>Syntax</b>: distinct (other, keySelector {(v, k) ==> value})
+     * <p>Produces the set difference of two sequences using values produced by keySelector as element keys.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose elements that also occur in the source sequence will cause those elements to be removed from the returned sequence.
+     * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
+     * @return Enumerable A sequence that contains the set difference of the elements of two sequences.
+     * @package YaLinqo\Sets
      */
     public function except ($other, $keySelector = null)
     {
@@ -998,9 +1015,16 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @param callable|null $keySelector {(v, k) ==> key}
-     * @return Enumerable
+     * Produces the set intersection of two sequences. The intersection of two sets is defined as the set that contains all the elements of the first set that also appear in the second set, but no other elements.
+     * <p>Element keys are values identifying elements. They are used as array keys and are subject to the same rules as array keys, for example, integer 100 and string "100" are considered equal.
+     * <p><b>Syntax</b>: intersect (other)
+     * <p>Produces the set intersection of two sequences using values as element keys.
+     * <p><b>Syntax</b>: intersect (other, keySelector {(v, k) ==> value})
+     * <p>Produces the set intersection of two sequences using values produced by keySelector as element keys.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose distinct elements that also appear in the first sequence will be returned.
+     * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
+     * @return Enumerable A sequence that contains the elements that form the set intersection of two sequences.
+     * @package YaLinqo\Sets
      */
     public function intersect ($other, $keySelector = null)
     {
@@ -1024,9 +1048,17 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other
-     * @param callable|null $keySelector {(v, k) ==> key}
-     * @return Enumerable
+     * Produces the set union of two sequences.
+     * <p>Element keys are values identifying elements. They are used as array keys and are subject to the same rules as array keys, for example, integer 100 and string "100" are considered equal.
+     * <p>This method excludes duplicates from the return set. This is different behavior to the {@link concat} method, which returns all the elements in the input sequences including duplicates.
+     * <p><b>Syntax</b>: union (other)
+     * <p>Produces the set union of two sequences using values as element keys.
+     * <p><b>Syntax</b>: union (other, keySelector {(v, k) ==> value})
+     * <p>Produces the set union of two sequences using values produced by keySelector as element keys.
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose distinct elements form the second set for the union.
+     * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
+     * @return Enumerable A sequence that contains the elements from both input sequences, excluding duplicates.
+     * @package YaLinqo\Sets
      */
     public function union ($other, $keySelector = null)
     {

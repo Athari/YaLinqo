@@ -13,6 +13,6 @@
     </transformations>
     <files>
         <directory>YaLinqo</directory>
-        <ignore>YaLinqo/Examples.php</ignore>
+        <ignore>YaLinqo/tmp.php</ignore>
     </files>
 </phpdoc>
