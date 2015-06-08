@@ -205,17 +205,19 @@ class Enumerable implements \IteratorAggregate
      * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
      * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
-     * @param bool $desc A direction in which to order the elements: false for ascending (by increasing value), true for descending (by decreasing value).
+     * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_DESC for ascending (by increasing value), true or SORT_ASC for descending (by decreasing value).
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callable|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
-    public function orderByDir ($desc, $keySelector = null, $comparer = null)
+    public function orderByDir ($sortOrder, $keySelector = null, $comparer = null)
     {
+        $sortFlags = Utils::lambdaToSortFlags($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
-        $comparer = Utils::createComparer($comparer, $desc);
-        return new OrderedEnumerable($this, $desc, $keySelector, $comparer);
+        $isReversed = $sortOrder == SORT_DESC;
+        $comparer = Utils::createComparer($comparer, $sortOrder, $isReversed);
+        return new OrderedEnumerable($this, $sortOrder, $sortFlags, $isReversed, $keySelector, $comparer);
     }
 
     /**

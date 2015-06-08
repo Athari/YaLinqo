@@ -67,6 +67,16 @@ class Functions
      * @var callable
      */
     public static $compareLooseReversed;
+    /**
+     * Compare int function: returns the difference between the first and the second argument.
+     * @var callable
+     */
+    public static $compareInt;
+    /**
+     * Compare int function reversed: returns the difference between the second and the first argument.
+     * @var callable
+     */
+    public static $compareIntReversed;
 
     /** @internal */
     public static function init ()
@@ -119,6 +129,14 @@ class Functions
                 return -1;
             else
                 return 1;
+        };
+
+        self::$compareInt = function ($a, $b) {
+            return $a - $b;
+        };
+
+        self::$compareIntReversed = function ($a, $b) {
+            return $b - $a;
         };
     }
 

@@ -22,11 +22,17 @@ class Utils
     const ERROR_CLOSURE_NOT_CALLABLE = 'closure must be callable';
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
 
-    /**
-     * Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings.
-     * @var array
-     */
+    /** Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings. @var array */
     private static $lambdaCache = [ ];
+    /** Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings. @var array */
+    private static $compareFunctionToSortFlags = [
+        null => SORT_REGULAR,
+        'strcmp' => SORT_STRING,
+        'strcasecmp' => 10 /*SORT_STRING | SORT_FLAG_CASE*/,
+        'strcoll' => SORT_LOCALE_STRING,
+        'strnatcmp' => SORT_NATURAL,
+        'strnatcasecmp' => 14 /*SORT_NATURAL | SORT_FLAG_CASE*/,
+    ];
 
     /**
      * Convert string lambda to callable function. If callable is passed, return as is.
@@ -53,14 +59,44 @@ class Utils
         throw new \InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
     }
 
-    public static function createComparer ($closure, &$desc)
+    public static function createComparer ($closure, $sortOrder, &$isReversed)
     {
         if ($closure === null) {
-            $lambda = $desc ? Functions::$compareLooseReversed : Functions::$compareStrict;
-            $desc = false;
-            return $lambda;
+            $isReversed = false;
+            return $sortOrder === SORT_DESC ? Functions::$compareStrictReversed : Functions::$compareStrict;
+        }
+        elseif (is_int($closure)) {
+            switch ($closure) {
+                case SORT_REGULAR:
+                    return Functions::$compareStrict;
+                case SORT_NUMERIC:
+                    $isReversed = false;
+                    return $sortOrder === SORT_DESC ? Functions::$compareIntReversed : Functions::$compareInt;
+                case SORT_STRING:
+                    return 'strcmp';
+                case SORT_STRING | SORT_FLAG_CASE:
+                    return 'strcasecmp';
+                case SORT_LOCALE_STRING:
+                    return 'strcoll';
+                case SORT_NATURAL:
+                    return 'strnatcmp';
+                case SORT_NATURAL | SORT_FLAG_CASE:
+                    return 'strnatcasecmp';
+                default:
+                    throw new \InvalidArgumentException("Unexpected sort flag: {$closure}.");
+            }
         }
         return self::createLambda($closure, 'a,b');
+    }
+
+    public static function lambdaToSortFlags ($closure, &$sortOrder)
+    {
+        if ($sortOrder !== SORT_ASC && $sortOrder !== SORT_DESC)
+            $sortOrder = $sortOrder ? SORT_DESC : SORT_ASC;
+        if (($closure === null || is_string($closure)) && isset(self::$compareFunctionToSortFlags[$closure]))
+            return self::$compareFunctionToSortFlags[$closure];
+        else
+            return null;
     }
 
     /**
