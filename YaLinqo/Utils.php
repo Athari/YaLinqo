@@ -93,7 +93,9 @@ class Utils
     {
         if ($sortOrder !== SORT_ASC && $sortOrder !== SORT_DESC)
             $sortOrder = $sortOrder ? SORT_DESC : SORT_ASC;
-        if (($closure === null || is_string($closure)) && isset(self::$compareFunctionToSortFlags[$closure]))
+        if (is_int($closure))
+            return $closure;
+        elseif (($closure === null || is_string($closure)) && isset(self::$compareFunctionToSortFlags[$closure]))
             return self::$compareFunctionToSortFlags[$closure];
         else
             return null;
