@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Stubs;
+namespace YaLinqo\Tests\Stubs;
 
 // @codeCoverageIgnoreStart
 

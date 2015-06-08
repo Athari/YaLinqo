@@ -1,19 +1,11 @@
 <?php
 
 /**
- * Autoloader and global functions.
+ * Global functions.
  * @author Alexander Prokhorov
  * @license Simplified BSD
  * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
  */
-
-// @codeCoverageIgnoreStart
-spl_autoload_register(function ($class) {
-    $file = dirname(__DIR__) . '/' . str_replace('\\', '/', $class) . '.php';
-    if (is_file($file))
-        require_once($file);
-});
-// @codeCoverageIgnoreEnd
 
 if (!function_exists('from')) {
     /**

@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Unit;
+namespace YaLinqo\Tests\Unit;
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
+use YaLinqo\Tests\Testing\TestCaseEnumerable;
 
-class LinqTest extends \PHPUnit_Framework_TestCase
+class LinqTest extends TestCaseEnumerable
 {
     function testFunctions ()
     {

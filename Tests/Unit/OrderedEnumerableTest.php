@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Unit;
+namespace YaLinqo\Tests\Unit;
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
-use YaLinqo\Enumerable as E, YaLinqo\OrderedEnumerable as OE, YaLinqo\Utils, YaLinqo\Functions;
+use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions;
+use YaLinqo\Tests\Testing\TestCaseEnumerable;
 
 /** @covers YaLinqo\OrderedEnumerable
  */
-class OrderedEnumerableTest extends \Tests\Testing\TestCase_Enumerable
+class OrderedEnumerableTest extends TestCaseEnumerable
 {
     function testThenByDir_asc ()
     {

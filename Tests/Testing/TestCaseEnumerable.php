@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Testing;
+namespace YaLinqo\Tests\Testing;
 
 use YaLinqo\Enumerable as E, YaLinqo\Functions;
 
-class TestCase_Enumerable extends \PHPUnit_Framework_TestCase
+class TestCaseEnumerable extends \PHPUnit_Framework_TestCase
 {
     protected function setUp ()
     {

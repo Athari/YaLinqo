@@ -1,12 +1,11 @@
 <?php
 
-namespace Tests\Unit;
+namespace YaLinqo\Tests\Unit;
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
-use Tests\Stubs\Temp;
 use YaLinqo\Utils as U, YaLinqo\Functions as F;
+use YaLinqo\Tests\Stubs\Temp, YaLinqo\Tests\Testing\TestCaseEnumerable;
 
-class UtilsTest extends \PHPUnit_Framework_TestCase
+class UtilsTest extends TestCaseEnumerable
 {
     /** @covers YaLinqo\Utils::createLambda
      */
@@ -55,7 +54,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
         $o = new Temp(2);
         $f = U::createLambda([ $o, 'foo' ], 'a');
         $this->assertSame(5, $f(3));
-        $f = U::createLambda([ 'Tests\Stubs\Temp', 'bar' ], 'a');
+        $f = U::createLambda([ 'YaLinqo\Tests\Stubs\Temp', 'bar' ], 'a');
         $this->assertSame(4, $f(4));
         $f = U::createLambda([ get_class($o), 'bar' ], 'a');
         $this->assertSame(6, $f(6));
@@ -172,7 +171,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('\InvalidArgumentException');
         $isReversed = null;
-        $f = U::createComparer(666, SORT_ASC, $isReversed);
+        U::createComparer(666, SORT_ASC, $isReversed);
     }
 
     /** @covers YaLinqo\Utils::lambdaToSortFlagsAndOrder

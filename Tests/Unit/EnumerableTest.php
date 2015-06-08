@@ -1,14 +1,13 @@
 <?php
 
-namespace Tests\Unit;
+namespace YaLinqo\Tests\Unit;
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
 use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, YaLinqo\Errors;
-use Tests\Stubs\AggregateIteratorWrapper;
+use YaLinqo\Tests\Stubs\AggregateIteratorWrapper, YaLinqo\Tests\Testing\TestCaseEnumerable;
 
 /** @covers YaLinqo\Enumerable
  */
-class EnumerableTest extends \Tests\Testing\TestCase_Enumerable
+class EnumerableTest extends TestCaseEnumerable
 {
     #region Generation
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Unit;
+namespace YaLinqo\Tests\Unit;
 
-require_once __DIR__ . '/../../YaLinqo/Linq.php';
 use YaLinqo\Functions as F;
+use YaLinqo\Tests\Testing\TestCaseEnumerable;
 
 /** @covers YaLinqo\Functions
  */
-class FunctionsTest extends \PHPUnit_Framework_TestCase
+class FunctionsTest extends TestCaseEnumerable
 {
     function testIdentity ()
     {
