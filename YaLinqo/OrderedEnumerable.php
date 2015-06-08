@@ -96,21 +96,28 @@ class OrderedEnumerable extends Enumerable
     /** {@inheritdoc} */
     public function getIterator ()
     {
+        /** @var $order OrderedEnumerable */
         $orders = [ ];
         for ($order = $this; $order != null; $order = $order->parent)
             $orders[] = $order;
         $orders = array_reverse($orders);
 
         $enum = [ ];
-        foreach ($this->source as $k => $v)
-            $enum[] = [ $k, $v ];
+        foreach ($this->source as $k => $v) {
+            $element = [ $k, $v ];
+            foreach ($orders as $order) {
+                $keySelector = $order->keySelector;
+                $element[] = $keySelector($v, $k);
+            }
+            $enum[] = $element;
+        }
 
         usort($enum, function ($a, $b) use ($orders) {
             /** @var $order OrderedEnumerable */
-            foreach ($orders as $order) {
+            for ($i = 0; $i < count($orders); $i++) {
+                $order = $orders[$i];
                 $comparer = $order->comparer;
-                $keySelector = $order->keySelector;
-                $diff = $comparer($keySelector($a[1], $a[0]), $keySelector($b[1], $b[0]));
+                $diff = $comparer($a[$i + 2], $b[$i + 2]);
                 if ($diff != 0)
                     return $order->desc ? -$diff : $diff;
             }
