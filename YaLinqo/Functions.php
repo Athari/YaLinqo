@@ -53,10 +53,20 @@ class Functions
      */
     public static $compareStrict;
     /**
+     * Compare strict function reversed: returns 1, 0 or -1 based on === and > operators.
+     * @var callable
+     */
+    public static $compareStrictReversed;
+    /**
      * Compare loose function: returns -1, 0 or 1 based on == and > operators.
      * @var callable
      */
     public static $compareLoose;
+    /**
+     * Compare loose function reversed: returns 1, 0 or -1 based on == and > operators.
+     * @var callable
+     */
+    public static $compareLooseReversed;
 
     /** @internal */
     public static function init ()
@@ -84,6 +94,15 @@ class Functions
                 return -1;
         };
 
+        self::$compareStrictReversed = function ($a, $b) {
+            if ($a === $b)
+                return 0;
+            elseif ($a > $b)
+                return -1;
+            else
+                return 1;
+        };
+
         self::$compareLoose = function ($a, $b) {
             if ($a == $b)
                 return 0;
@@ -91,6 +110,15 @@ class Functions
                 return 1;
             else
                 return -1;
+        };
+
+        self::$compareLooseReversed = function ($a, $b) {
+            if ($a == $b)
+                return 0;
+            elseif ($a > $b)
+                return -1;
+            else
+                return 1;
         };
     }
 

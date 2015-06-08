@@ -214,7 +214,7 @@ class Enumerable implements \IteratorAggregate
     public function orderByDir ($desc, $keySelector = null, $comparer = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
-        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
+        $comparer = Utils::createComparer($comparer, $desc);
         return new OrderedEnumerable($this, $desc, $keySelector, $comparer);
     }
 

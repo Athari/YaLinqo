@@ -53,6 +53,16 @@ class Utils
         throw new \InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
     }
 
+    public static function createComparer ($closure, &$desc)
+    {
+        if ($closure === null) {
+            $lambda = $desc ? Functions::$compareLooseReversed : Functions::$compareStrict;
+            $desc = false;
+            return $lambda;
+        }
+        return self::createLambda($closure, 'a,b');
+    }
+
     /**
      * Convert string lambda to callable function.
      * @param string $closure

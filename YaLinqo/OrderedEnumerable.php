@@ -59,7 +59,7 @@ class OrderedEnumerable extends Enumerable
     public function thenByDir ($desc, $keySelector = null, $comparer = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
-        $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
+        $comparer = Utils::createComparer($comparer, $desc);
         return new self($this->source, $desc, $keySelector, $comparer, $this);
     }
 
@@ -97,38 +97,27 @@ class OrderedEnumerable extends Enumerable
     public function getIterator ()
     {
         $orders = [ ];
-
         for ($order = $this; $order != null; $order = $order->parent)
             $orders[] = $order;
         $orders = array_reverse($orders);
 
-        $map = $this->source->select(function ($v, $k) { return [ 'v' => $v, 'k' => $k ]; })->toList();
-        $comparers = [ ];
+        $enum = [ ];
+        foreach ($this->source as $k => $v)
+            $enum[] = [ $k, $v ];
 
-        for ($i = 0; $i < count($orders); ++$i) {
-            $order = $orders[$i];
-            $comparer = $order->comparer;
-            if ($order->desc)
-                $comparer = function ($a, $b) use ($comparer) { return -$comparer($a, $b); };
-            $comparers[] = $comparer;
-            for ($j = 0; $j < count($map); ++$j) {
+        usort($enum, function ($a, $b) use ($orders) {
+            /** @var $order OrderedEnumerable */
+            foreach ($orders as $order) {
+                $comparer = $order->comparer;
                 $keySelector = $order->keySelector;
-                $map[$j][] = $keySelector($map[$j]['v'], $map[$j]['k']);
-            }
-        }
-
-        usort($map, function ($a, $b) use ($comparers) {
-            for ($i = 0; $i < count($comparers); ++$i) {
-                $diff = $comparers[$i]($a[$i], $b[$i]);
+                $diff = $comparer($keySelector($a[1], $a[0]), $keySelector($b[1], $b[0]));
                 if ($diff != 0)
-                    return $diff;
+                    return $order->desc ? -$diff : $diff;
             }
             return 0;
         });
 
-        return Enumerable::from($map)->select(
-            function ($v) { return $v['v']; },
-            function ($v) { return $v['k']; }
-        )->getIterator();
+        foreach ($enum as $v)
+            yield $v[0] => $v[1];
     }
 }
