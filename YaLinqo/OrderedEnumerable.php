@@ -66,7 +66,7 @@ class OrderedEnumerable extends Enumerable
      */
     public function thenByDir ($sortOrder, $keySelector = null, $comparer = null)
     {
-        $sortFlags = Utils::lambdaToSortFlags($comparer, $sortOrder);
+        $sortFlags = Utils::lambdaToSortFlagsAndOrder($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
         $isReversed = $sortOrder == SORT_DESC;
         $comparer = Utils::createComparer($comparer, $sortOrder, $isReversed);

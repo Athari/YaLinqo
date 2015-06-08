@@ -59,6 +59,15 @@ class Utils
         throw new \InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
     }
 
+    /**
+     * Convert string lambda or SORT_ flags to callable function. Sets isReversed to false if descending is reversed.
+     * @param callable|int|null $closure
+     * @param int $sortOrder
+     * @param bool $isReversed
+     * @return callable|string|null
+     * @throws \InvalidArgumentException Incorrect lambda syntax.
+     * @throws \InvalidArgumentException Incorrect SORT_ flags.
+     */
     public static function createComparer ($closure, $sortOrder, &$isReversed)
     {
         if ($closure === null) {
@@ -89,7 +98,13 @@ class Utils
         return self::createLambda($closure, 'a,b');
     }
 
-    public static function lambdaToSortFlags ($closure, &$sortOrder)
+    /**
+     * Convert string lambda to SORT_ flags. Convert sortOrder from bool to SORT_ order.
+     * @param callable|string|int|null $closure
+     * @param int|bool $sortOrder
+     * @return callable|string|int|null
+     */
+    public static function lambdaToSortFlagsAndOrder ($closure, &$sortOrder)
     {
         if ($sortOrder !== SORT_ASC && $sortOrder !== SORT_DESC)
             $sortOrder = $sortOrder ? SORT_DESC : SORT_ASC;

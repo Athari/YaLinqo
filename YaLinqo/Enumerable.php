@@ -213,7 +213,7 @@ class Enumerable implements \IteratorAggregate
      */
     public function orderByDir ($sortOrder, $keySelector = null, $comparer = null)
     {
-        $sortFlags = Utils::lambdaToSortFlags($comparer, $sortOrder);
+        $sortFlags = Utils::lambdaToSortFlagsAndOrder($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
         $isReversed = $sortOrder == SORT_DESC;
         $comparer = Utils::createComparer($comparer, $sortOrder, $isReversed);
