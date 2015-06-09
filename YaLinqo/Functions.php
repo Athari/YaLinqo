@@ -101,7 +101,8 @@ class Functions
             elseif ($a > $b)
                 return 1;
             else
-                return -1; };
+                return -1;
+        };
 
         self::$compareStrictReversed = function ($a, $b) {
             if ($a === $b)
@@ -109,7 +110,8 @@ class Functions
             elseif ($a > $b)
                 return -1;
             else
-                return 1; };
+                return 1;
+        };
 
         self::$compareLoose = function ($a, $b) {
             if ($a == $b)
@@ -117,7 +119,8 @@ class Functions
             elseif ($a > $b)
                 return 1;
             else
-                return -1; };
+                return -1;
+        };
 
         self::$compareLooseReversed = function ($a, $b) {
             if ($a == $b)
@@ -125,11 +128,16 @@ class Functions
             elseif ($a > $b)
                 return -1;
             else
-                return 1; };
+                return 1;
+        };
 
-        self::$compareInt = function ($a, $b) { return $a - $b; };
+        self::$compareInt = function ($a, $b) {
+            return $a - $b;
+        };
 
-        self::$compareIntReversed = function ($a, $b) { return $b - $a; };
+        self::$compareIntReversed = function ($a, $b) {
+            return $b - $a;
+        };
     }
 
     /**

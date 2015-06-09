@@ -9,6 +9,13 @@ use YaLinqo\Tests\Testing\TestCaseEnumerable;
  */
 class FunctionsTest extends TestCaseEnumerable
 {
+    /** @covers YaLinqo\Functions::init
+     */
+    function testInit ()
+    {
+        F::init();
+    }
+
     function testIdentity ()
     {
         $f = F::$identity;

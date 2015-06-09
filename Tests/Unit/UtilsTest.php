@@ -7,6 +7,13 @@ use YaLinqo\Tests\Stubs\Temp, YaLinqo\Tests\Testing\TestCaseEnumerable;
 
 class UtilsTest extends TestCaseEnumerable
 {
+    /** @covers YaLinqo\Utils::init
+     */
+    function testInit ()
+    {
+        U::init();
+    }
+
     /** @covers YaLinqo\Utils::createLambda
      */
     function testCreateLambda_nullWithoutDefault ()
