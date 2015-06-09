@@ -23,8 +23,8 @@ class Utils
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
 
     /** Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings. @var array */
-    private static $lambdaCache = [ ];
-    /** Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings. @var array */
+    private static $lambdaCache;
+    /** Map from comparison functions names to sort flags. Used in lambdaToSortFlagsAndOrder.  @var array */
     private static $compareFunctionToSortFlags = [
         null => SORT_REGULAR,
         'strcmp' => SORT_STRING,
@@ -33,6 +33,15 @@ class Utils
         'strnatcmp' => SORT_NATURAL,
         'strnatcasecmp' => 14 /*SORT_NATURAL | SORT_FLAG_CASE*/,
     ];
+
+    /** @internal */
+    public static function init ()
+    {
+        self::$lambdaCache = [
+            '$v' => [ 'v,k' => Functions::$value ],
+            '$k' => [ 'v,k' => Functions::$key ],
+        ];
+    }
 
     /**
      * Convert string lambda to callable function. If callable is passed, return as is.

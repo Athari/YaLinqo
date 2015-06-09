@@ -53,6 +53,14 @@ class OrderedEnumerable extends Enumerable
         $this->parent = $parent;
     }
 
+    private function getSingleComparer ()
+    {
+        $comparer = $this->comparer;
+        if ($this->isReversed)
+            $comparer = function ($a, $b) use ($comparer) { return -$comparer($a, $b); };
+        return $comparer;
+    }
+
     /**
      * <p><b>Syntax</b>: thenByDir (false|true [, {{(v, k) ==> key} [, {{(a, b) ==> diff}]])
      * <p>Performs a subsequent ordering of elements in a sequence in a particular direction (ascending, descending) according to a key.
@@ -106,7 +114,47 @@ class OrderedEnumerable extends Enumerable
     /** {@inheritdoc} */
     public function getIterator ()
     {
-        $canMultisort = true;
+        $canMultisort = $this->sortFlags !== null;
+
+        $it = $this->trySortBySingleField($canMultisort);
+        if ($it !== null)
+            return $it;
+
+        return $this->sortByMultipleFields($canMultisort);
+    }
+
+    private function trySortBySingleField ($canMultisort)
+    {
+        $array = $this->source->tryGetArrayCopy();
+        if ($this->parent !== null || $array === null) {
+            $it = null;
+        }
+        elseif ($this->keySelector === Functions::$value) {
+            if (!$canMultisort)
+                uasort($array, $this->getSingleComparer());
+            elseif ($this->sortOrder == SORT_ASC)
+                asort($array, $this->sortFlags);
+            else
+                arsort($array, $this->sortFlags);
+            $it = new \ArrayIterator($array);
+        }
+        elseif ($this->keySelector === Functions::$key) {
+            if ($canMultisort)
+                uksort($array, $this->getSingleComparer());
+            elseif ($this->sortOrder == SORT_ASC)
+                ksort($array, $this->sortFlags);
+            else
+                krsort($array, $this->sortFlags);
+            $it = new \ArrayIterator($array);
+        }
+        else {
+            $it = null;
+        }
+        return $it;
+    }
+
+    private function sortByMultipleFields ($canMultisort)
+    {
         $orders = [ ];
         for ($order = $this; $order != null; $order = $order->parent) {
             $orders[] = $order;

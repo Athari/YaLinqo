@@ -52,6 +52,13 @@ class Enumerable implements \IteratorAggregate
         return $this->iterator;
     }
 
+    protected function tryGetArrayCopy ()
+    {
+        /** @var $it \Iterator|\ArrayIterator */
+        $it = $this->iterator;
+        return $it instanceof \ArrayIterator ? $it->getArrayCopy() : null;
+    }
+
     #region Projection and filtering
 
     /**

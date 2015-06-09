@@ -142,5 +142,3 @@ class Functions
         return function () use (&$i) { return $i++; };
     }
 }
-
-Functions::init();
