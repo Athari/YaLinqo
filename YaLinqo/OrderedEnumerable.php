@@ -115,28 +115,27 @@ class OrderedEnumerable extends Enumerable
     public function getIterator ()
     {
         $canMultisort = $this->sortFlags !== null;
+        $array = $this->source->tryGetArrayCopy();
 
-        $it = $this->trySortBySingleField($canMultisort);
+        $it = $this->trySortBySingleField($array, $canMultisort);
         if ($it !== null)
             return $it;
 
-        return $this->sortByMultipleFields($canMultisort);
+        return $this->sortByMultipleFields($array, $canMultisort);
     }
 
-    private function trySortBySingleField ($canMultisort)
+    private function trySortBySingleField ($array, $canMultisort)
     {
-        $array = $this->source->tryGetArrayCopy();
         if ($this->parent !== null || $array === null) {
-            $it = null;
+            return null;
         }
-        elseif ($this->keySelector === Functions::$value) {
+        else if ($this->keySelector === Functions::$value) {
             if (!$canMultisort)
                 uasort($array, $this->getSingleComparer());
             elseif ($this->sortOrder == SORT_ASC)
                 asort($array, $this->sortFlags);
             else
                 arsort($array, $this->sortFlags);
-            $it = new \ArrayIterator($array);
         }
         elseif ($this->keySelector === Functions::$key) {
             if ($canMultisort)
@@ -145,15 +144,14 @@ class OrderedEnumerable extends Enumerable
                 ksort($array, $this->sortFlags);
             else
                 krsort($array, $this->sortFlags);
-            $it = new \ArrayIterator($array);
         }
         else {
-            $it = null;
+            return null;
         }
-        return $it;
+        return new \ArrayIterator($array);
     }
 
-    private function sortByMultipleFields ($canMultisort)
+    private function sortByMultipleFields ($array, $canMultisort)
     {
         $orders = [ ];
         for ($order = $this; $order != null; $order = $order->parent) {
@@ -163,17 +161,50 @@ class OrderedEnumerable extends Enumerable
         }
         $orders = array_reverse($orders);
 
+        $it = $this->trySortArrayWithMultisort($array, $orders, $canMultisort);
+        if ($it !== null)
+            return $it;
+
+        return $this->sortIterator($orders, $canMultisort);
+    }
+
+    private function sortIterator ($orders, $canMultisort)
+    {
         $enum = [ ];
         if ($canMultisort)
-            $this->sortWithMultisort($enum, $orders);
+            $this->sortIteratorWithMultisort($enum, $orders);
         else
-            $this->sortWithUsort($enum, $orders);
+            $this->sortIteratorWithUsort($enum, $orders);
 
         foreach ($enum as $pair)
             yield $pair[0] => $pair[1];
     }
 
-    private function sortWithMultisort (&$enum, $orders)
+    private function trySortArrayWithMultisort ($array, $orders, $canMultisort)
+    {
+        /** @var $order OrderedEnumerable */
+        if ($array === null || !$canMultisort)
+            return null;
+
+        $args = [ ];
+        foreach ($orders as $order) {
+            $column = [ ];
+            foreach ($array as $k => $v) {
+                $keySelector = $order->keySelector;
+                $column[$k] = $keySelector($v, $k);
+            }
+            $args[] = $column;
+            $args[] = $order->sortOrder;
+            $args[] = $order->sortFlags;
+        }
+        $args[] = &$array;
+
+        call_user_func_array('array_multisort', $args);
+
+        return new \ArrayIterator($array);
+    }
+
+    private function sortIteratorWithMultisort (&$enum, $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v)
@@ -195,7 +226,7 @@ class OrderedEnumerable extends Enumerable
         call_user_func_array('array_multisort', $args);
     }
 
-    private function sortWithUsort (&$enum, $orders)
+    private function sortIteratorWithUsort (&$enum, $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v) {
