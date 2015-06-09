@@ -180,8 +180,6 @@ Requirements
 Usage
 =====
 
-#### With Composer
-
 Add to `composer.json`:
 
 ```json
@@ -192,11 +190,11 @@ Add to `composer.json`:
 }
 ```
 
-#### Without Composer
+Add to your PHP script:
 
 ```php
-require_once __DIR__ . '/lib/Linq.php'; // replace with your path
-use \YaLinqo\Enumerable; // optional, to shorten class name
+require_once 'vendor/autoloader.php';
+use \YaLinqo\Enumerable;
 
 // 'from' can be called as a static method or via a global function shortcut
 Enumerable::from(array(1, 2, 3));
