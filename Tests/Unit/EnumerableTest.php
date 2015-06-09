@@ -691,6 +691,7 @@ class EnumerableTest extends TestCaseEnumerable
     #region Ordering
 
     /** @covers YaLinqo\Enumerable::orderByDir
+     * @covers YaLinqo\OrderedEnumerable
      */
     function testOrderByDir_asc ()
     {
@@ -706,6 +707,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(false, '-$v'));
+        $this->assertEnumValuesEquals(
+            [ 2, 3, 1 ],
+            E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(false, '$k'));
 
         // orderByDir (false, keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
@@ -715,6 +719,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 33, 30, 999, 4444 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDir(false, '$v-33', $compareLen));
+        $this->assertEnumValuesEquals(
+            [ 2, 3, 9, 4 ],
+            E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDir(false, '$k', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
@@ -723,6 +730,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers YaLinqo\Enumerable::orderByDir
+     * @covers YaLinqo\OrderedEnumerable
      */
     function testOrderByDir_desc ()
     {
@@ -738,6 +746,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(true, '-$v'));
+        $this->assertEnumValuesEquals(
+            [ 1, 3, 2 ],
+            E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(true, '$k'));
 
         // orderByDir (true, keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
@@ -747,6 +758,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 4444, 999, 30, 33 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDir(true, '$v-33', $compareLen));
+        $this->assertEnumValuesEquals(
+            [ 4, 9, 3, 2 ],
+            E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDir(true, '$k', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
@@ -755,6 +769,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers YaLinqo\Enumerable::orderBy
+     * @covers YaLinqo\OrderedEnumerable
      */
     function testOrderBy ()
     {
@@ -770,6 +785,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderBy('-$v'));
+        $this->assertEnumValuesEquals(
+            [ 2, 3, 1 ],
+            E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderBy('$k'));
 
         // orderBy (keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
@@ -779,6 +797,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 33, 30, 999, 4444 ],
             E::from([ 999, 30, 33, 4444 ])->orderBy('$v-33', $compareLen));
+        $this->assertEnumValuesEquals(
+            [ 2, 3, 9, 4 ],
+            E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderBy('$k', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
@@ -787,6 +808,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers YaLinqo\Enumerable::orderByDescending
+     * @covers YaLinqo\OrderedEnumerable
      */
     function testOrderByDescending ()
     {
@@ -802,6 +824,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDescending('-$v'));
+        $this->assertEnumValuesEquals(
+            [ 1, 3, 2 ],
+            E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDescending('$k'));
 
         // orderByDescending (keySelector, comparer)
         $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
@@ -811,6 +836,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ 4444, 999, 30, 33 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDescending('$v-33', $compareLen));
+        $this->assertEnumValuesEquals(
+            [ 4, 9, 3, 2 ],
+            E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDescending('$k', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderEquals(
@@ -820,6 +848,7 @@ class EnumerableTest extends TestCaseEnumerable
 
     /** @covers YaLinqo\Enumerable::orderBy
      * @covers YaLinqo\Enumerable::orderByDescending
+     * @covers YaLinqo\OrderedEnumerable
      */
     function testOrderBy_onlyLastConsidered ()
     {
