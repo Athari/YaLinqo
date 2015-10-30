@@ -2,8 +2,6 @@
 
 namespace YaLinqo;
 
-use YaLinqo;
-
 class Errors
 {
     /** Error message: "Sequence contains no elements." */

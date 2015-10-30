@@ -154,7 +154,7 @@ class OrderedEnumerable extends Enumerable
     private function sortByMultipleFields ($array, $canMultisort)
     {
         $orders = [ ];
-        for ($order = $this; $order != null; $order = $order->parent) {
+        for ($order = $this; $order !== null; $order = $order->parent) {
             $orders[] = $order;
             if ($order->sortFlags === null)
                 $canMultisort = false;
@@ -240,7 +240,8 @@ class OrderedEnumerable extends Enumerable
 
         usort($enum, function ($a, $b) use ($orders) {
             /** @var $order OrderedEnumerable */
-            for ($i = 0; $i < count($orders); $i++) {
+            $count = count($orders);
+            for ($i = 0; $i < $count; $i++) {
                 $order = $orders[$i];
                 $comparer = $order->comparer;
                 $diff = $comparer($a[$i + 2], $b[$i + 2]);

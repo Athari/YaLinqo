@@ -1,0 +1,3 @@
+rules:
+    missing_e_o_l:
+        enabled: false
