@@ -146,32 +146,6 @@ Array (
 )
 ```
 
-*Convert to HTML:*
-
-```php
-$result->writeLine(function ($cat) {
-    return
-        "<p><b>{$cat['name']}</b>:\n" .
-        $cat['products']->toString(', ', function ($prod) {
-            return "<a href='/products/{$prod["id"]}'>{$prod['name']}</a> ({$prod['quantity']})";
-        }) .
-        "</p>";
-});
-```
-
-*Output (reformatted):*
-
-```html
-<p><b>Hardware</b>:
-<a href='/products/1'>Keyboard</a> (10), <a href='/products/6'>Motherboard</a> (11),
-<a href='/products/4'>Joystick</a> (15), <a href='/products/5'>CPU</a> (15),
-<a href='/products/2'>Mouse</a> (20)</p>
-
-<p><b>Operating systems</b>:
-<a href='/products/7'>Windows</a> (666), <a href='/products/9'>Mac</a> (666),
-<a href='/products/8'>Linux</a> (666)</p>
-```
-
 Requirements
 ============
 
@@ -202,31 +176,12 @@ Enumerable::from(array(1, 2, 3));
 from(array(1, 2, 3));
 ```
 
-IMPORTANT! Please vote for these bugs!
-======================================
-
-If you want to make using the library more pleasurable, you are welcome to vote for the following bugs and features to get them noticed and fixed.
-
-PhpStorm IDE
-------------
-
-You need to register in order to vote and comment.
-
-1. PHP code inside strings
-
-   [WI-3477](http://youtrack.jetbrains.com/issue/WI-3477) (Inject PHP language inside assert('literal'), eval and similar)
-
-PHP
----
-
-1. Unfortunately, a feature request for simpler Closure syntax was rejected, so you can't vote for it. :-(
-
 License
 =======
 
 **Simplified BSD License**
 
-Copyright © 2012–2014, Alexander Prokhorov
+Copyright © 2012–2016, Alexander Prokhorov
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
