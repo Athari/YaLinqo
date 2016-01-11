@@ -1021,7 +1021,7 @@ class Enumerable implements \IteratorAggregate
     public function toString ($separator = '', $valueSelector = null)
     {
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', false);
-        $array = $valueSelector ? $this->select($valueSelector)->toArray() : $this->toArray();
+        $array = $valueSelector ? $this->select($valueSelector)->toList() : $this->toList();
         return implode($separator, $array);
     }
 

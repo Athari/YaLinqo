@@ -2533,6 +2533,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEquals(
             '123',
             E::from([ 1, 'a' => 2, 3 ])->toString());
+        $this->assertEquals(
+            '123',
+            E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString());
 
         // toString (separator)
         $this->assertEquals(
@@ -2544,6 +2547,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEquals(
             '1, 2, 3',
             E::from([ 1, 'a' => 2, 3 ])->toString(', '));
+        $this->assertEquals(
+            '1, 2, 3',
+            E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString(', '));
 
         // toString (separator, selector)
         $this->assertEquals(
@@ -2555,6 +2561,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEquals(
             '0=1, a=2, 1=3',
             E::from([ 1, 'a' => 2, 3 ])->toString(', ', '"$k=$v"'));
+        $this->assertEquals(
+            '0=1, 0=2, 1=3',
+            E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString(', ', '"$k=$v"'));
     }
 
     #endregion
