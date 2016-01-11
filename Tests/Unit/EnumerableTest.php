@@ -130,6 +130,19 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers YaLinqo\Enumerable::from
+     */
+    function testFrom_SimpleXMLElement ()
+    {
+        // from (SimpleXMLElement)
+        $this->assertEnumEquals(
+            [ ],
+            E::from(new \SimpleXMLElement('<r></r>')));
+        $this->assertEnumValuesEquals(
+            [ 'h', 'h', 'g' ],
+            E::from(new \SimpleXMLElement('<r><h/><h/><g/></r>'))->select('$k'));
+    }
+
+    /** @covers YaLinqo\Enumerable::from
      * @dataProvider dataProvider_testFrom_wrongTypes
      */
     function testFrom_wrongTypes ($source)

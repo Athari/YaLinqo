@@ -52,9 +52,10 @@ trait EnumerableGeneration
      * <li><b>array</b>: Enumerable from ArrayIterator;
      * <li><b>Enumerable</b>: Enumerable source itself;
      * <li><b>Iterator</b>: Enumerable from Iterator;
-     * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method.
+     * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method;
+     * <li><b>Traversable</b>: Enumerable from the result of foreach over source.
      * </ul>
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $source Value to convert into Enumerable sequence.
+     * @param array|\Iterator|\IteratorAggregate|\Traversable|Enumerable $source Value to convert into Enumerable sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @return Enumerable
      * @package YaLinqo\Generation
@@ -70,10 +71,18 @@ trait EnumerableGeneration
             $it = $source;
         elseif ($source instanceof \IteratorAggregate)
             $it = $source->getIterator();
+        elseif ($source instanceof \Traversable)
+            $it = self::fromTraversable($source);
         if ($it !== null) {
             return new self($it, false);
         }
-        throw new \InvalidArgumentException('source must be array or Traversable or Enumerable.');
+        throw new \InvalidArgumentException('source must be array or Traversable.');
+    }
+
+    private static function fromTraversable ($source)
+    {
+        foreach ($source as $k => $v)
+            yield $k => $v;
     }
 
     /**
