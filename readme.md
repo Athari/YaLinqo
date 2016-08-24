@@ -179,7 +179,7 @@ from(array(1, 2, 3));
 License
 =======
 
-**Simplified BSD License**
+#### Simplified BSD License
 
 Copyright © 2012–2016, Alexander Prokhorov
 All rights reserved.
@@ -208,7 +208,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Links
 =====
 
-##### YaLinqo
+#### YaLinqo
 
 * **CodeProject** articles *(English):*
   * [LINQ for PHP comparison: YaLinqo, Ginq, Pinq](http://www.codeproject.com/Articles/997238/LINQ-for-PHP-comparison-YaLinqo-Ginq-Pinq) — performance comparison of full-featured LINQ ports, with some additional information.
@@ -225,7 +225,7 @@ Links
 * Related projects:
   * [**YaLinqoPerf**](https://github.com/Athari/YaLinqoPerf) — collection of performance tests comparing raw PHP, array functions, YaLinqo, YaLinqo with string lambdas, Ginq, Ginq with property accessors, Pinq.
 
-##### LINQ ported to other languages:
+#### LINQ ported to other languages:
 
 * [**linq.js**](http://linqjs.codeplex.com/) — LINQ for JavaScript. The one and only complete port of .NET 4 LINQ to JavaScript.
 * [**Underscore.js**](http://documentcloud.github.com/underscore/) — library for functional programming in JavaScript. Similar to LINQ, but different method names and no lazy evaluation.
