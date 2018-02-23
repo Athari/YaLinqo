@@ -1,14 +1,20 @@
 {
     "name": "athari/yalinqo",
     "description": "YaLinqo, a LINQ-to-objects library for PHP",
-    "license": "Simplified BSD",
-    "homepage": "https://github.com/Athari/YaLinqo",
+    "license": "BSD-2-Clause",
+    "homepage": "http://athari.github.io/YaLinqo",
     "keywords": ["linq", "linqo", "query", "statistic"],
     "authors": [
         {
-            "name": "Alexander Prokhorov"
+            "name": "Alexander Prokhorov",
+            "homepage": "https://github.com/Athari/"
         }
     ],
+    "support": {
+        "issues": "https://github.com/Athari/YaLinqo/issues",
+        "source": "https://github.com/Athari/YaLinqo",
+        "docs": "http://athari.github.io/YaLinqo"
+    },
     "require": {
         "php": ">=5.3"
     },
