@@ -19,11 +19,9 @@
         "php": ">=5.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.6",
-        "phpdocumentor/phpdocumentor": "~2.8",
-        "satooshi/php-coveralls": "dev-master",
-
-        "symfony/validator": "<2.5"
+        "phpunit/phpunit": "^4.6",
+        "phpdocumentor/phpdocumentor": "^2.8",
+        "satooshi/php-coveralls": "^2.0"
     },
     "autoload": {
         "psr-4": {
