@@ -106,6 +106,11 @@ class UtilsTest extends TestCaseEnumerable
         $f = U::createLambda('($q, $w, $e, $r) ==> { return $w+$e; }', 'a,b,c,d');
         $this->assertSame(5, $f(1, 2, 3, 4));
         $this->assertSame(5, $f(1, 2, 3, 4, 5));
+
+        $f2 = U::createLambda('($q, $w, $e, $r) ==> { return $w+$e; }', 'a,b,c,d');
+        $this->assertSame($f, $f2);
+        $this->assertSame(5, $f2(1, 2, 3, 4));
+        $this->assertSame(5, $f2(1, 2, 3, 4, 5));
     }
 
     /** @covers YaLinqo\Utils::createComparer
