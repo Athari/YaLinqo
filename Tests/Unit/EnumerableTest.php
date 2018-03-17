@@ -1546,10 +1546,10 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3 ])->union([ ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ ])->union([ 1, 2, 3 ]));
+            E::from([ ])->union([ 1, 2, 3, 3 ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ]));
+            E::from([ 1, 2, 3, 3 ])->union([ 1, 2, 3 ]));
 
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
