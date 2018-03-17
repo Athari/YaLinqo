@@ -12,6 +12,8 @@ class UtilsTest extends TestCaseEnumerable
     function testInit ()
     {
         U::init();
+        $this->assertInstanceOf(\Closure::class, U::createLambda('$v', 'v,k'));
+        $this->assertInstanceOf(\Closure::class, U::createLambda('$k', 'v,k'));
     }
 
     /** @covers YaLinqo\Utils::createLambda

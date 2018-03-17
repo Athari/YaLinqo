@@ -34,7 +34,10 @@ class Utils
         'strnatcasecmp' => 14 /*SORT_NATURAL | SORT_FLAG_CASE*/,
     ];
 
-    /** @internal */
+    /**
+     * @codeCoverageIgnore
+     * @internal
+     */
     public static function init ()
     {
         self::$lambdaCache = [
