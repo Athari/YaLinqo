@@ -231,5 +231,7 @@ class UtilsTest extends TestCaseEnumerable
         $order = SORT_DESC;
         U::lambdaToSortFlagsAndOrder(null, $order);
         $this->assertSame(SORT_DESC, $order);
+
+        $this->assertSame(1, U::lambdaToSortFlagsAndOrder(1, $order));
     }
 }
