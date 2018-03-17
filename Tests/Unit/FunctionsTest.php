@@ -14,6 +14,7 @@ class FunctionsTest extends TestCaseEnumerable
     function testInit ()
     {
         F::init();
+        $this->assertNotEmpty(F::$identity);
     }
 
     function testIdentity ()
