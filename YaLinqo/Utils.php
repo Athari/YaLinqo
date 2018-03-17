@@ -151,8 +151,10 @@ class Utils
             if (strlen($code) > 0 && $code[0] != '{')
                 $code = "return {$code};";
             $fun = @create_function($args, $code);
+            // @codeCoverageIgnoreStart
             if (!$fun)
                 throw new \InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA);
+            // @codeCoverageIgnoreEnd
             self::$lambdaCache[$closure][$closureArgs] = $fun;
             return $fun;
         }
