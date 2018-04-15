@@ -1,0 +1,20 @@
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true">
+
+    <testsuites>
+        <testsuite>
+            <directory>Tests/Unit/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">YaLinqo/</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+        <log type="coverage-text" target="php://stdout"/>
+    </logging>
+</phpunit>

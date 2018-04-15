@@ -1126,7 +1126,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->average());
         $this->assertEquals(
             3,
-            E::from([ 3, '4', '5b', 'a' ])->average());
+            E::from([ 3, '4', '5', 0 ])->average());
 
         // average (selector)
         $this->assertEquals(
@@ -1134,7 +1134,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->average('$v*2+$k'));
         $this->assertEquals(
             (3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3) / 4,
-            E::from([ 3, '4', '5b', 'a' ])->average('$v*2+$k'));
+            E::from([ 3, '4', '5', 0 ])->average('$v*2+$k'));
     }
 
     /** @covers YaLinqo\Enumerable::average
@@ -1158,7 +1158,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->count());
         $this->assertEquals(
             4,
-            E::from([ 3, '4', '5b', 'a' ])->count());
+            E::from([ 3, '4', '5', 0 ])->count());
 
         // count (predicate)
         $this->assertEquals(
@@ -1166,7 +1166,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->count('$v*2+$k<10'));
         $this->assertEquals(
             3,
-            E::from([ 3, '4', '5b', 'a' ])->count('$v*2+$k<10'));
+            E::from([ 3, '4', '5', 0 ])->count('$v*2+$k<10'));
     }
 
     /** @covers YaLinqo\Enumerable::max
@@ -1184,7 +1184,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 5, 4 ])->max('$v-$k*3+2')); // 5 4 0
         $this->assertEquals(
             5,
-            E::from([ 3, '5b', '4', 'a' ])->max('$v-$k*3+2')); // 5 4 0 -7
+            E::from([ 3, '5', '4', 0 ])->max('$v-$k*3+2')); // 5 4 0 -7
     }
 
     /** @covers YaLinqo\Enumerable::max
@@ -1212,7 +1212,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 2, 0, 3, 5, 6 ])->maxBy($compare, '$v+$k')); // 2 1 5 8 10
         $this->assertEquals(
             7,
-            E::from([ '5b', 3, 'a', '4' ])->maxBy($compare, '$v+$k')); // 5 4 2 7
+            E::from([ '5', 3, false, '4' ])->maxBy($compare, '$v+$k')); // 5 4 2 7
     }
 
     /** @covers YaLinqo\Enumerable::maxBy
@@ -1239,7 +1239,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 5, 4 ])->min('$v-$k*3+2')); // 5 4 0
         $this->assertEquals(
             -7,
-            E::from([ 3, '5b', '4', 'a' ])->min('$v-$k*3+2')); // 5 4 0 -7
+            E::from([ 3, '5', '4', false ])->min('$v-$k*3+2')); // 5 4 0 -7
     }
 
     /** @covers YaLinqo\Enumerable::min
@@ -1267,7 +1267,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 2, 0, 3, 5, 6 ])->minBy($compare, '$v+$k')); // 2 1 5 8 10
         $this->assertEquals(
             4,
-            E::from([ '5b', 3, 'a', '4' ])->minBy($compare, '$v+$k')); // 5 4 2 7
+            E::from([ '5', 3, 0, '4' ])->minBy($compare, '$v+$k')); // 5 4 2 7
     }
 
     /** @covers YaLinqo\Enumerable::minBy
@@ -1292,7 +1292,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->sum());
         $this->assertEquals(
             12,
-            E::from([ 3, '4', '5b', 'a' ])->sum());
+            E::from([ 3, '4', '5', false ])->sum());
 
         // sum (selector)
         $this->assertEquals(
@@ -1300,7 +1300,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->sum('$v*2+$k'));
         $this->assertEquals(
             3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3,
-            E::from([ 3, '4', '5b', 'a' ])->sum('$v*2+$k'));
+            E::from([ 3, '4', '5', null ])->sum('$v*2+$k'));
     }
 
     /** @covers YaLinqo\Enumerable::all
@@ -1546,10 +1546,10 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3 ])->union([ ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ ])->union([ 1, 2, 3 ]));
+            E::from([ ])->union([ 1, 2, 3, 3 ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ]));
+            E::from([ 1, 2, 3, 3 ])->union([ 1, 2, 3 ]));
 
         $this->assertEnumEquals(
             [ 1, 2, 3 ],

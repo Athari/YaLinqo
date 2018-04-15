@@ -67,22 +67,14 @@ trait EnumerableGeneration
             return $source;
         else if (is_array($source))
             $it = new \ArrayIterator($source);
-        elseif ($source instanceof \Iterator)
-            $it = $source;
         elseif ($source instanceof \IteratorAggregate)
             $it = $source->getIterator();
         elseif ($source instanceof \Traversable)
-            $it = self::fromTraversable($source);
+            $it = $source;
         if ($it !== null) {
             return new self($it, false);
         }
         throw new \InvalidArgumentException('source must be array or Traversable.');
-    }
-
-    private static function fromTraversable ($source)
-    {
-        foreach ($source as $k => $v)
-            yield $k => $v;
     }
 
     /**

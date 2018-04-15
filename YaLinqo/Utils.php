@@ -34,7 +34,10 @@ class Utils
         'strnatcasecmp' => 14 /*SORT_NATURAL | SORT_FLAG_CASE*/,
     ];
 
-    /** @internal */
+    /**
+     * @codeCoverageIgnore
+     * @internal
+     */
     public static function init ()
     {
         self::$lambdaCache = [
@@ -150,9 +153,11 @@ class Utils
             $code = trim($code, " \r\n\t");
             if (strlen($code) > 0 && $code[0] != '{')
                 $code = "return {$code};";
-            $fun = create_function($args, $code);
+            $fun = @create_function($args, $code);
+            // @codeCoverageIgnoreStart
             if (!$fun)
                 throw new \InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA);
+            // @codeCoverageIgnoreEnd
             self::$lambdaCache[$closure][$closureArgs] = $fun;
             return $fun;
         }

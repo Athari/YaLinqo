@@ -441,8 +441,6 @@ trait EnumerablePagination
             return new self(new \EmptyIterator, false);
 
         return new self(function () use ($count) {
-            if ($count <= 0)
-                return;
             foreach ($this as $k => $v) {
                 yield $k => $v;
                 if (--$count == 0)

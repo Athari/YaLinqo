@@ -12,6 +12,8 @@ class UtilsTest extends TestCaseEnumerable
     function testInit ()
     {
         U::init();
+        $this->assertInstanceOf(\Closure::class, U::createLambda('$v', 'v,k'));
+        $this->assertInstanceOf(\Closure::class, U::createLambda('$k', 'v,k'));
     }
 
     /** @covers YaLinqo\Utils::createLambda
@@ -106,6 +108,11 @@ class UtilsTest extends TestCaseEnumerable
         $f = U::createLambda('($q, $w, $e, $r) ==> { return $w+$e; }', 'a,b,c,d');
         $this->assertSame(5, $f(1, 2, 3, 4));
         $this->assertSame(5, $f(1, 2, 3, 4, 5));
+
+        $f2 = U::createLambda('($q, $w, $e, $r) ==> { return $w+$e; }', 'a,b,c,d');
+        $this->assertSame($f, $f2);
+        $this->assertSame(5, $f2(1, 2, 3, 4));
+        $this->assertSame(5, $f2(1, 2, 3, 4, 5));
     }
 
     /** @covers YaLinqo\Utils::createComparer
@@ -226,5 +233,7 @@ class UtilsTest extends TestCaseEnumerable
         $order = SORT_DESC;
         U::lambdaToSortFlagsAndOrder(null, $order);
         $this->assertSame(SORT_DESC, $order);
+
+        $this->assertSame(1, U::lambdaToSortFlagsAndOrder(1, $order));
     }
 }
