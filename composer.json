@@ -19,7 +19,7 @@
         "php": ">=5.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "<6",
+        "phpunit/phpunit": "^7.1",
         "phpdocumentor/phpdocumentor": "^2.8",
         "satooshi/php-coveralls": "^2.0"
     },
