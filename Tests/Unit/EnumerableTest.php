@@ -5,15 +5,15 @@ namespace YaLinqo\Tests\Unit;
 use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, YaLinqo\Errors;
 use YaLinqo\Tests\Stubs\AggregateIteratorWrapper, YaLinqo\Tests\Testing\TestCaseEnumerable;
 
-/** @covers YaLinqo\Enumerable
+/** @covers \YaLinqo\Enumerable
  */
 class EnumerableTest extends TestCaseEnumerable
 {
     #region Generation
 
-    /** @covers YaLinqo\Enumerable::cycle
+    /** @covers \YaLinqo\Enumerable::cycle
      */
-    function testCycle ()
+    function testCycle()
     {
         $this->assertEnumEquals(
             [ 1, 1, 1 ],
@@ -29,33 +29,33 @@ class EnumerableTest extends TestCaseEnumerable
             4);
     }
 
-    /** @covers YaLinqo\Enumerable::cycle
+    /** @covers \YaLinqo\Enumerable::cycle
      */
-    function testCycle_emptySource ()
+    function testCycle_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        E::cycle([ ])->toArray();
+        E::cycle([])->toArray();
     }
 
-    /** @covers YaLinqo\Enumerable::emptyEnum
-     * @covers YaLinqo\Enumerable::__construct
-     * @covers YaLinqo\Enumerable::getIterator
+    /** @covers \YaLinqo\Enumerable::emptyEnum
+     * @covers \YaLinqo\Enumerable::__construct
+     * @covers \YaLinqo\Enumerable::getIterator
      */
-    function testEmptyEnum ()
+    function testEmptyEnum()
     {
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::emptyEnum());
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function testFrom_array ()
+    function testFrom_array()
     {
         // from (array)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ]));
+            [],
+            E::from([]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ]));
@@ -73,13 +73,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from(E::from([ 1, 2, 3 ]))->getIterator());
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function testFrom_enumerable ()
+    function testFrom_enumerable()
     {
         // from (Enumerable)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from(E::emptyEnum()));
         $this->assertEnumEquals(
             [ 1, 2 ],
@@ -87,13 +87,13 @@ class EnumerableTest extends TestCaseEnumerable
             2);
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function testFrom_iterator ()
+    function testFrom_iterator()
     {
         // from (Iterator)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from(new \EmptyIterator));
         $this->assertEnumEquals(
             [ 1, 2 ],
@@ -108,13 +108,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from($i)->getIterator());
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function testFrom_iteratorAggregate ()
+    function testFrom_iteratorAggregate()
     {
         // from (IteratorAggregate)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from(new AggregateIteratorWrapper(new \EmptyIterator)));
         $this->assertEnumEquals(
             [ 1, 2 ],
@@ -129,32 +129,32 @@ class EnumerableTest extends TestCaseEnumerable
             E::from(new AggregateIteratorWrapper($i))->getIterator());
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function testFrom_SimpleXMLElement ()
+    function testFrom_SimpleXMLElement()
     {
         // from (SimpleXMLElement)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from(new \SimpleXMLElement('<r></r>')));
         $this->assertEnumValuesEquals(
             [ 'h', 'h', 'g' ],
             E::from(new \SimpleXMLElement('<r><h/><h/><g/></r>'))->select('$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      * @dataProvider dataProvider_testFrom_wrongTypes
      */
-    function testFrom_wrongTypes ($source)
+    function testFrom_wrongTypes($source)
     {
         // from (unsupported type)
         $this->setExpectedException('InvalidArgumentException');
         E::from($source)->getIterator();
     }
 
-    /** @covers YaLinqo\Enumerable::from
+    /** @covers \YaLinqo\Enumerable::from
      */
-    function dataProvider_testFrom_wrongTypes ()
+    function dataProvider_testFrom_wrongTypes()
     {
         return [
             [ 1 ],
@@ -162,14 +162,14 @@ class EnumerableTest extends TestCaseEnumerable
             [ '3' ],
             [ true ],
             [ null ],
-            [ function () { } ],
+            [ function() { } ],
             [ new \stdClass ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::generate
+    /** @covers \YaLinqo\Enumerable::generate
      */
-    function testGenerate ()
+    function testGenerate()
     {
         // generate (funcValue)
         $this->assertEnumEquals(
@@ -206,9 +206,9 @@ class EnumerableTest extends TestCaseEnumerable
             3);
     }
 
-    /** @covers YaLinqo\Enumerable::generate
+    /** @covers \YaLinqo\Enumerable::generate
      */
-    function testGenerate_meaningful ()
+    function testGenerate_meaningful()
     {
         // Partial sums
         $this->assertEnumEquals(
@@ -227,9 +227,9 @@ class EnumerableTest extends TestCaseEnumerable
             6);
     }
 
-    /** @covers YaLinqo\Enumerable::toInfinity
+    /** @covers \YaLinqo\Enumerable::toInfinity
      */
-    function testToInfinity ()
+    function testToInfinity()
     {
         // toInfinity ()
         $this->assertEnumEquals(
@@ -254,13 +254,13 @@ class EnumerableTest extends TestCaseEnumerable
             4);
     }
 
-    /** @covers YaLinqo\Enumerable::matches
+    /** @covers \YaLinqo\Enumerable::matches
      */
-    function testMatches ()
+    function testMatches()
     {
         // without matches
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::matches('abc def', '#\d+#'));
         // with matches, without groups
         $this->assertEnumEquals(
@@ -276,9 +276,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::matches('a123 22', '#(\d)\d*#', PREG_PATTERN_ORDER));
     }
 
-    /** @covers YaLinqo\Enumerable::toNegativeInfinity
+    /** @covers \YaLinqo\Enumerable::toNegativeInfinity
      */
-    function testToNegativeInfinity ()
+    function testToNegativeInfinity()
     {
         // toNegativeInfinity ()
         $this->assertEnumEquals(
@@ -303,9 +303,9 @@ class EnumerableTest extends TestCaseEnumerable
             4);
     }
 
-    /** @covers YaLinqo\Enumerable::returnEnum
+    /** @covers \YaLinqo\Enumerable::returnEnum
      */
-    function testReturnEnum ()
+    function testReturnEnum()
     {
         $this->assertEnumEquals(
             [ 1 ],
@@ -318,16 +318,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::returnEnum(null));
     }
 
-    /** @covers YaLinqo\Enumerable::range
+    /** @covers \YaLinqo\Enumerable::range
      */
-    function testRange ()
+    function testRange()
     {
         // range (start, count)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::range(3, 0));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::range(3, -1));
         $this->assertEnumEquals(
             [ 3, 4, 5, 6 ],
@@ -342,16 +342,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::range(3, 4, -2));
     }
 
-    /** @covers YaLinqo\Enumerable::rangeDown
+    /** @covers \YaLinqo\Enumerable::rangeDown
      */
-    function testRangeDown ()
+    function testRangeDown()
     {
         // rangeDown (start, count)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::rangeDown(-3, 0));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::rangeDown(-3, -1));
         $this->assertEnumEquals(
             [ -3, -4, -5, -6 ],
@@ -366,13 +366,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::rangeDown(-3, 4, -2));
     }
 
-    /** @covers YaLinqo\Enumerable::rangeTo
+    /** @covers \YaLinqo\Enumerable::rangeTo
      */
-    function testRangeTo ()
+    function testRangeTo()
     {
         // rangeTo (start, end)
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::rangeTo(3, 3));
         $this->assertEnumEquals(
             [ 3, 4, 5, 6 ],
@@ -390,25 +390,25 @@ class EnumerableTest extends TestCaseEnumerable
             E::rangeTo(-3, -10, 2));
     }
 
-    /** @covers YaLinqo\Enumerable::rangeTo
+    /** @covers \YaLinqo\Enumerable::rangeTo
      */
-    function testRangeTo_zeroStep ()
+    function testRangeTo_zeroStep()
     {
         $this->setExpectedException('InvalidArgumentException', Errors::STEP_NEGATIVE);
         E::rangeTo(3, 7, 0);
     }
 
-    /** @covers YaLinqo\Enumerable::rangeTo
+    /** @covers \YaLinqo\Enumerable::rangeTo
      */
-    function testRangeTo_negativeStep ()
+    function testRangeTo_negativeStep()
     {
         $this->setExpectedException('InvalidArgumentException', Errors::STEP_NEGATIVE);
         E::rangeTo(3, 7, -1);
     }
 
-    /** @covers YaLinqo\Enumerable::repeat
+    /** @covers \YaLinqo\Enumerable::repeat
      */
-    function testRepeat ()
+    function testRepeat()
     {
         // repeat (element)
         $this->assertEnumEquals(
@@ -424,21 +424,21 @@ class EnumerableTest extends TestCaseEnumerable
             [ true, true ],
             E::repeat(true, 2));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::repeat(3, 0));
     }
 
-    /** @covers YaLinqo\Enumerable::repeat
+    /** @covers \YaLinqo\Enumerable::repeat
      */
-    function testRepeat_negativeCount ()
+    function testRepeat_negativeCount()
     {
         $this->setExpectedException('InvalidArgumentException', Errors::COUNT_LESS_THAN_ZERO);
         E::repeat(3, -2);
     }
 
-    /** @covers YaLinqo\Enumerable::split
+    /** @covers \YaLinqo\Enumerable::split
      */
-    function testSplit ()
+    function testSplit()
     {
         // without empty
         $this->assertEnumEquals(
@@ -454,7 +454,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::split('123,4, 44,', '#, ?#', PREG_SPLIT_NO_EMPTY));
         // with empty, empty skipped, no results
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::split(',', '#, ?#', PREG_SPLIT_NO_EMPTY));
     }
 
@@ -462,56 +462,56 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Projection and filtering
 
-    /** @covers YaLinqo\Enumerable::cast
+    /** @covers \YaLinqo\Enumerable::cast
      */
-    function testCast ()
+    function testCast()
     {
         $c = new \stdClass;
         $c->c = 'd';
         $o = new \stdClass;
         $e = new \Exception;
-        $v = function ($v) {
+        $v = function($v) {
             $r = new \stdClass;
             $r->scalar = $v;
             return $r;
         };
 
         // cast (empty)
-        $this->assertEnumValuesEquals([ ], E::from([ ])->cast('array'));
+        $this->assertEnumValuesEquals([], E::from([])->cast('array'));
 
         // cast (array)
-        $sourceArrays = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c ];
-        $expectedArrays = [ [ ], [ 1 ], [ 1.2 ], [ '1.3' ], [ 'abc' ], [ true ], [ false ], [ ], [ 1 => 2 ], [ 'a' => 'b' ], [ 'c' => 'd' ] ];
+        $sourceArrays = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c ];
+        $expectedArrays = [ [], [ 1 ], [ 1.2 ], [ '1.3' ], [ 'abc' ], [ true ], [ false ], [], [ 1 => 2 ], [ 'a' => 'b' ], [ 'c' => 'd' ] ];
         $this->assertEnumValuesEquals($expectedArrays, from($sourceArrays)->cast('array'));
 
         // cast (int)
-        $sourceInts = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ] ];
+        $sourceInts = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ] ];
         $expectedInts = [ 0, 1, 1, 1, 0, 1, 0, 0, 1, 1 ];
         $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('int'));
         $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('integer'));
         $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('long'));
 
         // cast (float)
-        $sourceFloats = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ] ];
+        $sourceFloats = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ] ];
         $expectedFloats = [ 0, 1, 1.2, 1.3, 0, 1, 0, 0, 1, 1 ];
         $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('float'));
         $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('real'));
         $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('double'));
 
         // cast (null)
-        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
         $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
         $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
         $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
 
         // cast (null)
-        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
         $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
         $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
         $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
 
         // cast (object)
-        $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, [ ], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
+        $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
         $expectedObjects = [ $o, $v(1), $v(1.2), $v('1.3'), $v('abc'), $v(true), $v(false), $o, (object)[ 1 => 2 ], (object)[ 'a' => 'b' ], $c, $e ];
         $this->assertEnumValuesEquals($expectedObjects, from($sourceObjects)->cast('object'));
 
@@ -521,31 +521,31 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals($expectedObjects, from($sourceObjects)->cast('string'));
     }
 
-    /** @covers YaLinqo\Enumerable::cast
+    /** @covers \YaLinqo\Enumerable::cast
      */
-    function testCast_notBuiltinType ()
+    function testCast_notBuiltinType()
     {
         $this->setExpectedException('\InvalidArgumentException', Errors::UNSUPPORTED_BUILTIN_TYPE);
         from([ 0 ])->cast('unsupported');
     }
 
-    /** @covers YaLinqo\Enumerable::ofType
+    /** @covers \YaLinqo\Enumerable::ofType
      */
-    function testOfType ()
+    function testOfType()
     {
-        $f = function () { };
+        $f = function() { };
         $a = from([
-            1, [ 2 ], '6', $f, 1.2, null, new \stdClass, 3, 4.5, 'ab', [ ], new \Exception
+            1, [ 2 ], '6', $f, 1.2, null, new \stdClass, 3, 4.5, 'ab', [], new \Exception
         ]);
 
         // ofType (empty)
         $this->assertEnumValuesEquals(
-            [ ],
-            E::from([ ])->ofType('array'));
+            [],
+            E::from([])->ofType('array'));
 
         // ofType (array)
         $this->assertEnumValuesEquals(
-            [ [ 2 ], [ ] ],
+            [ [ 2 ], [] ],
             $a->ofType('array'));
 
         // ofType (int)
@@ -609,14 +609,14 @@ class EnumerableTest extends TestCaseEnumerable
             $a->ofType('Exception'));
     }
 
-    /** @covers YaLinqo\Enumerable::select
+    /** @covers \YaLinqo\Enumerable::select
      */
-    function testSelect ()
+    function testSelect()
     {
         // select (selectorValue)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->select('$v+1'));
+            [],
+            E::from([])->select('$v+1'));
         $this->assertEnumEquals(
             [ 4, 5, 6 ],
             E::from([ 3, 4, 5 ])->select('$v+1'));
@@ -633,9 +633,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5 ])->select('$v-$k', '$v+$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::selectMany
+    /** @covers \YaLinqo\Enumerable::selectMany
      */
-    function testSelectMany ()
+    function testSelectMany()
     {
         // selectMany (collectionSelector)
         $this->assertEnumEquals(
@@ -646,16 +646,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ [ 1 ], [ 2 ], [ 3 ] ])->selectMany('$v'));
         $this->assertEnumEquals(
             [ 1, 2 ],
-            E::from([ [ ], [ ], [ 1, 2 ] ])->selectMany('$v'));
+            E::from([ [], [], [ 1, 2 ] ])->selectMany('$v'));
         $this->assertEnumEquals(
             [ 1, 2 ],
-            E::from([ [ 1, 2 ], [ ], [ ] ])->selectMany('$v'));
+            E::from([ [ 1, 2 ], [], [] ])->selectMany('$v'));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ [ ], [ ] ])->selectMany('$v'));
+            [],
+            E::from([ [], [] ])->selectMany('$v'));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->selectMany('$v'));
+            [],
+            E::from([])->selectMany('$v'));
 
         // selectMany (collectionSelector, resultSelectorValue)
         $this->assertEnumEquals(
@@ -674,22 +674,22 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v', '$v+$k1', '"$k1$k2"'));
     }
 
-    /** @covers YaLinqo\Enumerable::where
+    /** @covers \YaLinqo\Enumerable::where
      */
-    function testWhere ()
+    function testWhere()
     {
         // where (predicate)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->where(Functions::$true));
+            [],
+            E::from([])->where(Functions::$true));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->where(Functions::$false));
+            [],
+            E::from([])->where(Functions::$false));
         $this->assertEnumEquals(
             [ 1, 2, 3, 4 ],
             E::from([ 1, 2, 3, 4 ])->where(Functions::$true));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4 ])->where(Functions::$false));
         $this->assertEnumEquals(
             [ 2 => 3, 3 => 4 ],
@@ -703,15 +703,15 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Ordering
 
-    /** @covers YaLinqo\Enumerable::orderByDir
-     * @covers YaLinqo\OrderedEnumerable
+    /** @covers \YaLinqo\Enumerable::orderByDir
+     * @covers \YaLinqo\OrderedEnumerable
      */
-    function testOrderByDir_asc ()
+    function testOrderByDir_asc()
     {
         // orderByDir (false)
         $this->assertEnumValuesEquals(
-            [ ],
-            E::from([ ])->orderByDir(false));
+            [],
+            E::from([])->orderByDir(false));
         $this->assertEnumValuesEquals(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(false));
@@ -725,7 +725,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(false, '$k'));
 
         // orderByDir (false, keySelector, comparer)
-        $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
+        $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             [ 2, 33, 111, 4444 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDir(false, null, $compareLen));
@@ -742,15 +742,15 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 5, 4 ])->orderByDir(false));
     }
 
-    /** @covers YaLinqo\Enumerable::orderByDir
-     * @covers YaLinqo\OrderedEnumerable
+    /** @covers \YaLinqo\Enumerable::orderByDir
+     * @covers \YaLinqo\OrderedEnumerable
      */
-    function testOrderByDir_desc ()
+    function testOrderByDir_desc()
     {
         // orderByDir (true)
         $this->assertEnumValuesEquals(
-            [ ],
-            E::from([ ])->orderByDir(true));
+            [],
+            E::from([])->orderByDir(true));
         $this->assertEnumValuesEquals(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(true));
@@ -764,7 +764,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(true, '$k'));
 
         // orderByDir (true, keySelector, comparer)
-        $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
+        $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             [ 4444, 111, 33, 2 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDir(true, null, $compareLen));
@@ -781,15 +781,15 @@ class EnumerableTest extends TestCaseEnumerable
             from([ 3, 5, 4 ])->orderByDir(true));
     }
 
-    /** @covers YaLinqo\Enumerable::orderBy
-     * @covers YaLinqo\OrderedEnumerable
+    /** @covers \YaLinqo\Enumerable::orderBy
+     * @covers \YaLinqo\OrderedEnumerable
      */
-    function testOrderBy ()
+    function testOrderBy()
     {
         // orderBy ()
         $this->assertEnumValuesEquals(
-            [ ],
-            E::from([ ])->orderBy());
+            [],
+            E::from([])->orderBy());
         $this->assertEnumValuesEquals(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderBy());
@@ -803,7 +803,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderBy('$k'));
 
         // orderBy (keySelector, comparer)
-        $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
+        $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             [ 2, 33, 111, 4444 ],
             E::from([ 111, 2, 33, 4444 ])->orderBy(null, $compareLen));
@@ -820,15 +820,15 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 5, 4 ])->orderBy());
     }
 
-    /** @covers YaLinqo\Enumerable::orderByDescending
-     * @covers YaLinqo\OrderedEnumerable
+    /** @covers \YaLinqo\Enumerable::orderByDescending
+     * @covers \YaLinqo\OrderedEnumerable
      */
-    function testOrderByDescending ()
+    function testOrderByDescending()
     {
         // orderByDescending ()
         $this->assertEnumValuesEquals(
-            [ ],
-            E::from([ ])->orderByDescending());
+            [],
+            E::from([])->orderByDescending());
         $this->assertEnumValuesEquals(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDescending());
@@ -842,7 +842,7 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDescending('$k'));
 
         // orderByDescending (keySelector, comparer)
-        $compareLen = function ($a, $b) { return strlen($a) - strlen($b); };
+        $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
         $this->assertEnumValuesEquals(
             [ 4444, 111, 33, 2 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDescending(null, $compareLen));
@@ -859,11 +859,11 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 5, 4 ])->orderByDescending());
     }
 
-    /** @covers YaLinqo\Enumerable::orderBy
-     * @covers YaLinqo\Enumerable::orderByDescending
-     * @covers YaLinqo\OrderedEnumerable
+    /** @covers \YaLinqo\Enumerable::orderBy
+     * @covers \YaLinqo\Enumerable::orderByDescending
+     * @covers \YaLinqo\OrderedEnumerable
      */
-    function testOrderBy_onlyLastConsidered ()
+    function testOrderBy_onlyLastConsidered()
     {
         $this->assertEnumValuesEquals(
             [ 3, 4, 5, 6 ],
@@ -880,20 +880,20 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Joining and grouping
 
-    /** @covers YaLinqo\Enumerable::groupJoin
+    /** @covers \YaLinqo\Enumerable::groupJoin
      */
-    function testGroupJoin ()
+    function testGroupJoin()
     {
         // groupJoin (inner)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->groupJoin([ ]));
+            [],
+            E::from([])->groupJoin([]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->groupJoin([ 6, 7, 8 ]));
+            [],
+            E::from([])->groupJoin([ 6, 7, 8 ]));
         $this->assertEnumEquals(
-            [ [ 3, [ ] ], [ 4, [ ] ], [ 5, [ ] ] ],
-            E::from([ 3, 4, 5 ])->groupJoin([ ]));
+            [ [ 3, [] ], [ 4, [] ], [ 5, [] ] ],
+            E::from([ 3, 4, 5 ])->groupJoin([]));
         $this->assertEnumEquals(
             [ [ 3, [ 6 ] ], [ 4, [ 7 ] ], [ 5, [ 8 ] ] ],
             E::from([ 3, 4, 5 ])->groupJoin([ 6, 7, 8 ]));
@@ -925,31 +925,31 @@ class EnumerableTest extends TestCaseEnumerable
 
         // groupJoin (inner, outerKeySelector, innerKeySelector, resultSelectorValue, resultSelectorKey)
         $this->assertEnumEquals(
-            [ 6 => [ 'a' ], 7 => [ 'b', 'c' ], 8 => [ ] ],
+            [ 6 => [ 'a' ], 7 => [ 'b', 'c' ], 8 => [] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->groupJoin(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
                 '$v[0]', '$v[0]', '$e->select("\$v[1]")', '$v[1]'));
         $this->assertEnumEquals(
-            [ [ 6, [ 'a' ] ], [ 7, [ 'b', 'c' ] ], [ 8, [ ] ] ],
+            [ [ 6, [ 'a' ] ], [ 7, [ 'b', 'c' ] ], [ 8, [] ] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->groupJoin(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
                 '$v[0]', '$v[0]', '[ $v[1], $e->select("\$v[1]") ]', Functions::increment()));
     }
 
-    /** @covers YaLinqo\Enumerable::join
+    /** @covers \YaLinqo\Enumerable::join
      */
-    function testJoin ()
+    function testJoin()
     {
         // join (inner)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->join([ ]));
+            [],
+            E::from([])->join([]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->join([ 6, 7, 8 ]));
+            [],
+            E::from([])->join([ 6, 7, 8 ]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ 3, 4, 5 ])->join([ ]));
+            [],
+            E::from([ 3, 4, 5 ])->join([]));
         $this->assertEnumEquals(
             [ [ 3, 6 ], [ 4, 7 ], [ 5, 8 ] ],
             E::from([ 3, 4, 5 ])->join([ 6, 7, 8 ]));
@@ -992,14 +992,14 @@ class EnumerableTest extends TestCaseEnumerable
                 '$v[0]', '$v[0]', '[ $v1[1], $v2[1] ]', Functions::increment()));
     }
 
-    /** @covers YaLinqo\Enumerable::groupBy
+    /** @covers \YaLinqo\Enumerable::groupBy
      */
-    function testGroupBy ()
+    function testGroupBy()
     {
         // groupBy ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->groupBy());
+            [],
+            E::from([])->groupBy());
         $this->assertEnumEquals(
             [ [ 3 ], [ 4 ], [ 5 ] ],
             E::from([ 3, 4, 5 ])->groupBy());
@@ -1049,9 +1049,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1', '$v+$k', '$e+[ "k"=>$k ]', '$e[0]+$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::aggregate
+    /** @covers \YaLinqo\Enumerable::aggregate
      */
-    function testAggregate ()
+    function testAggregate()
     {
         // aggregate (func)
         $this->assertEquals(
@@ -1064,7 +1064,7 @@ class EnumerableTest extends TestCaseEnumerable
         // aggregate (func, seed)
         $this->assertEquals(
             10,
-            E::from([ ])->aggregate('$a+$v', 10));
+            E::from([])->aggregate('$a+$v', 10));
         $this->assertEquals(
             22,
             E::from([ 3, 4, 5 ])->aggregate('$a+$v', 10));
@@ -1073,22 +1073,22 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3 => 3, 2 => 4, 1 => 5 ])->aggregate('$a+$v-$k', 0));
     }
 
-    /** @covers YaLinqo\Enumerable::aggregate
+    /** @covers \YaLinqo\Enumerable::aggregate
      */
-    function testAggregate_emptySourceNoSeed ()
+    function testAggregate_emptySourceNoSeed()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        E::from([ ])->aggregate('$a+$v');
+        E::from([])->aggregate('$a+$v');
     }
 
-    /** @covers YaLinqo\Enumerable::aggregateOrDefault
+    /** @covers \YaLinqo\Enumerable::aggregateOrDefault
      */
-    function testAggregateOrDefault ()
+    function testAggregateOrDefault()
     {
         // aggregate (func)
         $this->assertEquals(
             null,
-            E::from([ ])->aggregateOrDefault('$a+$v'));
+            E::from([])->aggregateOrDefault('$a+$v'));
         $this->assertEquals(
             12,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v'));
@@ -1099,7 +1099,7 @@ class EnumerableTest extends TestCaseEnumerable
         // aggregate (func, seed)
         $this->assertEquals(
             null,
-            E::from([ ])->aggregateOrDefault('$a+$v', 10));
+            E::from([])->aggregateOrDefault('$a+$v', 10));
         $this->assertEquals(
             22,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v', 10));
@@ -1110,15 +1110,15 @@ class EnumerableTest extends TestCaseEnumerable
         // aggregate (func, seed, default)
         $this->assertEquals(
             'empty',
-            E::from([ ])->aggregateOrDefault('$a+$v', 10, 'empty'));
+            E::from([])->aggregateOrDefault('$a+$v', 10, 'empty'));
         $this->assertEquals(
             22,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v', 10, 'empty'));
     }
 
-    /** @covers YaLinqo\Enumerable::average
+    /** @covers \YaLinqo\Enumerable::average
      */
-    function testAverage ()
+    function testAverage()
     {
         // average ()
         $this->assertEquals(
@@ -1137,22 +1137,22 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, '4', '5', 0 ])->average('$v*2+$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::average
+    /** @covers \YaLinqo\Enumerable::average
      */
-    function testAverage_emptySource ()
+    function testAverage_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        E::from([ ])->average();
+        E::from([])->average();
     }
 
-    /** @covers YaLinqo\Enumerable::count
+    /** @covers \YaLinqo\Enumerable::count
      */
-    function testCount ()
+    function testCount()
     {
         // count ()
         $this->assertEquals(
             0,
-            E::from([ ])->count());
+            E::from([])->count());
         $this->assertEquals(
             3,
             E::from([ 3, 4, 5 ])->count());
@@ -1169,9 +1169,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, '4', '5', 0 ])->count('$v*2+$k<10'));
     }
 
-    /** @covers YaLinqo\Enumerable::max
+    /** @covers \YaLinqo\Enumerable::max
      */
-    function testMax ()
+    function testMax()
     {
         // max ()
         $this->assertEquals(
@@ -1187,19 +1187,19 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, '5', '4', 0 ])->max('$v-$k*3+2')); // 5 4 0 -7
     }
 
-    /** @covers YaLinqo\Enumerable::max
+    /** @covers \YaLinqo\Enumerable::max
      */
-    function testMax_emptySource ()
+    function testMax_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        E::from([ ])->max();
+        E::from([])->max();
     }
 
-    /** @covers YaLinqo\Enumerable::maxBy
+    /** @covers \YaLinqo\Enumerable::maxBy
      */
-    function testMaxBy ()
+    function testMaxBy()
     {
-        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+        $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
 
         // max ()
         $this->assertEquals(
@@ -1215,18 +1215,18 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ '5', 3, false, '4' ])->maxBy($compare, '$v+$k')); // 5 4 2 7
     }
 
-    /** @covers YaLinqo\Enumerable::maxBy
+    /** @covers \YaLinqo\Enumerable::maxBy
      */
-    function testMaxBy_emptySource ()
+    function testMaxBy_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
-        E::from([ ])->maxBy($compare);
+        $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
+        E::from([])->maxBy($compare);
     }
 
-    /** @covers YaLinqo\Enumerable::min
+    /** @covers \YaLinqo\Enumerable::min
      */
-    function testMin ()
+    function testMin()
     {
         // min ()
         $this->assertEquals(
@@ -1242,19 +1242,19 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, '5', '4', false ])->min('$v-$k*3+2')); // 5 4 0 -7
     }
 
-    /** @covers YaLinqo\Enumerable::min
+    /** @covers \YaLinqo\Enumerable::min
      */
-    function testMin_emptySource ()
+    function testMin_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        E::from([ ])->min();
+        E::from([])->min();
     }
 
-    /** @covers YaLinqo\Enumerable::minBy
+    /** @covers \YaLinqo\Enumerable::minBy
      */
-    function testMinBy ()
+    function testMinBy()
     {
-        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
+        $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
 
         // min ()
         $this->assertEquals(
@@ -1270,23 +1270,23 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ '5', 3, 0, '4' ])->minBy($compare, '$v+$k')); // 5 4 2 7
     }
 
-    /** @covers YaLinqo\Enumerable::minBy
+    /** @covers \YaLinqo\Enumerable::minBy
      */
-    function testMinBy_emptySource ()
+    function testMinBy_emptySource()
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_ELEMENTS);
-        $compare = function ($a, $b) { return strcmp($a * $a, $b * $b); };
-        E::from([ ])->minBy($compare);
+        $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
+        E::from([])->minBy($compare);
     }
 
-    /** @covers YaLinqo\Enumerable::sum
+    /** @covers \YaLinqo\Enumerable::sum
      */
-    function testSum ()
+    function testSum()
     {
         // sum ()
         $this->assertEquals(
             0,
-            E::from([ ])->sum());
+            E::from([])->sum());
         $this->assertEquals(
             12,
             E::from([ 3, 4, 5 ])->sum());
@@ -1303,14 +1303,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, '4', '5', null ])->sum('$v*2+$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::all
+    /** @covers \YaLinqo\Enumerable::all
      */
-    function testAll ()
+    function testAll()
     {
         // all (predicate)
         $this->assertEquals(
             true,
-            E::from([ ])->all('$v>0'));
+            E::from([])->all('$v>0'));
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->all('$v>0'));
@@ -1322,14 +1322,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->all('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::any
+    /** @covers \YaLinqo\Enumerable::any
      */
-    function testAny_array ()
+    function testAny_array()
     {
         // any ()
         $this->assertEquals(
             false,
-            E::from([ ])->any());
+            E::from([])->any());
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->any());
@@ -1337,7 +1337,7 @@ class EnumerableTest extends TestCaseEnumerable
         // any (predicate)
         $this->assertEquals(
             false,
-            E::from([ ])->any('$v>0'));
+            E::from([])->any('$v>0'));
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->any('$v>0'));
@@ -1349,14 +1349,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->any('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::any
+    /** @covers \YaLinqo\Enumerable::any
      */
-    function testAny_fromEnumerable ()
+    function testAny_fromEnumerable()
     {
         // any ()
         $this->assertEquals(
             false,
-            E::from([ ])->select('$v')->any());
+            E::from([])->select('$v')->any());
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->select('$v')->any());
@@ -1364,7 +1364,7 @@ class EnumerableTest extends TestCaseEnumerable
         // any (predicate)
         $this->assertEquals(
             false,
-            E::from([ ])->select('$v')->any('$v>0'));
+            E::from([])->select('$v')->any('$v>0'));
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->select('$v')->any('$v>0'));
@@ -1376,14 +1376,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->select('$v')->any('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::append
+    /** @covers \YaLinqo\Enumerable::append
      */
-    function testAppend ()
+    function testAppend()
     {
         // append (value)
         $this->assertEnumEquals(
             [ 0 => 9 ],
-            E::from([ ])->append(9));
+            E::from([])->append(9));
         $this->assertEnumEquals(
             [ 0 => 1, 1 => 3, 2 => 9 ],
             E::from([ 1, 3 ])->append(9));
@@ -1394,10 +1394,10 @@ class EnumerableTest extends TestCaseEnumerable
         // append (value, key)
         $this->assertEnumEquals(
             [ null => 9 ],
-            E::from([ ])->append(9, null));
+            E::from([])->append(9, null));
         $this->assertEnumEquals(
             [ 2 => 9 ],
-            E::from([ ])->append(9, 2));
+            E::from([])->append(9, 2));
         $this->assertEnumEquals(
             [ 0 => 1, 1 => 3, null => 9 ],
             E::from([ 1, 3 ])->append(9, null));
@@ -1412,33 +1412,33 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1 => 1, 0 => 3 ])->append(9, 8));
     }
 
-    /** @covers YaLinqo\Enumerable::concat
+    /** @covers \YaLinqo\Enumerable::concat
      */
-    function testConcat ()
+    function testConcat()
     {
         // concat ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->concat([ ]));
+            [],
+            E::from([])->concat([]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->concat([ ]));
+            E::from([ 1, 2, 3 ])->concat([]));
         $this->assertEnumEquals(
             [ 1, 2, 3, 3 ],
-            E::from([ ])->concat([ 1, 2, 3, 3 ]));
+            E::from([])->concat([ 1, 2, 3, 3 ]));
         $this->assertEnumOrderEquals(
             [ [ 0, 1 ], [ 1, 2 ], [ 2, 2 ], [ 0, 1 ], [ 1, 3 ] ],
             E::from([ 1, 2, 2 ])->concat([ 1, 3 ]));
     }
 
-    /** @covers YaLinqo\Enumerable::contains
+    /** @covers \YaLinqo\Enumerable::contains
      */
-    function testContains ()
+    function testContains()
     {
         // contains (value)
         $this->assertEquals(
             false,
-            E::from([ ])->contains(2));
+            E::from([])->contains(2));
         $this->assertEquals(
             true,
             E::from([ 1, 2, 3 ])->contains(2));
@@ -1447,14 +1447,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3 ])->contains(4));
     }
 
-    /** @covers YaLinqo\Enumerable::distinct
+    /** @covers \YaLinqo\Enumerable::distinct
      */
-    function testDistinct ()
+    function testDistinct()
     {
         // distinct ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->distinct());
+            [],
+            E::from([])->distinct());
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->distinct());
@@ -1464,8 +1464,8 @@ class EnumerableTest extends TestCaseEnumerable
 
         // distinct (keySelector)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->distinct('$v*$k'));
+            [],
+            E::from([])->distinct('$v*$k'));
         $this->assertEnumEquals(
             [ 3 => 1, 2 => 2, 1 => 5 ],
             E::from([ 3 => 1, 2 => 2, 1 => 5 ])->distinct('$v*$k'));
@@ -1474,32 +1474,32 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 4 => 1, 2 => 2, 1 => 3 ])->distinct('$v*$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::except
+    /** @covers \YaLinqo\Enumerable::except
      */
-    function testExcept ()
+    function testExcept()
     {
         // except ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->except([ ]));
+            [],
+            E::from([])->except([]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->except([ ]));
+            E::from([ 1, 2, 3 ])->except([]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->except([ 1, 2, 3 ]));
+            [],
+            E::from([])->except([ 1, 2, 3 ]));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ]));
 
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3 ])->except([ '1', '2', '3' ]));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ '1', '2', '3' ])->except([ 1, 2, 3 ]));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, '2', 3 ])->except([ '1', 2, '3' ]));
 
         $this->assertEnumEquals(
@@ -1511,16 +1511,16 @@ class EnumerableTest extends TestCaseEnumerable
 
         // except (keySelector)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->except([ ], '$k'));
+            [],
+            E::from([])->except([], '$k'));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->except([ ], '$k'));
+            E::from([ 1, 2, 3 ])->except([], '$k'));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->except([ 1, 2, 3 ], '$k'));
+            [],
+            E::from([])->except([ 1, 2, 3 ], '$k'));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ], '$k'));
 
         $this->assertEnumEquals(
@@ -1531,20 +1531,20 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3, 4 ])->except([ 1, 3, 5 ], '$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::intersect
+    /** @covers \YaLinqo\Enumerable::intersect
      */
-    function testIntersect ()
+    function testIntersect()
     {
         // intersect ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->intersect([ ]));
+            [],
+            E::from([])->intersect([]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ 1, 2, 3 ])->intersect([ ]));
+            [],
+            E::from([ 1, 2, 3 ])->intersect([]));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->intersect([ 1, 2, 3 ]));
+            [],
+            E::from([])->intersect([ 1, 2, 3 ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ]));
@@ -1568,14 +1568,14 @@ class EnumerableTest extends TestCaseEnumerable
 
         // intersect (keySelector)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->intersect([ ], '$k'));
+            [],
+            E::from([])->intersect([], '$k'));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ 1, 2, 3 ])->intersect([ ], '$k'));
+            [],
+            E::from([ 1, 2, 3 ])->intersect([], '$k'));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->intersect([ 1, 2, 3 ], '$k'));
+            [],
+            E::from([])->intersect([ 1, 2, 3 ], '$k'));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ], '$k'));
@@ -1588,14 +1588,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5 ], '$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::prepend
+    /** @covers \YaLinqo\Enumerable::prepend
      */
-    function testPrepend ()
+    function testPrepend()
     {
         // prepend (value)
         $this->assertEnumEquals(
             [ 9 ],
-            E::from([ ])->prepend(9));
+            E::from([])->prepend(9));
         $this->assertEnumOrderEquals(
             [ [ 0, 9 ], [ 0, 1 ], [ 1, 3 ] ],
             E::from([ 1, 3 ])->prepend(9));
@@ -1606,10 +1606,10 @@ class EnumerableTest extends TestCaseEnumerable
         // prepend (value, key)
         $this->assertEnumEquals(
             [ null => 9 ],
-            E::from([ ])->prepend(9, null));
+            E::from([])->prepend(9, null));
         $this->assertEnumEquals(
             [ 2 => 9 ],
-            E::from([ ])->prepend(9, 2));
+            E::from([])->prepend(9, 2));
         $this->assertEnumEquals(
             [ null => 9, 0 => 1, 1 => 3 ],
             E::from([ 1, 3 ])->prepend(9, null));
@@ -1624,20 +1624,20 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1 => 1, 0 => 3 ])->prepend(9, 8));
     }
 
-    /** @covers YaLinqo\Enumerable::union
+    /** @covers \YaLinqo\Enumerable::union
      */
-    function testUnion ()
+    function testUnion()
     {
         // union ()
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->union([ ]));
+            [],
+            E::from([])->union([]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->union([ ]));
+            E::from([ 1, 2, 3 ])->union([]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ ])->union([ 1, 2, 3, 3 ]));
+            E::from([])->union([ 1, 2, 3, 3 ]));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3, 3 ])->union([ 1, 2, 3 ]));
@@ -1661,14 +1661,14 @@ class EnumerableTest extends TestCaseEnumerable
 
         // union (keySelector)
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->union([ ], '$k'));
+            [],
+            E::from([])->union([], '$k'));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ 1, 2, 3 ])->union([ ], '$k'));
+            E::from([ 1, 2, 3 ])->union([], '$k'));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
-            E::from([ ])->union([ 1, 2, 3 ], '$k'));
+            E::from([])->union([ 1, 2, 3 ], '$k'));
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ], '$k'));
@@ -1685,9 +1685,9 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Pagination
 
-    /** @covers YaLinqo\Enumerable::elementAt
+    /** @covers \YaLinqo\Enumerable::elementAt
      */
-    function testElementAt_array ()
+    function testElementAt_array()
     {
         // elementAt (key)
         $this->assertEquals(
@@ -1698,9 +1698,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3 => 1, 2, 'a' => 3 ])->elementAt(4));
     }
 
-    /** @covers YaLinqo\Enumerable::elementAt
+    /** @covers \YaLinqo\Enumerable::elementAt
      */
-    function testElementAt_enumerable ()
+    function testElementAt_enumerable()
     {
         // elementAt (key)
         $this->assertEquals(
@@ -1711,39 +1711,39 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3 => 1, 2, 'a' => 3 ])->select('$v')->elementAt(4));
     }
 
-    /** @covers YaLinqo\Enumerable::elementAt
+    /** @covers \YaLinqo\Enumerable::elementAt
      * @dataProvider dataProvider_testElementAt_noKey
      * @param E $enum
      * @param mixed $key
      */
-    function testElementAt_noKey ($enum, $key)
+    function testElementAt_noKey($enum, $key)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_KEY);
         $enum->elementAt($key);
     }
 
-    function dataProvider_testElementAt_noKey ()
+    function dataProvider_testElementAt_noKey()
     {
         return [
             // array source
-            [ E::from([ ]), 1 ],
+            [ E::from([]), 1 ],
             [ E::from([ 1, 2, 3 ]), 4 ],
             [ E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ]), 0 ],
             // Enumerable source
-            [ E::from([ ])->select('$v'), 1 ],
+            [ E::from([])->select('$v'), 1 ],
             [ E::from([ 1, 2, 3 ])->select('$v'), 4 ],
             [ E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ])->select('$v'), 0 ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::elementAtOrDefault
+    /** @covers \YaLinqo\Enumerable::elementAtOrDefault
      */
-    function testElementAtOrDefault_array ()
+    function testElementAtOrDefault_array()
     {
         // elementAtOrDefault (key)
         $this->assertEquals(
             null,
-            E::from([ ])->elementAtOrDefault(1));
+            E::from([])->elementAtOrDefault(1));
         $this->assertEquals(
             2,
             E::from([ 1, 2, 3 ])->elementAtOrDefault(1));
@@ -1758,14 +1758,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ])->elementAtOrDefault(0));
     }
 
-    /** @covers YaLinqo\Enumerable::elementAtOrDefault
+    /** @covers \YaLinqo\Enumerable::elementAtOrDefault
      */
-    function testElementAtOrDefault_enumerable ()
+    function testElementAtOrDefault_enumerable()
     {
         // elementAtOrDefault (key)
         $this->assertEquals(
             null,
-            E::from([ ])->select('$v')->elementAtOrDefault(1));
+            E::from([])->select('$v')->elementAtOrDefault(1));
         $this->assertEquals(
             2,
             E::from([ 1, 2, 3 ])->select('$v')->elementAtOrDefault(1));
@@ -1780,9 +1780,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ])->select('$v')->elementAtOrDefault(0));
     }
 
-    /** @covers YaLinqo\Enumerable::first
+    /** @covers \YaLinqo\Enumerable::first
      */
-    function testFirst ()
+    function testFirst()
     {
         // first ()
         $this->assertEquals(
@@ -1801,34 +1801,34 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, 2, 3 ])->first('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::first
+    /** @covers \YaLinqo\Enumerable::first
      * @dataProvider dataProvider_testFirst_noMatches
      */
-    function testFirst_noMatches ($source, $predicate)
+    function testFirst_noMatches($source, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->first($predicate);
     }
 
-    function dataProvider_testFirst_noMatches ()
+    function dataProvider_testFirst_noMatches()
     {
         return [
             // first ()
-            [ [ ], null ],
+            [ [], null ],
             // first (predicate)
-            [ [ ], '$v>0' ],
+            [ [], '$v>0' ],
             [ [ -1, -2, -3 ], '$v>0' ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::firstOrDefault
+    /** @covers \YaLinqo\Enumerable::firstOrDefault
      */
-    function testFirstOrDefault ()
+    function testFirstOrDefault()
     {
         // firstOrDefault ()
         $this->assertEquals(
             null,
-            E::from([ ])->firstOrDefault());
+            E::from([])->firstOrDefault());
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault());
@@ -1839,7 +1839,7 @@ class EnumerableTest extends TestCaseEnumerable
         // firstOrDefault (default)
         $this->assertEquals(
             'a',
-            E::from([ ])->firstOrDefault('a'));
+            E::from([])->firstOrDefault('a'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault('a'));
@@ -1850,7 +1850,7 @@ class EnumerableTest extends TestCaseEnumerable
         // firstOrDefault (default, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->firstOrDefault('a', '$v>0'));
+            E::from([])->firstOrDefault('a', '$v>0'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault('a', '$v>0'));
@@ -1862,16 +1862,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->firstOrDefault('a', '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::firstOrFallback
+    /** @covers \YaLinqo\Enumerable::firstOrFallback
      */
-    function testFirstOrFallback ()
+    function testFirstOrFallback()
     {
-        $fallback = function () { return 'a'; };
+        $fallback = function() { return 'a'; };
 
         // firstOrFallback (fallback)
         $this->assertEquals(
             'a',
-            E::from([ ])->firstOrFallback($fallback));
+            E::from([])->firstOrFallback($fallback));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->firstOrFallback($fallback));
@@ -1882,7 +1882,7 @@ class EnumerableTest extends TestCaseEnumerable
         // firstOrFallback (fallback, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->firstOrFallback($fallback, '$v>0'));
+            E::from([])->firstOrFallback($fallback, '$v>0'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->firstOrFallback($fallback, '$v>0'));
@@ -1894,9 +1894,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->firstOrFallback($fallback, '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::last
+    /** @covers \YaLinqo\Enumerable::last
      */
-    function testLast ()
+    function testLast()
     {
         // last ()
         $this->assertEquals(
@@ -1915,34 +1915,34 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, -3 ])->last('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::last
+    /** @covers \YaLinqo\Enumerable::last
      * @dataProvider dataProvider_testLast_noMatches
      */
-    function testLast_noMatches ($source, $predicate)
+    function testLast_noMatches($source, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->last($predicate);
     }
 
-    function dataProvider_testLast_noMatches ()
+    function dataProvider_testLast_noMatches()
     {
         return [
             // last ()
-            [ [ ], null ],
+            [ [], null ],
             // last (predicate)
-            [ [ ], '$v>0' ],
+            [ [], '$v>0' ],
             [ [ -1, -2, -3 ], '$v>0' ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::lastOrDefault
+    /** @covers \YaLinqo\Enumerable::lastOrDefault
      */
-    function testLastOrDefault ()
+    function testLastOrDefault()
     {
         // lastOrDefault ()
         $this->assertEquals(
             null,
-            E::from([ ])->lastOrDefault());
+            E::from([])->lastOrDefault());
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault());
@@ -1953,7 +1953,7 @@ class EnumerableTest extends TestCaseEnumerable
         // lastOrDefault (default)
         $this->assertEquals(
             'a',
-            E::from([ ])->lastOrDefault('a'));
+            E::from([])->lastOrDefault('a'));
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault('a'));
@@ -1964,7 +1964,7 @@ class EnumerableTest extends TestCaseEnumerable
         // lastOrDefault (default, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->lastOrDefault('a', '$v>0'));
+            E::from([])->lastOrDefault('a', '$v>0'));
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault('a', '$v>0'));
@@ -1976,16 +1976,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->lastOrDefault('a', '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::lastOrFallback
+    /** @covers \YaLinqo\Enumerable::lastOrFallback
      */
-    function testLastOrFallback ()
+    function testLastOrFallback()
     {
-        $fallback = function () { return 'a'; };
+        $fallback = function() { return 'a'; };
 
         // lastOrFallback (fallback)
         $this->assertEquals(
             'a',
-            E::from([ ])->lastOrFallback($fallback));
+            E::from([])->lastOrFallback($fallback));
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3 ])->lastOrFallback($fallback));
@@ -1996,7 +1996,7 @@ class EnumerableTest extends TestCaseEnumerable
         // lastOrFallback (fallback, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->lastOrFallback($fallback, '$v>0'));
+            E::from([])->lastOrFallback($fallback, '$v>0'));
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3 ])->lastOrFallback($fallback, '$v>0'));
@@ -2008,9 +2008,9 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->lastOrFallback($fallback, '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::single
+    /** @covers \YaLinqo\Enumerable::single
      */
-    function testSingle ()
+    function testSingle()
     {
         // single ()
         $this->assertEquals(
@@ -2023,36 +2023,36 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, 2, -3 ])->single('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::single
+    /** @covers \YaLinqo\Enumerable::single
      * @dataProvider dataProvider_testSingle_noMatches
      */
-    function testSingle_noMatches ($source, $predicate)
+    function testSingle_noMatches($source, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::NO_MATCHES);
         E::from($source)->single($predicate);
     }
 
-    function dataProvider_testSingle_noMatches ()
+    function dataProvider_testSingle_noMatches()
     {
         return [
             // single ()
-            [ [ ], null ],
+            [ [], null ],
             // single (predicate)
-            [ [ ], '$v>0' ],
+            [ [], '$v>0' ],
             [ [ -1, -2, -3 ], '$v>0' ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::single
+    /** @covers \YaLinqo\Enumerable::single
      * @dataProvider dataProvider_testSingle_manyMatches
      */
-    function testSingle_manyMatches ($source, $predicate)
+    function testSingle_manyMatches($source, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->single($predicate);
     }
 
-    function dataProvider_testSingle_manyMatches ()
+    function dataProvider_testSingle_manyMatches()
     {
         return [
             // single ()
@@ -2064,14 +2064,14 @@ class EnumerableTest extends TestCaseEnumerable
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::singleOrDefault
+    /** @covers \YaLinqo\Enumerable::singleOrDefault
      */
-    function testSingleOrDefault ()
+    function testSingleOrDefault()
     {
         // singleOrDefault ()
         $this->assertEquals(
             null,
-            E::from([ ])->singleOrDefault());
+            E::from([])->singleOrDefault());
         $this->assertEquals(
             2,
             E::from([ 2 ])->singleOrDefault());
@@ -2079,7 +2079,7 @@ class EnumerableTest extends TestCaseEnumerable
         // singleOrDefault (default)
         $this->assertEquals(
             'a',
-            E::from([ ])->singleOrDefault('a'));
+            E::from([])->singleOrDefault('a'));
         $this->assertEquals(
             2,
             E::from([ 2 ])->singleOrDefault('a'));
@@ -2087,7 +2087,7 @@ class EnumerableTest extends TestCaseEnumerable
         // singleOrDefault (default, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->singleOrDefault('a', '$v>0'));
+            E::from([])->singleOrDefault('a', '$v>0'));
         $this->assertEquals(
             2,
             E::from([ -1, 2, -3 ])->singleOrDefault('a', '$v>0'));
@@ -2096,16 +2096,16 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->singleOrDefault('a', '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::singleOrDefault
+    /** @covers \YaLinqo\Enumerable::singleOrDefault
      * @dataProvider dataProvider_testSingleOrDefault_manyMatches
      */
-    function testSingleOrDefault_manyMatches ($source, $default, $predicate)
+    function testSingleOrDefault_manyMatches($source, $default, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->singleOrDefault($default, $predicate);
     }
 
-    function dataProvider_testSingleOrDefault_manyMatches ()
+    function dataProvider_testSingleOrDefault_manyMatches()
     {
         return [
             // singleOrDefault ()
@@ -2120,16 +2120,16 @@ class EnumerableTest extends TestCaseEnumerable
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::singleOrFallback
+    /** @covers \YaLinqo\Enumerable::singleOrFallback
      */
-    function testSingleOrFallback ()
+    function testSingleOrFallback()
     {
-        $fallback = function () { return 'a'; };
+        $fallback = function() { return 'a'; };
 
         // singleOrFallback (fallback)
         $this->assertEquals(
             'a',
-            E::from([ ])->singleOrFallback($fallback));
+            E::from([])->singleOrFallback($fallback));
         $this->assertEquals(
             2,
             E::from([ 2 ])->singleOrFallback($fallback));
@@ -2137,7 +2137,7 @@ class EnumerableTest extends TestCaseEnumerable
         // singleOrFallback (fallback, predicate)
         $this->assertEquals(
             'a',
-            E::from([ ])->singleOrFallback($fallback, '$v>0'));
+            E::from([])->singleOrFallback($fallback, '$v>0'));
         $this->assertEquals(
             2,
             E::from([ -1, 2, -3 ])->singleOrFallback($fallback, '$v>0'));
@@ -2146,18 +2146,18 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->singleOrFallback($fallback, '$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::singleOrFallback
+    /** @covers \YaLinqo\Enumerable::singleOrFallback
      * @dataProvider dataProvider_testSingleOrFallback_manyMatches
      */
-    function testSingleOrFallback_manyMatches ($source, $fallback, $predicate)
+    function testSingleOrFallback_manyMatches($source, $fallback, $predicate)
     {
         $this->setExpectedException('UnexpectedValueException', Errors::MANY_MATCHES);
         E::from($source)->singleOrFallback($fallback, $predicate);
     }
 
-    function dataProvider_testSingleOrFallback_manyMatches ()
+    function dataProvider_testSingleOrFallback_manyMatches()
     {
-        $fallback = function () { return 'a'; };
+        $fallback = function() { return 'a'; };
 
         return [
             // singleOrFallback ()
@@ -2172,14 +2172,14 @@ class EnumerableTest extends TestCaseEnumerable
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::indexOf
+    /** @covers \YaLinqo\Enumerable::indexOf
      */
-    function testIndexOf ()
+    function testIndexOf()
     {
         // indexOf (value)
         $this->assertEquals(
             null,
-            E::from([ ])->indexOf('a'));
+            E::from([])->indexOf('a'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->indexOf(2));
@@ -2191,14 +2191,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->indexOf(2));
     }
 
-    /** @covers YaLinqo\Enumerable::lastIndexOf
+    /** @covers \YaLinqo\Enumerable::lastIndexOf
      */
-    function testLastIndexOf ()
+    function testLastIndexOf()
     {
         // indexOf (value)
         $this->assertEquals(
             null,
-            E::from([ ])->lastIndexOf('a'));
+            E::from([])->lastIndexOf('a'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->lastIndexOf(2));
@@ -2210,13 +2210,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->lastIndexOf(2));
     }
 
-    /** @covers YaLinqo\Enumerable::findIndex
+    /** @covers \YaLinqo\Enumerable::findIndex
      */
-    function testFindIndex ()
+    function testFindIndex()
     {
         $this->assertEquals(
             null,
-            E::from([ ])->findIndex('$v>0'));
+            E::from([])->findIndex('$v>0'));
         $this->assertEquals(
             0,
             E::from([ 1, 2, 3, 4 ])->findIndex('$v>0'));
@@ -2228,13 +2228,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3, -4 ])->findIndex('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::findLastIndex
+    /** @covers \YaLinqo\Enumerable::findLastIndex
      */
-    function testFindLastIndex ()
+    function testFindLastIndex()
     {
         $this->assertEquals(
             null,
-            E::from([ ])->findLastIndex('$v>0'));
+            E::from([])->findLastIndex('$v>0'));
         $this->assertEquals(
             3,
             E::from([ 1, 2, 3, 4 ])->findLastIndex('$v>0'));
@@ -2246,19 +2246,19 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3, -4 ])->findLastIndex('$v>0'));
     }
 
-    /** @covers YaLinqo\Enumerable::skip
+    /** @covers \YaLinqo\Enumerable::skip
      */
-    function testSkip ()
+    function testSkip()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->skip(-2));
+            [],
+            E::from([])->skip(-2));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->skip(0));
+            [],
+            E::from([])->skip(0));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->skip(2));
+            [],
+            E::from([])->skip(2));
         $this->assertEnumEquals(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skip(-2));
@@ -2269,23 +2269,23 @@ class EnumerableTest extends TestCaseEnumerable
             [ 2 => 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skip(2));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->skip(5));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->skip(6));
         $this->assertEnumEquals(
             [ 'c' => 3, 'd' => 4, 'e' => 5 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->skip(2));
     }
 
-    /** @covers YaLinqo\Enumerable::skipWhile
+    /** @covers \YaLinqo\Enumerable::skipWhile
      */
-    function testSkipWhile ()
+    function testSkipWhile()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->skipWhile('$v>2'));
+            [],
+            E::from([])->skipWhile('$v>2'));
         $this->assertEnumEquals(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v<0'));
@@ -2296,31 +2296,31 @@ class EnumerableTest extends TestCaseEnumerable
             [ 2 => 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v+$k<4'));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v>0'));
         $this->assertEnumEquals(
             [ 'c' => 3, 'd' => 4, 'e' => 5 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->skipWhile('$k<"c"'));
     }
 
-    /** @covers YaLinqo\Enumerable::take
+    /** @covers \YaLinqo\Enumerable::take
      */
-    function testTake ()
+    function testTake()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->take(-2));
+            [],
+            E::from([])->take(-2));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->take(0));
+            [],
+            E::from([])->take(0));
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->take(2));
+            [],
+            E::from([])->take(2));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->take(-2));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->take(0));
         $this->assertEnumEquals(
             [ 1, 2 ],
@@ -2336,18 +2336,18 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->take(2));
     }
 
-    /** @covers YaLinqo\Enumerable::takeWhile
+    /** @covers \YaLinqo\Enumerable::takeWhile
      */
-    function testTakeWhile ()
+    function testTakeWhile()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->takeWhile('$v>2'));
+            [],
+            E::from([])->takeWhile('$v>2'));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$v<0'));
         $this->assertEnumEquals(
-            [ ],
+            [],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$k==-1'));
         $this->assertEnumEquals(
             [ 1, 2 ],
@@ -2364,13 +2364,13 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Conversion
 
-    /** @covers YaLinqo\Enumerable::toArray
+    /** @covers \YaLinqo\Enumerable::toArray
      */
-    function testToArray_array ()
+    function testToArray_array()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toArray());
+            [],
+            E::from([])->toArray());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toArray());
@@ -2379,13 +2379,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->toArray());
     }
 
-    /** @covers YaLinqo\Enumerable::toArray
+    /** @covers \YaLinqo\Enumerable::toArray
      */
-    function testToArray_enumerable ()
+    function testToArray_enumerable()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->select('$v')->toArray());
+            [],
+            E::from([])->select('$v')->toArray());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->select('$v')->toArray());
@@ -2394,14 +2394,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->select('$v')->toArray());
     }
 
-    /** @covers YaLinqo\Enumerable::toArrayDeep
-     * @covers YaLinqo\Enumerable::toArrayDeepProc
+    /** @covers \YaLinqo\Enumerable::toArrayDeep
+     * @covers \YaLinqo\Enumerable::toArrayDeepProc
      */
-    function testToArrayDeep ()
+    function testToArrayDeep()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toArrayDeep());
+            [],
+            E::from([])->toArrayDeep());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toArrayDeep());
@@ -2413,13 +2413,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toArrayDeep());
     }
 
-    /** @covers YaLinqo\Enumerable::toList
+    /** @covers \YaLinqo\Enumerable::toList
      */
-    function testToList_array ()
+    function testToList_array()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toList());
+            [],
+            E::from([])->toList());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toList());
@@ -2428,13 +2428,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->toList());
     }
 
-    /** @covers YaLinqo\Enumerable::toList
+    /** @covers \YaLinqo\Enumerable::toList
      */
-    function testToList_enumerable ()
+    function testToList_enumerable()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->select('$v')->toList());
+            [],
+            E::from([])->select('$v')->toList());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->select('$v')->toList());
@@ -2443,14 +2443,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->select('$v')->toList());
     }
 
-    /** @covers YaLinqo\Enumerable::toListDeep
-     * @covers YaLinqo\Enumerable::toListDeepProc
+    /** @covers \YaLinqo\Enumerable::toListDeep
+     * @covers \YaLinqo\Enumerable::toListDeepProc
      */
-    function testToListDeep ()
+    function testToListDeep()
     {
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toListDeep());
+            [],
+            E::from([])->toListDeep());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toListDeep());
@@ -2462,14 +2462,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toListDeep());
     }
 
-    /** @covers YaLinqo\Enumerable::toDictionary
+    /** @covers \YaLinqo\Enumerable::toDictionary
      */
-    function testToDictionary ()
+    function testToDictionary()
     {
         // toDictionary ()
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toDictionary());
+            [],
+            E::from([])->toDictionary());
         $this->assertEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toDictionary());
@@ -2479,8 +2479,8 @@ class EnumerableTest extends TestCaseEnumerable
 
         // toDictionary (keySelector)
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toDictionary('$v'));
+            [],
+            E::from([])->toDictionary('$v'));
         $this->assertEquals(
             [ 1 => 1, 2 => 2, 3 => 3 ],
             E::from([ 1, 2, 3 ])->toDictionary('$v'));
@@ -2490,8 +2490,8 @@ class EnumerableTest extends TestCaseEnumerable
 
         // toDictionary (keySelector, valueSelector)
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toDictionary('$v', '$k'));
+            [],
+            E::from([])->toDictionary('$v', '$k'));
         $this->assertEquals(
             [ 1 => 0, 2 => 1, 3 => 2 ],
             E::from([ 1, 2, 3 ])->toDictionary('$v', '$k'));
@@ -2500,13 +2500,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->toDictionary('$v', '$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::toJSON
+    /** @covers \YaLinqo\Enumerable::toJSON
      */
-    function testToJSON ()
+    function testToJSON()
     {
         $this->assertEquals(
             '[]',
-            E::from([ ])->toJSON());
+            E::from([])->toJSON());
         $this->assertEquals(
             '[1,2,3]',
             E::from([ 1, 2, 3 ])->toJSON());
@@ -2518,14 +2518,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toJSON());
     }
 
-    /** @covers YaLinqo\Enumerable::toLookup
+    /** @covers \YaLinqo\Enumerable::toLookup
      */
-    function testToLookup ()
+    function testToLookup()
     {
         // toLookup ()
         $this->assertEquals(
-            [ ],
-            E::from([ ])->toLookup());
+            [],
+            E::from([])->toLookup());
         $this->assertEquals(
             [ [ 3 ], [ 4 ], [ 5 ] ],
             E::from([ 3, 4, 5 ])->toLookup());
@@ -2553,13 +2553,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 3, 4, 5, 6, 8, 10 ])->toLookup('!($k%2)', '$v-$k'));
     }
 
-    /** @covers YaLinqo\Enumerable::toKeys
+    /** @covers \YaLinqo\Enumerable::toKeys
      */
-    function testToKeys ()
+    function testToKeys()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->toKeys());
+            [],
+            E::from([])->toKeys());
         $this->assertEnumEquals(
             [ 0, 1, 2 ],
             E::from([ 1, 2, 3 ])->toKeys());
@@ -2568,13 +2568,13 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->toKeys());
     }
 
-    /** @covers YaLinqo\Enumerable::toValues
+    /** @covers \YaLinqo\Enumerable::toValues
      */
-    function testToValues ()
+    function testToValues()
     {
         $this->assertEnumEquals(
-            [ ],
-            E::from([ ])->toValues());
+            [],
+            E::from([])->toValues());
         $this->assertEnumEquals(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toValues());
@@ -2583,14 +2583,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 'a' => 2, 3 ])->toValues());
     }
 
-    /** @covers YaLinqo\Enumerable::toObject
+    /** @covers \YaLinqo\Enumerable::toObject
      */
-    function testToObject ()
+    function testToObject()
     {
         // toObject
         $this->assertEquals(
             new \stdClass,
-            E::from([ ])->toObject());
+            E::from([])->toObject());
         $this->assertEquals(
             (object)[ 'a' => 1, 'b' => true, 'c' => 'd' ],
             E::from([ 'a' => 1, 'b' => true, 'c' => 'd' ])->toObject());
@@ -2599,7 +2599,7 @@ class EnumerableTest extends TestCaseEnumerable
         $i = 0;
         $this->assertEquals(
             (object)[ 'prop1' => 1, 'prop2' => true, 'prop3' => 'd' ],
-            E::from([ 'a' => 1, 'b' => true, 'c' => 'd' ])->toObject(function () use (&$i) {
+            E::from([ 'a' => 1, 'b' => true, 'c' => 'd' ])->toObject(function() use (&$i) {
                 $i++;
                 return "prop$i";
             }));
@@ -2610,14 +2610,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 'a' => 1, 'b' => true, 'c' => 'd' ])->toObject('"prop$k$v"', '"$k=$v"'));
     }
 
-    /** @covers YaLinqo\Enumerable::toString
+    /** @covers \YaLinqo\Enumerable::toString
      */
-    function testToString ()
+    function testToString()
     {
         // toString ()
         $this->assertEquals(
             '',
-            E::from([ ])->toString());
+            E::from([])->toString());
         $this->assertEquals(
             '123',
             E::from([ 1, 2, 3 ])->toString());
@@ -2631,7 +2631,7 @@ class EnumerableTest extends TestCaseEnumerable
         // toString (separator)
         $this->assertEquals(
             '',
-            E::from([ ])->toString(', '));
+            E::from([])->toString(', '));
         $this->assertEquals(
             '1, 2, 3',
             E::from([ 1, 2, 3 ])->toString(', '));
@@ -2645,7 +2645,7 @@ class EnumerableTest extends TestCaseEnumerable
         // toString (separator, selector)
         $this->assertEquals(
             '',
-            E::from([ ])->toString(', ', '"$k=$v"'));
+            E::from([])->toString(', ', '"$k=$v"'));
         $this->assertEquals(
             '0=1, 1=2, 2=3',
             E::from([ 1, 2, 3 ])->toString(', ', '"$k=$v"'));
@@ -2661,97 +2661,97 @@ class EnumerableTest extends TestCaseEnumerable
 
     #region Actions
 
-    /** @covers YaLinqo\Enumerable::call
+    /** @covers \YaLinqo\Enumerable::call
      */
-    function testCall ()
+    function testCall()
     {
         // call (action)
-        $a = [ ];
-        foreach (E::from([ ])->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        $a = [];
+        foreach (E::from([])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
         $this->assertEquals(
-            [ ],
+            [],
             $a);
-        $a = [ ];
-        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        $a = [];
+        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
         $this->assertEquals(
             [ 1, 'a' => 2, 3 ],
             $a);
-        $a = [ ];
-        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function ($v, $k) use (&$a) { $a[$k] = $v; }) as $_) break;
+        $a = [];
+        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) break;
         $this->assertEquals(
             [ 1 ],
             $a);
-        $a = [ ];
-        E::from([ 1, 'a' => 2, 3 ])->call(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $a = [];
+        E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; });
         $this->assertEquals(
-            [ ],
+            [],
             $a);
     }
 
-    /** @covers YaLinqo\Enumerable::each
+    /** @covers \YaLinqo\Enumerable::each
      */
-    function testEach ()
+    function testEach()
     {
         // call (action)
-        $a = [ ];
-        E::from([ ])->each(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $a = [];
+        E::from([])->each(function($v, $k) use (&$a) { $a[$k] = $v; });
         $this->assertEquals(
-            [ ],
+            [],
             $a);
-        $a = [ ];
-        E::from([ 1, 'a' => 2, 3 ])->each(function ($v, $k) use (&$a) { $a[$k] = $v; });
+        $a = [];
+        E::from([ 1, 'a' => 2, 3 ])->each(function($v, $k) use (&$a) { $a[$k] = $v; });
         $this->assertEquals(
             [ 1, 'a' => 2, 3 ],
             $a);
     }
 
-    /** @covers YaLinqo\Enumerable::write
+    /** @covers \YaLinqo\Enumerable::write
      * @dataProvider dataProvider_testWrite
      */
-    function testWrite ($output, $source, $separator, $selector)
+    function testWrite($output, $source, $separator, $selector)
     {
         // toString ()
         $this->expectOutputString($output);
         E::from($source)->write($separator, $selector);
     }
 
-    function dataProvider_testWrite ()
+    function dataProvider_testWrite()
     {
         return [
             // write ()
-            [ '', [ ], null, null ],
+            [ '', [], null, null ],
             [ '123', [ 1, 2, 3 ], null, null ],
             [ '123', [ 1, 'a' => 2, 3 ], null, null ],
             // write (separator)
-            [ '', [ ], ', ', null ],
+            [ '', [], ', ', null ],
             [ '1, 2, 3', [ 1, 2, 3 ], ', ', null ],
             [ '1, 2, 3', [ 1, 'a' => 2, 3 ], ', ', null ],
             // write (separator, selector)
-            [ '', [ ], ', ', '"$k=$v"' ],
+            [ '', [], ', ', '"$k=$v"' ],
             [ '0=1, 1=2, 2=3', [ 1, 2, 3 ], ', ', '"$k=$v"' ],
             [ '0=1, a=2, 1=3', [ 1, 'a' => 2, 3 ], ', ', '"$k=$v"' ],
         ];
     }
 
-    /** @covers YaLinqo\Enumerable::writeLine
+    /** @covers \YaLinqo\Enumerable::writeLine
      * @dataProvider dataProvider_testWriteLine
      */
-    function testWriteLine ($output, $source, $selector)
+    function testWriteLine($output, $source, $selector)
     {
         // toString ()
         $this->expectOutputString($output);
         E::from($source)->writeLine($selector);
     }
 
-    function dataProvider_testWriteLine ()
+    function dataProvider_testWriteLine()
     {
         return [
             // writeLine ()
-            [ "", [ ], null ],
+            [ "", [], null ],
             [ "1\n2\n3\n", [ 1, 2, 3 ], null ],
             [ "1\n2\n3\n", [ 1, 'a' => 2, 3 ], null ],
             // writeLine (selector)
-            [ "", [ ], '"$k=$v"' ],
+            [ "", [], '"$k=$v"' ],
             [ "0=1\n1=2\n2=3\n", [ 1, 2, 3 ], '"$k=$v"' ],
             [ "0=1\na=2\n1=3\n", [ 1, 'a' => 2, 3 ], '"$k=$v"' ],
         ];

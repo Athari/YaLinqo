@@ -1,7 +1,18 @@
 <?php
 
+/**
+ * Errors class.
+ * @author Alexander Prokhorov
+ * @license Simplified BSD
+ * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
+ */
+
 namespace YaLinqo;
 
+/**
+ * Error messages.
+ * @package YaLinqo
+ */
 class Errors
 {
     /** Error message: "Sequence contains no elements." */

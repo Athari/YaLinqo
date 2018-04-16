@@ -6,7 +6,7 @@ use YaLinqo\Tests\Testing\TestCaseEnumerable;
 
 class LinqTest extends TestCaseEnumerable
 {
-    function testFunctions ()
+    function testFunctions()
     {
         $this->assertInstanceOf('YaLinqo\Enumerable', from(new \EmptyIterator));
     }

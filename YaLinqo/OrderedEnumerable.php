@@ -9,8 +9,6 @@
 
 namespace YaLinqo;
 
-use YaLinqo;
-
 /**
  * Subclass of Enumerable supporting ordering by multiple conditions.
  * @package YaLinqo
@@ -42,7 +40,7 @@ class OrderedEnumerable extends Enumerable
      * @param callable $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param \YaLinqo\OrderedEnumerable $parent
      */
-    public function __construct ($source, $sortOrder, $sortFlags, $isReversed, $keySelector, $comparer, $parent = null)
+    public function __construct($source, $sortOrder, $sortFlags, $isReversed, $keySelector, $comparer, $parent = null)
     {
         $this->source = $source;
         $this->sortOrder = $sortOrder;
@@ -53,11 +51,11 @@ class OrderedEnumerable extends Enumerable
         $this->parent = $parent;
     }
 
-    private function getSingleComparer ()
+    private function getSingleComparer()
     {
         $comparer = $this->comparer;
         if ($this->isReversed)
-            $comparer = function ($a, $b) use ($comparer) { return -$comparer($a, $b); };
+            $comparer = function($a, $b) use ($comparer) { return -$comparer($a, $b); };
         return $comparer;
     }
 
@@ -72,7 +70,7 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenByDir ($sortOrder, $keySelector = null, $comparer = null)
+    public function thenByDir($sortOrder, $keySelector = null, $comparer = null)
     {
         $sortFlags = Utils::lambdaToSortFlagsAndOrder($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
@@ -91,7 +89,7 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenBy ($keySelector = null, $comparer = null)
+    public function thenBy($keySelector = null, $comparer = null)
     {
         return $this->thenByDir(false, $keySelector, $comparer);
     }
@@ -106,13 +104,13 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenByDescending ($keySelector = null, $comparer = null)
+    public function thenByDescending($keySelector = null, $comparer = null)
     {
         return $this->thenByDir(true, $keySelector, $comparer);
     }
 
     /** {@inheritdoc} */
-    public function getIterator ()
+    public function getIterator()
     {
         $canMultisort = $this->sortFlags !== null;
         $array = $this->source->tryGetArrayCopy();
@@ -124,12 +122,12 @@ class OrderedEnumerable extends Enumerable
         return $this->sortByMultipleFields($array, $canMultisort);
     }
 
-    private function trySortBySingleField ($array, $canMultisort)
+    private function trySortBySingleField($array, $canMultisort)
     {
         if ($this->parent !== null || $array === null) {
             return null;
         }
-        else if ($this->keySelector === Functions::$value) {
+        elseif ($this->keySelector === Functions::$value) {
             if (!$canMultisort)
                 uasort($array, $this->getSingleComparer());
             elseif ($this->sortOrder == SORT_ASC)
@@ -151,9 +149,9 @@ class OrderedEnumerable extends Enumerable
         return new \ArrayIterator($array);
     }
 
-    private function sortByMultipleFields ($array, $canMultisort)
+    private function sortByMultipleFields($array, $canMultisort)
     {
-        $orders = [ ];
+        $orders = [];
         for ($order = $this; $order !== null; $order = $order->parent) {
             $orders[] = $order;
             if ($order->sortFlags === null)
@@ -168,9 +166,9 @@ class OrderedEnumerable extends Enumerable
         return $this->sortIterator($orders, $canMultisort);
     }
 
-    private function sortIterator ($orders, $canMultisort)
+    private function sortIterator($orders, $canMultisort)
     {
-        $enum = [ ];
+        $enum = [];
         if ($canMultisort)
             $this->sortIteratorWithMultisort($enum, $orders);
         else
@@ -180,15 +178,15 @@ class OrderedEnumerable extends Enumerable
             yield $pair[0] => $pair[1];
     }
 
-    private function trySortArrayWithMultisort ($array, $orders, $canMultisort)
+    private function trySortArrayWithMultisort($array, $orders, $canMultisort)
     {
         /** @var $order OrderedEnumerable */
         if ($array === null || !$canMultisort)
             return null;
 
-        $args = [ ];
+        $args = [];
         foreach ($orders as $order) {
-            $column = [ ];
+            $column = [];
             foreach ($array as $k => $v) {
                 $keySelector = $order->keySelector;
                 $column[$k] = $keySelector($v, $k);
@@ -204,15 +202,15 @@ class OrderedEnumerable extends Enumerable
         return new \ArrayIterator($array);
     }
 
-    private function sortIteratorWithMultisort (&$enum, $orders)
+    private function sortIteratorWithMultisort(&$enum, $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v)
             $enum[] = [ $k, $v ];
 
-        $args = [ ];
+        $args = [];
         foreach ($orders as $order) {
-            $column = [ ];
+            $column = [];
             foreach ($enum as $k => $pair) {
                 $keySelector = $order->keySelector;
                 $column[$k] = $keySelector($pair[1], $pair[0]);
@@ -226,7 +224,7 @@ class OrderedEnumerable extends Enumerable
         call_user_func_array('array_multisort', $args);
     }
 
-    private function sortIteratorWithUsort (&$enum, $orders)
+    private function sortIteratorWithUsort(&$enum, $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v) {
@@ -238,7 +236,7 @@ class OrderedEnumerable extends Enumerable
             $enum[] = $element;
         }
 
-        usort($enum, function ($a, $b) use ($orders) {
+        usort($enum, function($a, $b) use ($orders) {
             /** @var $order OrderedEnumerable */
             $count = count($orders);
             for ($i = 0; $i < $count; $i++) {

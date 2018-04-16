@@ -9,8 +9,6 @@
 
 namespace YaLinqo;
 
-use YaLinqo;
-
 /**
  * Container for standard functions in the form of closures.
  * @package YaLinqo
@@ -79,23 +77,23 @@ class Functions
     public static $compareIntReversed;
 
     /** @internal */
-    public static function init ()
+    public static function init()
     {
-        self::$identity = function ($x) { return $x; };
+        self::$identity = function($x) { return $x; };
 
         /** @noinspection PhpUnusedParameterInspection */
-        self::$key = function ($v, $k) { return $k; };
+        self::$key = function($v, $k) { return $k; };
 
         /** @noinspection PhpUnusedParameterInspection */
-        self::$value = function ($v, $k) { return $v; };
+        self::$value = function($v, $k) { return $v; };
 
-        self::$true = function () { return true; };
+        self::$true = function() { return true; };
 
-        self::$false = function () { return false; };
+        self::$false = function() { return false; };
 
-        self::$blank = function () { };
+        self::$blank = function() { };
 
-        self::$compareStrict = function ($a, $b) {
+        self::$compareStrict = function($a, $b) {
             if ($a === $b)
                 return 0;
             elseif ($a > $b)
@@ -104,7 +102,7 @@ class Functions
                 return -1;
         };
 
-        self::$compareStrictReversed = function ($a, $b) {
+        self::$compareStrictReversed = function($a, $b) {
             if ($a === $b)
                 return 0;
             elseif ($a > $b)
@@ -113,7 +111,7 @@ class Functions
                 return 1;
         };
 
-        self::$compareLoose = function ($a, $b) {
+        self::$compareLoose = function($a, $b) {
             if ($a == $b)
                 return 0;
             elseif ($a > $b)
@@ -122,7 +120,7 @@ class Functions
                 return -1;
         };
 
-        self::$compareLooseReversed = function ($a, $b) {
+        self::$compareLooseReversed = function($a, $b) {
             if ($a == $b)
                 return 0;
             elseif ($a > $b)
@@ -131,11 +129,11 @@ class Functions
                 return 1;
         };
 
-        self::$compareInt = function ($a, $b) {
+        self::$compareInt = function($a, $b) {
             return $a - $b;
         };
 
-        self::$compareIntReversed = function ($a, $b) {
+        self::$compareIntReversed = function($a, $b) {
             return $b - $a;
         };
     }
@@ -144,9 +142,9 @@ class Functions
      * Increment function: returns incremental integers starting from 0.
      * @return callable
      */
-    public static function increment ()
+    public static function increment()
     {
         $i = 0;
-        return function () use (&$i) { return $i++; };
+        return function() use (&$i) { return $i++; };
     }
 }

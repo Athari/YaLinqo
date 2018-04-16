@@ -9,15 +9,12 @@
 
 namespace YaLinqo;
 
-use YaLinqo;
-
 // Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, call/each, InvalidOperationException => UnexpectedValueException
 
 /**
  * A sequence of values indexed by keys, the primary class of YaLinqo.
  * <p>A sequence of values indexed by keys, which supports various operations: generation, projection, filtering, ordering, joining, grouping, aggregation etc.
  * <p>To create a Enumerable, call {@link Enumerable::from} (aliased as a global function {@link from}) or any of the generation functions. To convert to array, call {@link Enumerable::toArrayDeep} or any of the conversion functions.
- * <p>Internally, it is a wrapper around a lazily created iterator. The wrapped iterator is evaluated when {@link getIterator} is called.
  * @see from
  * @package YaLinqo
  */
@@ -37,7 +34,7 @@ class Enumerable implements \IteratorAggregate
      * @param \Closure|\Iterator $iterator
      * @param bool $isClosure
      */
-    private function __construct ($iterator, $isClosure = true)
+    private function __construct($iterator, $isClosure = true)
     {
         $this->iterator = $isClosure ? $iterator() : $iterator;
     }
@@ -47,12 +44,16 @@ class Enumerable implements \IteratorAggregate
      * {@inheritdoc}
      * @return \Iterator
      */
-    public function getIterator ()
+    public function getIterator()
     {
         return $this->iterator;
     }
 
-    protected function tryGetArrayCopy ()
+    /**
+     * If the sequence wraps an array directly, return it, otherwise return null.
+     * @return array|null Wrapped array, null otherwise.
+     */
+    protected function tryGetArrayCopy()
     {
         /** @var $it \Iterator|\ArrayIterator */
         $it = $this->iterator;
@@ -70,26 +71,26 @@ class Enumerable implements \IteratorAggregate
      * @link http://php.net/manual/language.types.type-juggling.php Type Juggling
      * @package YaLinqo\Projection and filtering
      */
-    public function cast ($type)
+    public function cast($type)
     {
         switch ($type) {
             case 'array':
-                return $this->select(function ($v) { return (array)$v; });
+                return $this->select(function($v) { return (array)$v; });
             case 'int':
             case 'integer':
             case 'long':
-                return $this->select(function ($v) { return (int)$v; });
+                return $this->select(function($v) { return (int)$v; });
             case 'float':
             case 'real':
             case 'double':
-                return $this->select(function ($v) { return (float)$v; });
+                return $this->select(function($v) { return (float)$v; });
             case 'null':
             case 'unset':
-                return $this->select(function ($v) { return null; });
+                return $this->select(function($v) { return null; });
             case 'object':
-                return $this->select(function ($v) { return (object)$v; });
+                return $this->select(function($v) { return (object)$v; });
             case 'string':
-                return $this->select(function ($v) { return (string)$v; });
+                return $this->select(function($v) { return (string)$v; });
             default:
                 throw new \InvalidArgumentException(Errors::UNSUPPORTED_BUILTIN_TYPE);
         }
@@ -103,34 +104,34 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains elements from the input sequence of the specified type.
      * @package YaLinqo\Projection and filtering
      */
-    public function ofType ($type)
+    public function ofType($type)
     {
         switch ($type) {
             case 'array':
-                return $this->where(function ($v) { return is_array($v); });
+                return $this->where(function($v) { return is_array($v); });
             case 'int':
             case 'integer':
             case 'long':
-                return $this->where(function ($v) { return is_int($v); });
+                return $this->where(function($v) { return is_int($v); });
             case 'callable':
             case 'callback':
-                return $this->where(function ($v) { return is_callable($v); });
+                return $this->where(function($v) { return is_callable($v); });
             case 'float':
             case 'real':
             case 'double':
-                return $this->where(function ($v) { return is_float($v); });
+                return $this->where(function($v) { return is_float($v); });
             case 'null':
-                return $this->where(function ($v) { return is_null($v); });
+                return $this->where(function($v) { return is_null($v); });
             case 'numeric':
-                return $this->where(function ($v) { return is_numeric($v); });
+                return $this->where(function($v) { return is_numeric($v); });
             case 'object':
-                return $this->where(function ($v) { return is_object($v); });
+                return $this->where(function($v) { return is_object($v); });
             case 'scalar':
-                return $this->where(function ($v) { return is_scalar($v); });
+                return $this->where(function($v) { return is_scalar($v); });
             case 'string':
-                return $this->where(function ($v) { return is_string($v); });
+                return $this->where(function($v) { return is_string($v); });
             default:
-                return $this->where(function ($v) use ($type) { return is_object($v) && get_class($v) === $type; });
+                return $this->where(function($v) use ($type) { return is_object($v) && get_class($v) === $type; });
         }
     }
 
@@ -143,12 +144,12 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence whose elements are the result of invoking the transform functions on each element of source.
      * @package YaLinqo\Projection and filtering
      */
-    public function select ($selectorValue, $selectorKey = null)
+    public function select($selectorValue, $selectorKey = null)
     {
         $selectorValue = Utils::createLambda($selectorValue, 'v,k');
         $selectorKey = Utils::createLambda($selectorKey, 'v,k', Functions::$key);
 
-        return new self(function () use ($selectorValue, $selectorKey) {
+        return new self(function() use ($selectorValue, $selectorKey) {
             foreach ($this as $k => $v)
                 yield $selectorKey($v, $k) => $selectorValue($v, $k);
         });
@@ -169,7 +170,7 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.
      * @package YaLinqo\Projection and filtering
      */
-    public function selectMany ($collectionSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    public function selectMany($collectionSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $collectionSelector = Utils::createLambda($collectionSelector, 'v,k', Functions::$value);
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,k1,k2', Functions::$value);
@@ -177,7 +178,7 @@ class Enumerable implements \IteratorAggregate
         if ($resultSelectorKey === false)
             $resultSelectorKey = Functions::increment();
 
-        return new self(function () use ($collectionSelector, $resultSelectorValue, $resultSelectorKey) {
+        return new self(function() use ($collectionSelector, $resultSelectorValue, $resultSelectorKey) {
             foreach ($this as $ok => $ov)
                 foreach ($collectionSelector($ov, $ok) as $ik => $iv)
                     yield $resultSelectorKey($iv, $ok, $ik) => $resultSelectorValue($iv, $ok, $ik);
@@ -191,11 +192,11 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains elements from the input sequence that satisfy the condition.
      * @package YaLinqo\Projection and filtering
      */
-    public function where ($predicate)
+    public function where($predicate)
     {
         $predicate = Utils::createLambda($predicate, 'v,k');
 
-        return new self(function () use ($predicate) {
+        return new self(function() use ($predicate) {
             foreach ($this as $k => $v)
                 if ($predicate($v, $k))
                     yield $k => $v;
@@ -218,7 +219,7 @@ class Enumerable implements \IteratorAggregate
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
-    public function orderByDir ($sortOrder, $keySelector = null, $comparer = null)
+    public function orderByDir($sortOrder, $keySelector = null, $comparer = null)
     {
         $sortFlags = Utils::lambdaToSortFlagsAndOrder($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
@@ -238,7 +239,7 @@ class Enumerable implements \IteratorAggregate
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
-    public function orderBy ($keySelector = null, $comparer = null)
+    public function orderBy($keySelector = null, $comparer = null)
     {
         return $this->orderByDir(false, $keySelector, $comparer);
     }
@@ -254,7 +255,7 @@ class Enumerable implements \IteratorAggregate
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
-    public function orderByDescending ($keySelector = null, $comparer = null)
+    public function orderByDescending($keySelector = null, $comparer = null)
     {
         return $this->orderByDir(true, $keySelector, $comparer);
     }
@@ -277,17 +278,17 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains elements that are obtained by performing a grouped join on two sequences.
      * @package YaLinqo\Joining and grouping
      */
-    public function groupJoin ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    public function groupJoin($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function ($v, $e, $k) { return [ $v, $e ]; });
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function($v, $e, $k) { return [ $v, $e ]; });
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function ($v, $e, $k) { return $k; });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function($v, $e, $k) { return $k; });
 
-        return new self(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
+        return new self(function() use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
             $lookup = $inner->toLookup($innerKeySelector);
             foreach ($this as $k => $v) {
                 $key = $outerKeySelector($v, $k);
@@ -311,17 +312,17 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable
      * @package YaLinqo\Joining and grouping
      */
-    public function join ($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    public function join($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function ($v1, $v2, $k) { return [ $v1, $v2 ]; });
+        $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function($v1, $v2, $k) { return [ $v1, $v2 ]; });
         /** @noinspection PhpUnusedParameterInspection */
-        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function ($v1, $v2, $k) { return $k; });
+        $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function($v1, $v2, $k) { return $k; });
 
-        return new self(function () use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
+        return new self(function() use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
             $lookup = $inner->toLookup($innerKeySelector);
             foreach ($this as $ok => $ov) {
                 $key = $outerKeySelector($ov, $ok);
@@ -350,7 +351,7 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence of sequences indexed by a key.
      * @package YaLinqo\Joining and grouping
      */
-    public function groupBy ($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
+    public function groupBy($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
@@ -376,7 +377,7 @@ class Enumerable implements \IteratorAggregate
      * @return mixed The final accumulator value.
      * @package YaLinqo\Aggregation
      */
-    public function aggregate ($func, $seed = null)
+    public function aggregate($func, $seed = null)
     {
         $func = Utils::createLambda($func, 'a,v,k');
 
@@ -414,7 +415,7 @@ class Enumerable implements \IteratorAggregate
      * @return mixed The final accumulator value, or default if sequence is empty.
      * @package YaLinqo\Aggregation
      */
-    public function aggregateOrDefault ($func, $seed = null, $default = null)
+    public function aggregateOrDefault($func, $seed = null, $default = null)
     {
         $func = Utils::createLambda($func, 'a,v,k');
         $result = $seed;
@@ -451,7 +452,7 @@ class Enumerable implements \IteratorAggregate
      * @return number The average of the sequence of values.
      * @package YaLinqo\Aggregation
      */
-    public function average ($selector = null)
+    public function average($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
         $sum = $count = 0;
@@ -475,7 +476,7 @@ class Enumerable implements \IteratorAggregate
      * @return int The number of elements in the input sequence.
      * @package YaLinqo\Aggregation
      */
-    public function count ($predicate = null)
+    public function count($predicate = null)
     {
         $it = $this->getIterator();
 
@@ -502,7 +503,7 @@ class Enumerable implements \IteratorAggregate
      * @return number The maximum value in the sequence.
      * @package YaLinqo\Aggregation
      */
-    public function max ($selector = null)
+    public function max($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
@@ -529,14 +530,14 @@ class Enumerable implements \IteratorAggregate
      * @return number The maximum value in the sequence.
      * @package YaLinqo\Aggregation
      */
-    public function maxBy ($comparer, $selector = null)
+    public function maxBy($comparer, $selector = null)
     {
         $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         $enum = $this;
 
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) use ($comparer) { return $comparer($a, $b) > 0 ? $a : $b; });
+        return $enum->aggregate(function($a, $b) use ($comparer) { return $comparer($a, $b) > 0 ? $a : $b; });
     }
 
     /**
@@ -550,7 +551,7 @@ class Enumerable implements \IteratorAggregate
      * @return number The minimum value in the sequence.
      * @package YaLinqo\Aggregation
      */
-    public function min ($selector = null)
+    public function min($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
@@ -577,14 +578,14 @@ class Enumerable implements \IteratorAggregate
      * @return number The minimum value in the sequence.
      * @package YaLinqo\Aggregation
      */
-    public function minBy ($comparer, $selector = null)
+    public function minBy($comparer, $selector = null)
     {
         $comparer = Utils::createLambda($comparer, 'a,b', Functions::$compareStrict);
         $enum = $this;
 
         if ($selector !== null)
             $enum = $enum->select($selector);
-        return $enum->aggregate(function ($a, $b) use ($comparer) { return $comparer($a, $b) < 0 ? $a : $b; });
+        return $enum->aggregate(function($a, $b) use ($comparer) { return $comparer($a, $b) < 0 ? $a : $b; });
     }
 
     /**
@@ -598,7 +599,7 @@ class Enumerable implements \IteratorAggregate
      * @return number The sum of the values in the sequence.
      * @package YaLinqo\Aggregation
      */
-    public function sum ($selector = null)
+    public function sum($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
@@ -620,7 +621,7 @@ class Enumerable implements \IteratorAggregate
      * @return bool true if every element of the source sequence passes the test in the specified predicate, or if the sequence is empty; otherwise, false.
      * @package YaLinqo\Sets
      */
-    public function all ($predicate)
+    public function all($predicate)
     {
         $predicate = Utils::createLambda($predicate, 'v,k');
 
@@ -641,7 +642,7 @@ class Enumerable implements \IteratorAggregate
      * @return bool If predicate is null: true if the source sequence contains any elements; otherwise, false. If predicate is not null: true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.
      * @package YaLinqo\Sets
      */
-    public function any ($predicate = null)
+    public function any($predicate = null)
     {
         $predicate = Utils::createLambda($predicate, 'v,k', false);
 
@@ -672,9 +673,9 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A new sequence that ends with the value.
      * @package YaLinqo\Sets
      */
-    public function append ($value, $key = Utils::UNDEFINED)
+    public function append($value, $key = Utils::UNDEFINED)
     {
-        return new self(function () use ($value, $key) {
+        return new self(function() use ($value, $key) {
             // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
             foreach ($this as $k => $v)
                 yield $k => $v;
@@ -693,11 +694,11 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains the concatenated elements of the two input sequences.
      * @package YaLinqo\Sets
      */
-    public function concat ($other)
+    public function concat($other)
     {
         $other = self::from($other);
 
-        return new self(function () use ($other) {
+        return new self(function() use ($other) {
             // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
             foreach ($this as $k => $v)
                 yield $k => $v;
@@ -714,7 +715,7 @@ class Enumerable implements \IteratorAggregate
      * @return bool true if the source sequence contains an element that has the specified value; otherwise, false.
      * @package YaLinqo\Sets
      */
-    public function contains ($value)
+    public function contains($value)
     {
         foreach ($this as $v) {
             if ($v === $value)
@@ -734,12 +735,12 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains distinct elements of the input sequence.
      * @package YaLinqo\Sets
      */
-    public function distinct ($keySelector = null)
+    public function distinct($keySelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        return new self(function () use ($keySelector) {
-            $set = [ ];
+        return new self(function() use ($keySelector) {
+            $set = [];
             foreach ($this as $k => $v) {
                 $key = $keySelector($v, $k);
                 if (isset($set[$key]))
@@ -762,13 +763,13 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains the set difference of the elements of two sequences.
      * @package YaLinqo\Sets
      */
-    public function except ($other, $keySelector = null)
+    public function except($other, $keySelector = null)
     {
         $other = self::from($other);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        return new self(function () use ($other, $keySelector) {
-            $set = [ ];
+        return new self(function() use ($other, $keySelector) {
+            $set = [];
             foreach ($other as $k => $v) {
                 $key = $keySelector($v, $k);
                 $set[$key] = true;
@@ -795,13 +796,13 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains the elements that form the set intersection of two sequences.
      * @package YaLinqo\Sets
      */
-    public function intersect ($other, $keySelector = null)
+    public function intersect($other, $keySelector = null)
     {
         $other = self::from($other);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        return new self(function () use ($other, $keySelector) {
-            $set = [ ];
+        return new self(function() use ($other, $keySelector) {
+            $set = [];
             foreach ($other as $k => $v) {
                 $key = $keySelector($v, $k);
                 $set[$key] = true;
@@ -827,9 +828,9 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A new sequence that begins with the value.
      * @package YaLinqo\Sets
      */
-    public function prepend ($value, $key = Utils::UNDEFINED)
+    public function prepend($value, $key = Utils::UNDEFINED)
     {
-        return new self(function () use ($value, $key) {
+        return new self(function() use ($value, $key) {
             if ($key !== Utils::UNDEFINED)
                 yield $key => $value;
             else
@@ -853,13 +854,13 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains the elements from both input sequences, excluding duplicates.
      * @package YaLinqo\Sets
      */
-    public function union ($other, $keySelector = null)
+    public function union($other, $keySelector = null)
     {
         $other = self::from($other);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
 
-        return new self(function () use ($other, $keySelector) {
-            $set = [ ];
+        return new self(function() use ($other, $keySelector) {
+            $set = [];
             foreach ($this as $k => $v) {
                 $key = $keySelector($v, $k);
                 if (isset($set[$key]))
@@ -890,14 +891,14 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toArray ()
+    public function toArray()
     {
         /** @var $it \Iterator|\ArrayIterator */
         $it = $this->getIterator();
         if ($it instanceof \ArrayIterator)
             return $it->getArrayCopy();
 
-        $array = [ ];
+        $array = [];
         foreach ($it as $k => $v)
             $array[$k] = $v;
         return $array;
@@ -912,7 +913,7 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toArrayDeep ()
+    public function toArrayDeep()
     {
         return $this->toArrayDeepProc($this);
     }
@@ -923,9 +924,9 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    protected function toArrayDeepProc ($enum)
+    protected function toArrayDeepProc($enum)
     {
-        $array = [ ];
+        $array = [];
         foreach ($enum as $k => $v)
             $array[$k] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
         return $array;
@@ -940,14 +941,14 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toList ()
+    public function toList()
     {
         /** @var $it \Iterator|\ArrayIterator */
         $it = $this->getIterator();
         if ($it instanceof \ArrayIterator)
             return array_values($it->getArrayCopy());
 
-        $array = [ ];
+        $array = [];
         foreach ($it as $v)
             $array[] = $v;
         return $array;
@@ -962,7 +963,7 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toListDeep ()
+    public function toListDeep()
     {
         return $this->toListDeepProc($this);
     }
@@ -973,9 +974,9 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
-    protected function toListDeepProc ($enum)
+    protected function toListDeepProc($enum)
     {
-        $array = [ ];
+        $array = [];
         foreach ($enum as $v)
             $array[] = $v instanceof \Traversable || is_array($v) ? $this->toListDeepProc($v) : $v;
         return $array;
@@ -990,12 +991,12 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains keys and values selected from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toDictionary ($keySelector = null, $valueSelector = null)
+    public function toDictionary($keySelector = null, $valueSelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $dic = [ ];
+        $dic = [];
         foreach ($this as $k => $v)
             $dic[$keySelector($v, $k)] = $valueSelector($v, $k);
         return $dic;
@@ -1010,7 +1011,7 @@ class Enumerable implements \IteratorAggregate
      * @see json_encode
      * @package YaLinqo\Conversion
      */
-    public function toJSON ($options = 0)
+    public function toJSON($options = 0)
     {
         return json_encode($this->toArrayDeep(), $options);
     }
@@ -1024,12 +1025,12 @@ class Enumerable implements \IteratorAggregate
      * @return array An array that contains keys and value arrays selected from the input sequence.
      * @package YaLinqo\Conversion
      */
-    public function toLookup ($keySelector = null, $valueSelector = null)
+    public function toLookup($keySelector = null, $valueSelector = null)
     {
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $lookup = [ ];
+        $lookup = [];
         foreach ($this as $k => $v)
             $lookup[$keySelector($v, $k)][] = $valueSelector($v, $k);
         return $lookup;
@@ -1042,7 +1043,7 @@ class Enumerable implements \IteratorAggregate
      * @see array_keys
      * @package YaLinqo\Conversion
      */
-    public function toKeys ()
+    public function toKeys()
     {
         return $this->select(Functions::$key, Functions::increment());
     }
@@ -1054,7 +1055,7 @@ class Enumerable implements \IteratorAggregate
      * @see array_values
      * @package YaLinqo\Conversion
      */
-    public function toValues ()
+    public function toValues()
     {
         return $this->select(Functions::$value, Functions::increment());
     }
@@ -1067,7 +1068,7 @@ class Enumerable implements \IteratorAggregate
      * @return \stdClass
      * @package YaLinqo\Conversion
      */
-    public function toObject ($propertySelector = null, $valueSelector = null)
+    public function toObject($propertySelector = null, $valueSelector = null)
     {
         $propertySelector = Utils::createLambda($propertySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
@@ -1087,7 +1088,7 @@ class Enumerable implements \IteratorAggregate
      * @see implode
      * @package YaLinqo\Conversion
      */
-    public function toString ($separator = '', $valueSelector = null)
+    public function toString($separator = '', $valueSelector = null)
     {
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', false);
         $array = $valueSelector ? $this->select($valueSelector)->toList() : $this->toList();
@@ -1107,11 +1108,11 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable The source sequence with the side-effecting behavior applied.
      * @package YaLinqo\Actions
      */
-    public function call ($action)
+    public function call($action)
     {
         $action = Utils::createLambda($action, 'v,k');
 
-        return new self(function () use ($action) {
+        return new self(function() use ($action) {
             foreach ($this as $k => $v) {
                 $action($v, $k);
                 yield $k => $v;
@@ -1127,7 +1128,7 @@ class Enumerable implements \IteratorAggregate
      * @param callable $action {(v, k) ==> void} The action to invoke for each element in the sequence.
      * @package YaLinqo\Actions
      */
-    public function each ($action = null)
+    public function each($action = null)
     {
         $action = Utils::createLambda($action, 'v,k', Functions::$blank);
 
@@ -1143,7 +1144,7 @@ class Enumerable implements \IteratorAggregate
      * @see implode, echo
      * @package YaLinqo\Actions
      */
-    public function write ($separator = '', $selector = null)
+    public function write($separator = '', $selector = null)
     {
         echo $this->toString($separator, $selector);
     }
@@ -1156,7 +1157,7 @@ class Enumerable implements \IteratorAggregate
      * @see echo, PHP_EOL
      * @package YaLinqo\Actions
      */
-    public function writeLine ($selector = null)
+    public function writeLine($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
