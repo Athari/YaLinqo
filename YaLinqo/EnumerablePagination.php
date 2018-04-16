@@ -319,16 +319,21 @@ trait EnumerablePagination
      * <p><b>Syntax</b>: indexOf (value)
      * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
      * @param mixed $value The value to locate in the sequence.
-     * @return mixed The key of the first occurrence of value, if found; otherwise, null.
+     * @return mixed The key of the first occurrence of value, if found; otherwise, false.
      * @package YaLinqo\Pagination
      */
     public function indexOf($value)
     {
-        foreach ($this as $k => $v) {
-            if ($v === $value)
-                return $k;
+        $array = $this->tryGetArrayCopy();
+        if ($array !== null)
+            return array_search($value, $array, true);
+        else {
+            foreach ($this as $k => $v) {
+                if ($v === $value)
+                    return $k;
+            }
+            return false;
         }
-        return null; // not -1
     }
 
     /**

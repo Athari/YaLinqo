@@ -2146,19 +2146,41 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testIndexOf()
     {
-        // indexOf (value)
+        $i = function($v) { return $v; };
+
+        // array.indexOf (value)
         $this->assertEquals(
-            null,
+            false,
             E::from([])->indexOf('a'));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3 ])->indexOf(2));
+        $this->assertEquals(
+            false,
+            E::from([ 1, 2, 3 ])->indexOf(4));
         $this->assertEquals(
             1,
             E::from([ 1, 2, 3, 2, 1 ])->indexOf(2));
         $this->assertEquals(
             4,
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->indexOf(2));
+
+        // iterator.indexOf (value)
+        $this->assertEquals(
+            false,
+            E::from([])->select($i)->indexOf('a'));
+        $this->assertEquals(
+            1,
+            E::from([ 1, 2, 3 ])->select($i)->indexOf(2));
+        $this->assertEquals(
+            false,
+            E::from([ 1, 2, 3 ])->select($i)->indexOf(4));
+        $this->assertEquals(
+            1,
+            E::from([ 1, 2, 3, 2, 1 ])->select($i)->indexOf(2));
+        $this->assertEquals(
+            4,
+            E::from([ 3 => 1, 2, 2, 'a' => 3 ])->select($i)->indexOf(2));
     }
 
     /** @covers \YaLinqo\Enumerable::lastIndexOf
