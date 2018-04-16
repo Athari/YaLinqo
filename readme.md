@@ -16,7 +16,7 @@
 Features
 ========
 
-* The most complete port of .NET 4 LINQ to PHP, with [many additional methods](#implemented-methods).
+* The most complete port of .NET LINQ to PHP, with [many additional methods](#implemented-methods).
 * Lazy evaluation, error messages and other behavior of original LINQ.
 * [Detailed PHPDoc and online reference](http://athari.github.io/YaLinqo) based on PHPDoc for all methods. Articles are adapted from original LINQ documentation from MSDN.
 * 100% unit test coverage.
@@ -43,7 +43,7 @@ Some methods had to be renamed, because their names are reserved keywords. Origi
 * **Conversion**: toArray, toArrayDeep, toList, toListDeep, toDictionary, toJSON, toLookup, toKeys, toValues, toObject, toString;
 * **Actions**: call (do), each (forEach), write, writeLine.
 
-In total, more than 70 methods.
+In total, more than 80 methods.
 
 Example
 =======
@@ -151,6 +151,7 @@ Requirements
 
 * Version 1: PHP 5.3 or higher.
 * Version 2: PHP 5.5 or higher.
+* Version 3: PHP 7.0 or higher.
 
 Usage
 =====
@@ -160,7 +161,7 @@ Add to `composer.json`:
 ```json
 {
     "require": {
-        "athari/yalinqo": "~2.0"
+        "athari/yalinqo": "^3.0"
     }
 }
 ```
@@ -181,7 +182,7 @@ License
 
 #### Simplified BSD License
 
-Copyright © 2012–2016, Alexander Prokhorov
+Copyright © 2012–2018, Alexander Prokhorov
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
