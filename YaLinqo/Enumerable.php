@@ -71,7 +71,7 @@ class Enumerable implements \IteratorAggregate
      * @link http://php.net/manual/language.types.type-juggling.php Type Juggling
      * @package YaLinqo\Projection and filtering
      */
-    public function cast($type)
+    public function cast(string $type)
     {
         switch ($type) {
             case 'array':
@@ -104,7 +104,7 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A sequence that contains elements from the input sequence of the specified type.
      * @package YaLinqo\Projection and filtering
      */
-    public function ofType($type)
+    public function ofType(string $type)
     {
         switch ($type) {
             case 'array':
@@ -998,7 +998,7 @@ class Enumerable implements \IteratorAggregate
      * @see json_encode
      * @package YaLinqo\Conversion
      */
-    public function toJSON($options = 0)
+    public function toJSON(int $options = 0)
     {
         return json_encode($this->toArrayDeep(), $options);
     }
@@ -1075,7 +1075,7 @@ class Enumerable implements \IteratorAggregate
      * @see implode
      * @package YaLinqo\Conversion
      */
-    public function toString($separator = '', $valueSelector = null)
+    public function toString(string $separator = '', $valueSelector = null)
     {
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', false);
         $array = $valueSelector ? $this->select($valueSelector)->toList() : $this->toList();
@@ -1131,7 +1131,7 @@ class Enumerable implements \IteratorAggregate
      * @see implode, echo
      * @package YaLinqo\Actions
      */
-    public function write($separator = '', $selector = null)
+    public function write(string $separator = '', $selector = null)
     {
         echo $this->toString($separator, $selector);
     }

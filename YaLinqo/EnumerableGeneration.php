@@ -124,7 +124,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function toInfinity($start = 0, $step = 1)
+    public static function toInfinity(int $start = 0, int $step = 1)
     {
         return new self(function() use ($start, $step) {
             $value = $start - $step;
@@ -143,7 +143,7 @@ trait EnumerableGeneration
      * @see preg_match_all
      * @package YaLinqo\Generation
      */
-    public static function matches($subject, $pattern, $flags = PREG_SET_ORDER)
+    public static function matches(string $subject, string $pattern, int $flags = PREG_SET_ORDER)
     {
         return new self(function() use ($subject, $pattern, $flags) {
             preg_match_all($pattern, $subject, $matches, $flags);
@@ -159,7 +159,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function toNegativeInfinity($start = 0, $step = 1)
+    public static function toNegativeInfinity(int $start = 0, int $step = 1)
     {
         return self::toInfinity($start, -$step);
     }
@@ -187,7 +187,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function range($start, $count, $step = 1)
+    public static function range(int $start, int $count, int $step = 1)
     {
         if ($count <= 0)
             return self::emptyEnum();
@@ -209,7 +209,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function rangeDown($start, $count, $step = 1)
+    public static function rangeDown(int $start, int $count, int $step = 1)
     {
         return self::range($start, $count, -$step);
     }
@@ -226,7 +226,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function rangeTo($start, $end, $step = 1)
+    public static function rangeTo(int $start, int $end, $step = 1)
     {
         if ($step <= 0)
             throw new \InvalidArgumentException(Errors::STEP_NEGATIVE);
@@ -275,7 +275,7 @@ trait EnumerableGeneration
      * @see preg_split
      * @package YaLinqo\Generation
      */
-    public static function split($subject, $pattern, $flags = 0)
+    public static function split(string $subject, string $pattern, int $flags = 0)
     {
         return new self(
             new \ArrayIterator(preg_split($pattern, $subject, -1, $flags)),

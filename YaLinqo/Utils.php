@@ -53,7 +53,7 @@ class Utils
      * @throws \InvalidArgumentException Incorrect lambda syntax.
      * @return callable|null
      */
-    public static function createLambda($closure, $closureArgs, $default = null)
+    public static function createLambda($closure, string $closureArgs, $default = null)
     {
         if ($closure === null) {
             if ($default === null)
@@ -133,7 +133,7 @@ class Utils
      * @throws \InvalidArgumentException Incorrect lambda syntax.
      * @return string|null
      */
-    private static function createLambdaFromString($closure, $closureArgs)
+    private static function createLambdaFromString(string $closure, string $closureArgs)
     {
         $posDollar = strpos($closure, '$');
         if ($posDollar !== false) {

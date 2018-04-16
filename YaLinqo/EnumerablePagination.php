@@ -397,7 +397,7 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the elements that occur after the specified index in the input sequence.
      * @package YaLinqo\Pagination
      */
-    public function skip($count)
+    public function skip(int $count)
     {
         return new self(function() use ($count) {
             $it = $this->getIterator();
@@ -444,7 +444,7 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the specified number of elements from the start of the input sequence.
      * @package YaLinqo\Pagination
      */
-    public function take($count)
+    public function take(int $count)
     {
         if ($count <= 0)
             return new self(new \EmptyIterator, false);

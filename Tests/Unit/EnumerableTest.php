@@ -2689,9 +2689,9 @@ class EnumerableTest extends TestCaseEnumerable
     {
         return [
             // write ()
-            [ '', [], null, null ],
-            [ '123', [ 1, 2, 3 ], null, null ],
-            [ '123', [ 1, 'a' => 2, 3 ], null, null ],
+            [ '', [], '', null ],
+            [ '123', [ 1, 2, 3 ], '', null ],
+            [ '123', [ 1, 'a' => 2, 3 ], '', null ],
             // write (separator)
             [ '', [], ', ', null ],
             [ '1, 2, 3', [ 1, 2, 3 ], ', ', null ],

@@ -122,7 +122,7 @@ class OrderedEnumerable extends Enumerable
         return $this->sortByMultipleFields($array, $canMultisort);
     }
 
-    private function trySortBySingleField($array, $canMultisort)
+    private function trySortBySingleField($array, bool $canMultisort)
     {
         if ($this->parent !== null || $array === null) {
             return null;
@@ -149,7 +149,7 @@ class OrderedEnumerable extends Enumerable
         return new \ArrayIterator($array);
     }
 
-    private function sortByMultipleFields($array, $canMultisort)
+    private function sortByMultipleFields($array, bool $canMultisort)
     {
         $orders = [];
         for ($order = $this; $order !== null; $order = $order->parent) {
@@ -166,7 +166,7 @@ class OrderedEnumerable extends Enumerable
         return $this->sortIterator($orders, $canMultisort);
     }
 
-    private function sortIterator($orders, $canMultisort)
+    private function sortIterator(array $orders, bool $canMultisort)
     {
         $enum = [];
         if ($canMultisort)
@@ -178,7 +178,7 @@ class OrderedEnumerable extends Enumerable
             yield $pair[0] => $pair[1];
     }
 
-    private function trySortArrayWithMultisort($array, $orders, $canMultisort)
+    private function trySortArrayWithMultisort($array, array $orders, bool $canMultisort)
     {
         /** @var $order OrderedEnumerable */
         if ($array === null || !$canMultisort)
@@ -202,7 +202,7 @@ class OrderedEnumerable extends Enumerable
         return new \ArrayIterator($array);
     }
 
-    private function sortIteratorWithMultisort(&$enum, $orders)
+    private function sortIteratorWithMultisort(&$enum, array $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v)
@@ -224,7 +224,7 @@ class OrderedEnumerable extends Enumerable
         call_user_func_array('array_multisort', $args);
     }
 
-    private function sortIteratorWithUsort(&$enum, $orders)
+    private function sortIteratorWithUsort(&$enum, array $orders)
     {
         /** @var $order OrderedEnumerable */
         foreach ($this->source as $k => $v) {
