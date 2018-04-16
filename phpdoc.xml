@@ -3,6 +3,10 @@
     <title>YaLinqo</title>
     <parser>
         <target>phpdocs/output</target>
+        <markers>
+            <item>TODO</item>
+        </markers>
+        <visibility>public,protected</visibility>
     </parser>
     <transformer>
         <target>phpdocs/docs</target>
