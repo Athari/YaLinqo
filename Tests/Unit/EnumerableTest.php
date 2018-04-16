@@ -1382,34 +1382,19 @@ class EnumerableTest extends TestCaseEnumerable
     {
         // append (value)
         $this->assertEnumEquals(
-            [ 0 => 9 ],
+            [ null => 9 ],
             E::from([])->append(9));
         $this->assertEnumEquals(
-            [ 0 => 1, 1 => 3, 2 => 9 ],
+            [ 0 => 1, 1 => 3, null => 9 ],
             E::from([ 1, 3 ])->append(9));
-        $this->assertEnumEquals(
-            [ 1 => 1, 0 => 3, 2 => 9 ],
-            E::from([ 1 => 1, 0 => 3 ])->append(9));
 
         // append (value, key)
-        $this->assertEnumEquals(
-            [ null => 9 ],
-            E::from([])->append(9, null));
         $this->assertEnumEquals(
             [ 2 => 9 ],
             E::from([])->append(9, 2));
         $this->assertEnumEquals(
-            [ 0 => 1, 1 => 3, null => 9 ],
-            E::from([ 1, 3 ])->append(9, null));
-        $this->assertEnumEquals(
             [ 0 => 1, 1 => 3, 8 => 9 ],
             E::from([ 1, 3 ])->append(9, 8));
-        $this->assertEnumEquals(
-            [ 1 => 1, 0 => 3, null => 9 ],
-            E::from([ 1 => 1, 0 => 3 ])->append(9, null));
-        $this->assertEnumEquals(
-            [ 1 => 1, 0 => 3, 8 => 9 ],
-            E::from([ 1 => 1, 0 => 3 ])->append(9, 8));
     }
 
     /** @covers \YaLinqo\Enumerable::concat
@@ -1594,34 +1579,19 @@ class EnumerableTest extends TestCaseEnumerable
     {
         // prepend (value)
         $this->assertEnumEquals(
-            [ 9 ],
+            [ null => 9 ],
             E::from([])->prepend(9));
-        $this->assertEnumOrderEquals(
-            [ [ 0, 9 ], [ 0, 1 ], [ 1, 3 ] ],
+        $this->assertEnumEquals(
+            [ null => 9, 0 => 1, 1 => 3 ],
             E::from([ 1, 3 ])->prepend(9));
-        $this->assertEnumOrderEquals(
-            [ [ 0, 9 ], [ 1, 1 ], [ 0, 3 ] ],
-            E::from([ 1 => 1, 0 => 3 ])->prepend(9));
 
         // prepend (value, key)
-        $this->assertEnumEquals(
-            [ null => 9 ],
-            E::from([])->prepend(9, null));
         $this->assertEnumEquals(
             [ 2 => 9 ],
             E::from([])->prepend(9, 2));
         $this->assertEnumEquals(
-            [ null => 9, 0 => 1, 1 => 3 ],
-            E::from([ 1, 3 ])->prepend(9, null));
-        $this->assertEnumEquals(
             [ 8 => 9, 0 => 1, 1 => 3 ],
             E::from([ 1, 3 ])->prepend(9, 8));
-        $this->assertEnumEquals(
-            [ null => 9, 1 => 1, 0 => 3 ],
-            E::from([ 1 => 1, 0 => 3 ])->prepend(9, null));
-        $this->assertEnumEquals(
-            [ 8 => 9, 1 => 1, 0 => 3 ],
-            E::from([ 1 => 1, 0 => 3 ])->prepend(9, 8));
     }
 
     /** @covers \YaLinqo\Enumerable::union

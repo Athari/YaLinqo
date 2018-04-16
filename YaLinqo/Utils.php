@@ -19,7 +19,6 @@ class Utils
     const ERROR_CLOSURE_NULL = 'closure must not be null.';
     const ERROR_CLOSURE_NOT_CALLABLE = 'closure must be callable';
     const ERROR_CANNOT_PARSE_LAMBDA = 'Failed to parse closure as lambda.';
-    const UNDEFINED = '{YaLinqo.Utils.Undefined}';
 
     /** Cache for createLambdaFromString function. Functions indexed by function code and function arguments as strings. @var array */
     private static $lambdaCache;

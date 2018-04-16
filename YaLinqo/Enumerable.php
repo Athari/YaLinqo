@@ -665,7 +665,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * Appends a value to the end of the sequence.
      * <p><b>Syntax</b>: append (other, value)
-     * <p>Appends a value to the end of the sequence with an automatic sequental integer key.
+     * <p>Appends a value to the end of the sequence with null key.
      * <p><b>Syntax</b>: append (other, value, key)
      * <p>Appends a value to the end of the sequence with the specified key.
      * @param mixed $value The value to append.
@@ -673,16 +673,11 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A new sequence that ends with the value.
      * @package YaLinqo\Sets
      */
-    public function append($value, $key = Utils::UNDEFINED)
+    public function append($value, $key = null)
     {
         return new self(function() use ($value, $key) {
-            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
-            foreach ($this as $k => $v)
-                yield $k => $v;
-            if ($key !== Utils::UNDEFINED)
-                yield $key => $value;
-            else
-                yield $value;
+            yield from $this;
+            yield $key => $value;
         });
     }
 
@@ -699,11 +694,8 @@ class Enumerable implements \IteratorAggregate
         $other = self::from($other);
 
         return new self(function() use ($other) {
-            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
-            foreach ($this as $k => $v)
-                yield $k => $v;
-            foreach ($other as $k => $v)
-                yield $k => $v;
+            yield from $this;
+            yield from $other;
         });
     }
 
@@ -820,7 +812,7 @@ class Enumerable implements \IteratorAggregate
     /**
      * Adds a value to the beginning of the sequence.
      * <p><b>Syntax</b>: prepend (other, value)
-     * <p>Adds a value to the beginning of the sequence with an automatic sequental integer key.
+     * <p>Adds a value to the beginning of the sequence with null key.
      * <p><b>Syntax</b>: prepend (other, value, key)
      * <p>Adds a value to the beginning of the sequence with the specified key.
      * @param mixed $value The value to prepend.
@@ -828,16 +820,11 @@ class Enumerable implements \IteratorAggregate
      * @return Enumerable A new sequence that begins with the value.
      * @package YaLinqo\Sets
      */
-    public function prepend($value, $key = Utils::UNDEFINED)
+    public function prepend($value, $key = null)
     {
         return new self(function() use ($value, $key) {
-            if ($key !== Utils::UNDEFINED)
-                yield $key => $value;
-            else
-                yield $value;
-            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
-            foreach ($this as $k => $v)
-                yield $k => $v;
+            yield $key => $value;
+            yield from $this;
         });
     }
 
