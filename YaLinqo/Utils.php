@@ -36,7 +36,7 @@ class Utils
      * @codeCoverageIgnore
      * @internal
      */
-    public static function init(): void
+    public static function init()
     {
         self::$lambdaCache = [
             '$v' => [ 'v,k' => Functions::$value ],

@@ -1115,7 +1115,7 @@ class Enumerable implements \IteratorAggregate
      * @param callable $action {(v, k) ==> void} The action to invoke for each element in the sequence.
      * @package YaLinqo\Actions
      */
-    public function each($action = null): void
+    public function each($action = null)
     {
         $action = Utils::createLambda($action, 'v,k', Functions::$blank);
 
@@ -1131,7 +1131,7 @@ class Enumerable implements \IteratorAggregate
      * @see implode, echo
      * @package YaLinqo\Actions
      */
-    public function write(string $separator = '', $selector = null): void
+    public function write(string $separator = '', $selector = null)
     {
         echo $this->toString($separator, $selector);
     }
@@ -1144,7 +1144,7 @@ class Enumerable implements \IteratorAggregate
      * @see echo, PHP_EOL
      * @package YaLinqo\Actions
      */
-    public function writeLine($selector = null): void
+    public function writeLine($selector = null)
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
