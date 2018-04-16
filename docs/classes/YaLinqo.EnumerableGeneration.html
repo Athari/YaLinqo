@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>YaLinqo</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">YaLinqo</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/YaLinqo.html">\YaLinqo</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-900555188"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-900555188" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1076641439"></a>
+                                <a href="../namespaces/YaLinqo.html" style="margin-left: 30px; padding-left: 0">YaLinqo</a>
+            </div>
+            <div id="namespace-1076641439" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                            <li class="trait"><a href="../classes/YaLinqo.EnumerableGeneration.html">EnumerableGeneration</a></li>
+                                                    <li class="trait"><a href="../classes/YaLinqo.EnumerablePagination.html">EnumerablePagination</a></li>
+                                                                            <li class="class"><a href="../classes/YaLinqo.Enumerable.html">Enumerable</a></li>
+                                                    <li class="class"><a href="../classes/YaLinqo.Errors.html">Errors</a></li>
+                                                    <li class="class"><a href="../classes/YaLinqo.Functions.html">Functions</a></li>
+                                                    <li class="class"><a href="../classes/YaLinqo.OrderedEnumerable.html">OrderedEnumerable</a></li>
+                                                    <li class="class"><a href="../classes/YaLinqo.Utils.html">Utils</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/YaLinqo.html">\YaLinqo</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\YaLinqo</small>EnumerableGeneration</h1>
+                    <p><em>Trait of {@link Enumerable} containing generation methods.</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_cycle" class="">cycle()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_emptyEnum" class="">emptyEnum()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_from" class="">from()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_generate" class="">generate()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_toInfinity" class="">toInfinity()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_matches" class="">matches()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_toNegativeInfinity" class="">toNegativeInfinity()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_returnEnum" class="">returnEnum()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_range" class="">range()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_rangeDown" class="">rangeDown()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_rangeTo" class="">rangeTo()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_repeat" class="">repeat()</a><br />
+                                                                    <a href="../classes/YaLinqo.EnumerableGeneration.html#method_split" class="">split()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">YaLinqo</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\YaLinqo\EnumerableGeneration</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                        
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_cycle" name="method_cycle" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">cycle()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">cycle(array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable  <span class="argument">$source</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Cycles through the source sequence.</em></p>
+                <p><b>Syntax</b>: cycle (source)
+<p>Source keys are discarded.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array|\Iterator|\IteratorAggregate|<a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a></td>
+                                <td>$source </td>
+                                <td><p>Source sequence.</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\InvalidArgumentException</dt>
+                            <dd><p>If source is not array or Traversible or Enumerable.</p></dd>
+                                                    <dt>\UnexpectedValueException</dt>
+                            <dd><p>If source contains no elements (checked during enumeration).</p></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>Endless list of items repeating the source sequence.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_emptyEnum" name="method_emptyEnum" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">emptyEnum()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">emptyEnum() : \YaLinqo\Enumerable</pre>
+                <p><em>Returns an empty sequence.</em></p>
+                <p><b>Syntax</b>: emptyEnum ()
+
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_from" name="method_from" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">from()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">from(array|\Iterator|\IteratorAggregate|\Traversable|\YaLinqo\Enumerable  <span class="argument">$source</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Converts source into Enumerable sequence.</em></p>
+                <p><b>Syntax</b>: from (source)
+<p>Result depends on the type of source:
+<ul>
+<li><b>array</b>: Enumerable from ArrayIterator;
+<li><b>Enumerable</b>: Enumerable source itself;
+<li><b>Iterator</b>: Enumerable from Iterator;
+<li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method;
+<li><b>Traversable</b>: Enumerable from the result of foreach over source.
+</ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array|\Iterator|\IteratorAggregate|\Traversable|<a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a></td>
+                                <td>$source </td>
+                                <td><p>Value to convert into Enumerable sequence.</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\InvalidArgumentException</dt>
+                            <dd><p>If source is not array or Traversible or Enumerable.</p></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generate" name="method_generate" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">generate()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generate(callable  <span class="argument">$funcValue</span>, mixed  <span class="argument">$seedValue = null</span>, callable|null  <span class="argument">$funcKey = null</span>, mixed  <span class="argument">$seedKey = null</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a sequence by mimicking a for loop.</em></p>
+                <p><b>Syntax</b>: generate (funcValue {(v, k) ==> value} [, seedValue [, funcKey {(v, k) ==> key} [, seedKey]]])
+<p>If seedValue is null, the first value will be the result of calling funcValue on seedValue and seedKey. The same applies for seedKey.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>callable</td>
+                                <td>$funcValue </td>
+                                <td><p>{(v, k) ==&gt; value} State update function to run on value after every iteration of the generator loop. Default: value.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$seedValue </td>
+                                <td><p>Initial state of the generator loop for values. Default: null.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>callable|null</td>
+                                <td>$funcKey </td>
+                                <td><p>{(v, k) ==&gt; key} State update function to run on key after every iteration of the generator loop. Default: increment.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$seedKey </td>
+                                <td><p>Initial state of the generator loop ofr keys. Default: 0.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_toInfinity" name="method_toInfinity" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">toInfinity()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">toInfinity(integer  <span class="argument">$start</span>, integer  <span class="argument">$step = 1</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a sequence of integral numbers to infinity.</em></p>
+                <p><b>Syntax</b>: toInfinity ([start [, step]])
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$start </td>
+                                <td><p>The first integer in the sequence. Default: 0.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$step </td>
+                                <td><p>The difference between adjacent integers. Default: 1.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_matches" name="method_matches" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">matches()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">matches(string  <span class="argument">$subject</span>, string  <span class="argument">$pattern</span>, integer  <span class="argument">$flags = PREG_SET_ORDER</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Searches subject for all matches to the regular expression given in pattern and enumerates them in the order specified by flags. After the first match is found, the subsequent searches are continued on from end of the last match.</em></p>
+                <p><b>Syntax</b>: matches (subject, pattern [, flags])
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$subject </td>
+                                <td><p>The input string.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$pattern </td>
+                                <td><p>The pattern to search for, as a string.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$flags </td>
+                                <td><p>Can be a combination of the following flags: PREG_PATTERN_ORDER, PREG_SET_ORDER, PREG_OFFSET_CAPTURE. Default: PREG_SET_ORDER.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">\YaLinqo\preg_match_all</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_toNegativeInfinity" name="method_toNegativeInfinity" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">toNegativeInfinity()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">toNegativeInfinity(integer  <span class="argument">$start</span>, integer  <span class="argument">$step = 1</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a sequence of integral numbers to negative infinity.</em></p>
+                <p><b>Syntax</b>: toNegativeInfinity ([start [, step]])
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$start </td>
+                                <td><p>The first integer in the sequence. Default: 0.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$step </td>
+                                <td><p>The difference between adjacent integers. Default: 1.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_returnEnum" name="method_returnEnum" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">returnEnum()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">returnEnum(mixed  <span class="argument">$element</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Returns a sequence that contains a single element with a specified value.</em></p>
+                <p><b>Syntax</b>: returnEnum (element)
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$element </td>
+                                <td><p>The single element in the resulting sequence.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>Observable sequence containing the single specified element.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_range" name="method_range" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">range()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">range(integer  <span class="argument">$start</span>, integer  <span class="argument">$count</span>, integer  <span class="argument">$step = 1</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a sequence of integral numbers, beginning with start and containing count elements.</em></p>
+                <p><b>Syntax</b>: range (start, count [, step])
+<p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+<p>Example: range(3, 4, 2) = 3, 5, 7, 9.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$start </td>
+                                <td><p>The value of the first integer in the sequence.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$count </td>
+                                <td><p>The number of integers to generate.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$step </td>
+                                <td><p>The difference between adjacent integers. Default: 1.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>A sequence that contains a range of integral numbers.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_rangeDown" name="method_rangeDown" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">rangeDown()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">rangeDown(integer  <span class="argument">$start</span>, integer  <span class="argument">$count</span>, integer  <span class="argument">$step = 1</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a reversed sequence of integral numbers, beginning with start and containing count elements.</em></p>
+                <p><b>Syntax</b>: rangeDown (start, count [, step])
+<p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+<p>Example: rangeDown(9, 4, 2) = 9, 7, 5, 3.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$start </td>
+                                <td><p>The value of the first integer in the sequence.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$count </td>
+                                <td><p>The number of integers to generate.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$step </td>
+                                <td><p>The difference between adjacent integers. Default: 1.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>A sequence that contains a range of integral numbers.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_rangeTo" name="method_rangeTo" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">rangeTo()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">rangeTo(integer  <span class="argument">$start</span>, integer  <span class="argument">$end</span>, integer  <span class="argument">$step = 1</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates a sequence of integral numbers within a specified range from start to end.</em></p>
+                <p><b>Syntax</b>: rangeTo (start, end [, step])
+<p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+<p>Example: rangeTo(3, 9, 2) = 3, 5, 7, 9.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$start </td>
+                                <td><p>The value of the first integer in the sequence.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$end </td>
+                                <td><p>The value of the last integer in the sequence (not included).</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$step </td>
+                                <td><p>The difference between adjacent integers. Default: 1.</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\InvalidArgumentException</dt>
+                            <dd><p>If step is not a positive number.</p></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>A sequence that contains a range of integral numbers.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_repeat" name="method_repeat" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">repeat()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">repeat(integer  <span class="argument">$element</span>, integer  <span class="argument">$count = null</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Generates an sequence that contains one repeated value.</em></p>
+                <p><b>Syntax</b>: repeat (element)
+<p>Generates an endless sequence that contains one repeated value.
+<p><b>Syntax</b>: repeat (element, count)
+<p>Generates a sequence of specified length that contains one repeated value.
+<p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$element </td>
+                                <td><p>The value to be repeated.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$count </td>
+                                <td><p>The number of times to repeat the value in the generated sequence. Default: null.</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\InvalidArgumentException</dt>
+                            <dd><p>If count is less than 0.</p></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                            &mdash; <p>A sequence that contains a repeated value.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_split" name="method_split" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">split()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">split(string  <span class="argument">$subject</span>, string  <span class="argument">$pattern</span>, integer  <span class="argument">$flags</span>) : \YaLinqo\Enumerable</pre>
+                <p><em>Split the given string by a regular expression.</em></p>
+                <p><b>Syntax</b>: split (subject, pattern [, flags])
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$subject </td>
+                                <td><p>The input string.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$pattern </td>
+                                <td><p>The pattern to search for, as a string.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$flags </td>
+                                <td><p>flags can be any combination of the following flags: PREG_SPLIT_NO_EMPTY, PREG_SPLIT_DELIM_CAPTURE, PREG_SPLIT_OFFSET_CAPTURE. Default: 0.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/YaLinqo.Enumerable.html">\YaLinqo\Enumerable</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                    <dt>File</dt>
+                    <dd><a href="../files/EnumerableGeneration.html"><div class="path-wrapper">EnumerableGeneration.php</div></a></dd>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">\YaLinqo\preg_split</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            package
+                        </th>
+                        <td>
+                                                                                            <p>YaLinqo\Generation</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">EnumerableGeneration.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/EnumerableGeneration.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/YaLinqo.html">\YaLinqo</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on April 16th, 2018 at 05:07.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

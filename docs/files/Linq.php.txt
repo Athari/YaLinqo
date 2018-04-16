@@ -1,19 +1,14 @@
 <?php
 
 /**
- * Autoloader and global functions.
+ * Global functions and initialization.
  * @author Alexander Prokhorov
  * @license Simplified BSD
  * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
  */
 
-// @codeCoverageIgnoreStart
-spl_autoload_register(function ($class) {
-    $file = dirname(__DIR__) . '/' . str_replace('\\', '/', $class) . '.php';
-    if (is_file($file))
-        require_once($file);
-});
-// @codeCoverageIgnoreEnd
+\YaLinqo\Functions::init();
+\YaLinqo\Utils::init();
 
 if (!function_exists('from')) {
     /**
@@ -23,7 +18,7 @@ if (!function_exists('from')) {
      * @return \YaLinqo\Enumerable
      * @see \YaLinqo\Enumerable::from
      */
-    function from ($source)
+    function from($source)
     {
         return \YaLinqo\Enumerable::from($source);
     }
