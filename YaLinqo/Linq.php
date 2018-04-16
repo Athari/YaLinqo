@@ -18,7 +18,7 @@ if (!function_exists('from')) {
      * @return \YaLinqo\Enumerable
      * @see \YaLinqo\Enumerable::from
      */
-    function from($source)
+    function from($source): \YaLinqo\Enumerable
     {
         return \YaLinqo\Enumerable::from($source);
     }

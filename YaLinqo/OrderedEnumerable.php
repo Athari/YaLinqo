@@ -70,7 +70,7 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenByDir($sortOrder, $keySelector = null, $comparer = null)
+    public function thenByDir($sortOrder, $keySelector = null, $comparer = null): OrderedEnumerable
     {
         $sortFlags = Utils::lambdaToSortFlagsAndOrder($comparer, $sortOrder);
         $keySelector = Utils::createLambda($keySelector, 'v,k', Functions::$value);
@@ -89,7 +89,7 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenBy($keySelector = null, $comparer = null)
+    public function thenBy($keySelector = null, $comparer = null): OrderedEnumerable
     {
         return $this->thenByDir(false, $keySelector, $comparer);
     }
@@ -104,13 +104,13 @@ class OrderedEnumerable extends Enumerable
      * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
-    public function thenByDescending($keySelector = null, $comparer = null)
+    public function thenByDescending($keySelector = null, $comparer = null): OrderedEnumerable
     {
         return $this->thenByDir(true, $keySelector, $comparer);
     }
 
     /** {@inheritdoc} */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         $canMultisort = $this->sortFlags !== null;
         $array = $this->source->tryGetArrayCopy();

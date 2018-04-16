@@ -25,7 +25,7 @@ trait EnumerableGeneration
      * @return Enumerable Endless list of items repeating the source sequence.
      * @package YaLinqo\Generation
      */
-    public static function cycle($source)
+    public static function cycle($source): Enumerable
     {
         $source = self::from($source);
 
@@ -48,7 +48,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function emptyEnum()
+    public static function emptyEnum(): Enumerable
     {
         return new self(new \EmptyIterator, false);
     }
@@ -69,7 +69,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function from($source)
+    public static function from($source): Enumerable
     {
         $it = null;
         if ($source instanceof Enumerable)
@@ -97,7 +97,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function generate($funcValue, $seedValue = null, $funcKey = null, $seedKey = null)
+    public static function generate($funcValue, $seedValue = null, $funcKey = null, $seedKey = null): Enumerable
     {
         $funcValue = Utils::createLambda($funcValue, 'v,k');
         $funcKey = Utils::createLambda($funcKey, 'v,k', false);
@@ -124,7 +124,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function toInfinity(int $start = 0, int $step = 1)
+    public static function toInfinity(int $start = 0, int $step = 1): Enumerable
     {
         return new self(function() use ($start, $step) {
             $value = $start - $step;
@@ -143,7 +143,7 @@ trait EnumerableGeneration
      * @see preg_match_all
      * @package YaLinqo\Generation
      */
-    public static function matches(string $subject, string $pattern, int $flags = PREG_SET_ORDER)
+    public static function matches(string $subject, string $pattern, int $flags = PREG_SET_ORDER): Enumerable
     {
         return new self(function() use ($subject, $pattern, $flags) {
             preg_match_all($pattern, $subject, $matches, $flags);
@@ -159,7 +159,7 @@ trait EnumerableGeneration
      * @return Enumerable
      * @package YaLinqo\Generation
      */
-    public static function toNegativeInfinity(int $start = 0, int $step = 1)
+    public static function toNegativeInfinity(int $start = 0, int $step = 1): Enumerable
     {
         return self::toInfinity($start, -$step);
     }
@@ -171,7 +171,7 @@ trait EnumerableGeneration
      * @return Enumerable Observable sequence containing the single specified element.
      * @package YaLinqo\Generation
      */
-    public static function returnEnum($element)
+    public static function returnEnum($element): Enumerable
     {
         return self::repeat($element, 1);
     }
@@ -187,7 +187,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function range(int $start, int $count, int $step = 1)
+    public static function range(int $start, int $count, int $step = 1): Enumerable
     {
         if ($count <= 0)
             return self::emptyEnum();
@@ -209,7 +209,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function rangeDown(int $start, int $count, int $step = 1)
+    public static function rangeDown(int $start, int $count, int $step = 1): Enumerable
     {
         return self::range($start, $count, -$step);
     }
@@ -226,7 +226,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
-    public static function rangeTo(int $start, int $end, $step = 1)
+    public static function rangeTo(int $start, int $end, $step = 1): Enumerable
     {
         if ($step <= 0)
             throw new \InvalidArgumentException(Errors::STEP_NEGATIVE);
@@ -255,7 +255,7 @@ trait EnumerableGeneration
      * @return Enumerable A sequence that contains a repeated value.
      * @package YaLinqo\Generation
      */
-    public static function repeat($element, $count = null)
+    public static function repeat($element, $count = null): Enumerable
     {
         if ($count < 0)
             throw new \InvalidArgumentException(Errors::COUNT_LESS_THAN_ZERO);
@@ -275,7 +275,7 @@ trait EnumerableGeneration
      * @see preg_split
      * @package YaLinqo\Generation
      */
-    public static function split(string $subject, string $pattern, int $flags = 0)
+    public static function split(string $subject, string $pattern, int $flags = 0): Enumerable
     {
         return new self(
             new \ArrayIterator(preg_split($pattern, $subject, -1, $flags)),
