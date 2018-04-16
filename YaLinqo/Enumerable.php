@@ -662,6 +662,51 @@ class Enumerable implements \IteratorAggregate
     }
 
     /**
+     * Appends a value to the end of the sequence.
+     * <p><b>Syntax</b>: append (other, value)
+     * <p>Appends a value to the end of the sequence with an automatic sequental integer key.
+     * <p><b>Syntax</b>: append (other, value, key)
+     * <p>Appends a value to the end of the sequence with the specified key.
+     * @param mixed $value The value to append.
+     * @param mixed $key The key of the value to append.
+     * @return Enumerable A new sequence that ends with the value.
+     * @package YaLinqo\Sets
+     */
+    public function append ($value, $key = Utils::UNDEFINED)
+    {
+        return new self(function () use ($value, $key) {
+            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
+            foreach ($this as $k => $v)
+                yield $k => $v;
+            if ($key !== Utils::UNDEFINED)
+                yield $key => $value;
+            else
+                yield $value;
+        });
+    }
+
+    /**
+     * Concatenates two sequences.
+     * <p>This method differs from the {@link union} method because the concat method returns all the original elements in the input sequences. The union method returns only unique elements.
+     * <p><b>Syntax</b>: concat (other)
+     * @param array|\Iterator|\IteratorAggregate|Enumerable $other The sequence to concatenate to the source sequence.
+     * @return Enumerable A sequence that contains the concatenated elements of the two input sequences.
+     * @package YaLinqo\Sets
+     */
+    public function concat ($other)
+    {
+        $other = self::from($other);
+
+        return new self(function () use ($other) {
+            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
+            foreach ($this as $k => $v)
+                yield $k => $v;
+            foreach ($other as $k => $v)
+                yield $k => $v;
+        });
+    }
+
+    /**
      * Determines whether a sequence contains a specified element.
      * <p><b>Syntax</b>: contains (value)
      * <p>Determines whether a sequence contains a specified element. Enumeration is terminated as soon as a matching element is found.
@@ -768,6 +813,30 @@ class Enumerable implements \IteratorAggregate
                 unset($set[$key]);
                 yield $k => $v;
             }
+        });
+    }
+
+    /**
+     * Adds a value to the beginning of the sequence.
+     * <p><b>Syntax</b>: prepend (other, value)
+     * <p>Adds a value to the beginning of the sequence with an automatic sequental integer key.
+     * <p><b>Syntax</b>: prepend (other, value, key)
+     * <p>Adds a value to the beginning of the sequence with the specified key.
+     * @param mixed $value The value to prepend.
+     * @param mixed $key The key of the value to prepend.
+     * @return Enumerable A new sequence that begins with the value.
+     * @package YaLinqo\Sets
+     */
+    public function prepend ($value, $key = Utils::UNDEFINED)
+    {
+        return new self(function () use ($value, $key) {
+            if ($key !== Utils::UNDEFINED)
+                yield $key => $value;
+            else
+                yield $value;
+            // TODO Switch to 'yield from' when support for PHP<7.0 is dropped.
+            foreach ($this as $k => $v)
+                yield $k => $v;
         });
     }
 

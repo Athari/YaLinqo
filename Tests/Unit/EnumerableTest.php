@@ -1376,6 +1376,61 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ -1, -2, -3 ])->select('$v')->any('$v>0'));
     }
 
+    /** @covers YaLinqo\Enumerable::append
+     */
+    function testAppend ()
+    {
+        // append (value)
+        $this->assertEnumEquals(
+            [ 0 => 9 ],
+            E::from([ ])->append(9));
+        $this->assertEnumEquals(
+            [ 0 => 1, 1 => 3, 2 => 9 ],
+            E::from([ 1, 3 ])->append(9));
+        $this->assertEnumEquals(
+            [ 1 => 1, 0 => 3, 2 => 9 ],
+            E::from([ 1 => 1, 0 => 3 ])->append(9));
+
+        // append (value, key)
+        $this->assertEnumEquals(
+            [ null => 9 ],
+            E::from([ ])->append(9, null));
+        $this->assertEnumEquals(
+            [ 2 => 9 ],
+            E::from([ ])->append(9, 2));
+        $this->assertEnumEquals(
+            [ 0 => 1, 1 => 3, null => 9 ],
+            E::from([ 1, 3 ])->append(9, null));
+        $this->assertEnumEquals(
+            [ 0 => 1, 1 => 3, 8 => 9 ],
+            E::from([ 1, 3 ])->append(9, 8));
+        $this->assertEnumEquals(
+            [ 1 => 1, 0 => 3, null => 9 ],
+            E::from([ 1 => 1, 0 => 3 ])->append(9, null));
+        $this->assertEnumEquals(
+            [ 1 => 1, 0 => 3, 8 => 9 ],
+            E::from([ 1 => 1, 0 => 3 ])->append(9, 8));
+    }
+
+    /** @covers YaLinqo\Enumerable::concat
+     */
+    function testConcat ()
+    {
+        // concat ()
+        $this->assertEnumEquals(
+            [ ],
+            E::from([ ])->concat([ ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->concat([ ]));
+        $this->assertEnumEquals(
+            [ 1, 2, 3, 3 ],
+            E::from([ ])->concat([ 1, 2, 3, 3 ]));
+        $this->assertEnumOrderEquals(
+            [ [ 0, 1 ], [ 1, 2 ], [ 2, 2 ], [ 0, 1 ], [ 1, 3 ] ],
+            E::from([ 1, 2, 2 ])->concat([ 1, 3 ]));
+    }
+
     /** @covers YaLinqo\Enumerable::contains
      */
     function testContains ()
@@ -1533,11 +1588,47 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5 ], '$k'));
     }
 
+    /** @covers YaLinqo\Enumerable::prepend
+     */
+    function testPrepend ()
+    {
+        // prepend (value)
+        $this->assertEnumEquals(
+            [ 9 ],
+            E::from([ ])->prepend(9));
+        $this->assertEnumOrderEquals(
+            [ [ 0, 9 ], [ 0, 1 ], [ 1, 3 ] ],
+            E::from([ 1, 3 ])->prepend(9));
+        $this->assertEnumOrderEquals(
+            [ [ 0, 9 ], [ 1, 1 ], [ 0, 3 ] ],
+            E::from([ 1 => 1, 0 => 3 ])->prepend(9));
+
+        // prepend (value, key)
+        $this->assertEnumEquals(
+            [ null => 9 ],
+            E::from([ ])->prepend(9, null));
+        $this->assertEnumEquals(
+            [ 2 => 9 ],
+            E::from([ ])->prepend(9, 2));
+        $this->assertEnumEquals(
+            [ null => 9, 0 => 1, 1 => 3 ],
+            E::from([ 1, 3 ])->prepend(9, null));
+        $this->assertEnumEquals(
+            [ 8 => 9, 0 => 1, 1 => 3 ],
+            E::from([ 1, 3 ])->prepend(9, 8));
+        $this->assertEnumEquals(
+            [ null => 9, 1 => 1, 0 => 3 ],
+            E::from([ 1 => 1, 0 => 3 ])->prepend(9, null));
+        $this->assertEnumEquals(
+            [ 8 => 9, 1 => 1, 0 => 3 ],
+            E::from([ 1 => 1, 0 => 3 ])->prepend(9, 8));
+    }
+
     /** @covers YaLinqo\Enumerable::union
      */
     function testUnion ()
     {
-        // intersect ()
+        // union ()
         $this->assertEnumEquals(
             [ ],
             E::from([ ])->union([ ]));
@@ -1568,7 +1659,7 @@ class EnumerableTest extends TestCaseEnumerable
             [ [ 0, 1 ], [ 1, 2 ], [ 2, 3 ], [ 2, 5 ] ],
             E::from([ 1, 2, 3 ])->union([ 1, 3, 5 ]));
 
-        // intersect (keySelector)
+        // union (keySelector)
         $this->assertEnumEquals(
             [ ],
             E::from([ ])->union([ ], '$k'));

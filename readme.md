@@ -38,7 +38,7 @@ Some methods had to be renamed, because their names are reserved keywords. Origi
 * **Ordering**: orderBy, orderByDescending, orderByDir, thenBy, thenByDescending, thenByDir;
 * **Joining and grouping**: groupJoin, join, groupBy;
 * **Aggregation**: aggregate, aggregateOrDefault, average, count, max, maxBy, min, minBy, sum;
-* **Set**: all, any, contains, distinct, except, intersect, union;
+* **Set**: all, any, append, concat, contains, distinct, except, intersect, prepend, union;
 * **Pagination**: elementAt, elementAtOrDefault, first, firstOrDefault, firstOrFallback, last, lastOrDefault, lastOrFallback, single, singleOrDefault, singleOrFallback, indexOf, lastIndexOf, findIndex, findLastIndex, skip, skipWhile, take, takeWhile;
 * **Conversion**: toArray, toArrayDeep, toList, toListDeep, toDictionary, toJSON, toLookup, toKeys, toValues, toObject, toString;
 * **Actions**: call (do), each (forEach), write, writeLine.
