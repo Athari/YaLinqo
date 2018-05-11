@@ -149,9 +149,9 @@ Array (
 Requirements
 ============
 
-* Version 1: PHP 5.3 or higher.
-* Version 2: PHP 5.5 or higher.
-* Version 3: PHP 7.0 or higher.
+* Version 1 (stable): PHP 5.3 or higher.
+* Version 2 (stable): PHP 5.5 or higher.
+* Version 3 (pre-alpha): PHP 7.0 or higher.
 
 Usage
 =====
@@ -161,7 +161,7 @@ Add to `composer.json`:
 ```json
 {
     "require": {
-        "athari/yalinqo": "^3.0"
+        "athari/yalinqo": "^2.0"
     }
 }
 ```
