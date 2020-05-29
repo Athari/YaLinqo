@@ -2649,6 +2649,24 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString(', ', '"$k=$v"'));
     }
 
+    /** @covers \YaLinqo\Enumerable::jsonSerialize
+     */
+    function testJsonSerialize()
+    {
+        $this->assertEquals(
+            [],
+            E::from([])->jsonSerialize());
+        $this->assertEquals(
+            [ 1, 2, 3 ],
+            E::from([ 1, 2, 3 ])->jsonSerialize());
+        $this->assertEquals(
+            [ 1, 'a' => 2, 3 ],
+            E::from([ 1, 'a' => 2, 3 ])->jsonSerialize());
+        $this->assertEquals(
+            [ 1, 2, 6 => [ 7 => [ 'a' => 'a' ], [ 8 => 4, 5 ] ] ],
+            E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->jsonSerialize());
+    }
+
     #endregion
 
     #region Actions
