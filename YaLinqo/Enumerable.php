@@ -18,7 +18,7 @@ namespace YaLinqo;
  * @see from
  * @package YaLinqo
  */
-class Enumerable implements \IteratorAggregate
+class Enumerable implements \IteratorAggregate, \JsonSerializable
 {
     use EnumerableGeneration;
     use EnumerablePagination;
@@ -1080,6 +1080,18 @@ class Enumerable implements \IteratorAggregate
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', false);
         $array = $valueSelector ? $this->select($valueSelector)->toList() : $this->toList();
         return implode($separator, $array);
+    }
+
+    /**
+     * Alias of toArrayDeep() that enables automatic json serialization when Enumerable is encoded using json_encode().
+     *
+     * @see Enumerable::toArrayDeep
+     * @return array
+     * @package YaLinqo\Conversion
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArrayDeep();
     }
 
     #endregion
