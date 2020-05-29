@@ -13,7 +13,7 @@
 if (!function_exists('from')) {
     /**
      * Create Enumerable from an array or any other traversible source.
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable $source
+     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable|iterable $source
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @return \YaLinqo\Enumerable
      * @see \YaLinqo\Enumerable::from
