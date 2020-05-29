@@ -64,7 +64,7 @@ trait EnumerableGeneration
      * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method;
      * <li><b>Traversable</b>: Enumerable from the result of foreach over source.
      * </ul>
-     * @param array|\Iterator|\IteratorAggregate|\Traversable|Enumerable $source Value to convert into Enumerable sequence.
+     * @param array|\Iterator|\IteratorAggregate|\Traversable|Enumerable|iterable $source Value to convert into Enumerable sequence.
      * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
      * @return Enumerable
      * @package YaLinqo\Generation
