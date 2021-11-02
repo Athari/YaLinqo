@@ -214,8 +214,8 @@ class Enumerable implements \IteratorAggregate
      * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_DESC for ascending (by increasing value), true or SORT_ASC for descending (by decreasing value).
-     * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
-     * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
+     * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
@@ -234,8 +234,8 @@ class Enumerable implements \IteratorAggregate
      * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
      * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
-     * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
-     * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
+     * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
@@ -250,8 +250,8 @@ class Enumerable implements \IteratorAggregate
      * <p>Three methods are defined to extend the type {@link OrderedEnumerable}, which is the return type of this method. These three methods, namely {@link OrderedEnumerable::thenBy thenBy}, {@link OrderedEnumerable::thenByDescending thenByDescending} and {@link OrderedEnumerable::thenByDir thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
      * <p>Because OrderedEnumerable inherits from Enumerable, you can call {@link orderBy}, {@link orderByDescending} or {@link orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
-     * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
-     * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
+     * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return OrderedEnumerable
      * @package YaLinqo\Ordering
      */
@@ -271,10 +271,10 @@ class Enumerable implements \IteratorAggregate
      * <p>The resultSelectorValue and resultSelectorKey functions are called only one time for each outer element together with a collection of all the inner elements that match the outer element. This differs from the {@link join} method, in which the result selector function is invoked on pairs that contain one element from outer and one element from inner. GroupJoin preserves the order of the elements of outer, and for each element of outer, the order of the matching elements from inner.
      * <p>GroupJoin has no direct equivalent in traditional relational database terms. However, this method does implement a superset of inner joins and left outer joins. Both of these operations can be written in terms of a grouped join.
      * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The second (inner) sequence to join to the first (source, outer) sequence.
-     * @param callable|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the first sequence. Default: key.
-     * @param callable|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
-     * @param callable|null $resultSelectorValue {(v, e, k) ==> value} A function to create a result value from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> array(v, e)}.
-     * @param callable|null $resultSelectorKey {(v, e, k) ==> key} A function to create a result key from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
+     * @param callable|string|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the first sequence. Default: key.
+     * @param callable|string|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
+     * @param callable|string|null $resultSelectorValue {(v, e, k) ==> value} A function to create a result value from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> array(v, e)}.
+     * @param callable|string|null $resultSelectorKey {(v, e, k) ==> key} A function to create a result key from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
      * @return Enumerable A sequence that contains elements that are obtained by performing a grouped join on two sequences.
      * @package YaLinqo\Joining and grouping
      */
@@ -305,10 +305,10 @@ class Enumerable implements \IteratorAggregate
      * <p>Join preserves the order of the elements of the source, and for each of these elements, the order of the matching elements of inner.
      * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality. A left outer join operation has no dedicated standard query operator, but can be performed by using the {@link groupJoin} method.
      * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The sequence to join to the source sequence.
-     * @param callable|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
-     * @param callable|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
-     * @param callable|null $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
-     * @param callable|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
+     * @param callable|string|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
+     * @param callable|string|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
+     * @param callable|string|null $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
+     * @param callable|string|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
      * @return Enumerable
      * @package YaLinqo\Joining and grouping
      */
@@ -344,10 +344,10 @@ class Enumerable implements \IteratorAggregate
      * <p><b>Syntax</b>: groupBy (keySelector {(v, k) ==> key}, valueSelector {(v, k) ==> value}, resultSelectorValue {(e, k) ==> value} [, resultSelectorKey {(e, k) ==> key}])
      * <p>Groups the elements of a sequence according to a specified key selector function and creates a result value from each group and its key.
      * <p>For all overloads except the last: the groupBy method returns a sequence of sequences, one inner sequence for each distinct key that was encountered. The outer sequence is yielded in an order based on the order of the elements in source that produced the first key of each inner sequence. Elements in a inner sequence are yielded in the order they appear in source.
-     * @param callable|null $keySelector {(v, k) ==> key} A function to extract the key for each element. Default: key.
-     * @param callable|null $valueSelector {(v, k) ==> value} A function to map each source element to a value in the inner sequence.
-     * @param callable|null $resultSelectorValue {(e, k) ==> value} A function to create a result value from each group.
-     * @param callable|null $resultSelectorKey {(e, k) ==> key} A function to create a result key from each group.
+     * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract the key for each element. Default: key.
+     * @param callable|string|null $valueSelector {(v, k) ==> value} A function to map each source element to a value in the inner sequence.
+     * @param callable|string|null $resultSelectorValue {(e, k) ==> value} A function to create a result value from each group.
+     * @param callable|string|null $resultSelectorKey {(e, k) ==> key} A function to create a result key from each group.
      * @return Enumerable A sequence of sequences indexed by a key.
      * @package YaLinqo\Joining and grouping
      */
