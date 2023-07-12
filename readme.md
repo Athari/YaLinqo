@@ -1,12 +1,8 @@
 # *YaLinqo: Yet Another LINQ to Objects for PHP*
 
-[![Travis CI Status](https://img.shields.io/travis/Athari/YaLinqo.svg)](https://travis-ci.org/Athari/YaLinqo)
 [![Coveralls Coverage](https://img.shields.io/coveralls/Athari/YaLinqo/master.svg)](https://coveralls.io/r/Athari/YaLinqo)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Athari/YaLinqo.svg)](https://scrutinizer-ci.com/g/Athari/YaLinqo)
-[![SensioLabs Insight Check](https://img.shields.io/sensiolabs/i/d1273f86-85e3-4076-a037-a40062906329.svg)](https://insight.sensiolabs.com/projects/d1273f86-85e3-4076-a037-a40062906329)
-[![VersionEye Dependencies](https://www.versioneye.com/php/athari:yalinqo/badge.svg)](https://www.versioneye.com/php/athari:yalinqo)<br>
 [![Packagist Downloads](https://img.shields.io/packagist/dt/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
-[![VersionEye References](https://www.versioneye.com/php/athari:yalinqo/reference_badge.svg)](https://www.versioneye.com/php/athari:yalinqo/references)
 [![Packagist Version](https://img.shields.io/packagist/v/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
 [![GitHub License](https://img.shields.io/github/license/Athari/YaLinqo.svg)](license.md)
 
@@ -21,7 +17,7 @@ Features
 * [Detailed PHPDoc and online reference](http://athari.github.io/YaLinqo) based on PHPDoc for all methods. Articles are adapted from original LINQ documentation from MSDN.
 * 100% unit test coverage.
 * Best performance among full-featured LINQ ports (YaLinqo, Ginq, Pinq), at least 2x faster than the closest competitor, see [performance tests](https://github.com/Athari/YaLinqoPerf).
-* Callback functions can be specified as closures (like `function ($v) { return $v; }`), PHP "function pointers" (either strings like `'strnatcmp'` or arrays like `array($object, 'methodName')`), string "lambdas" using various syntaxes (`'"$k = $v"'`, `'$v ==> $v+1'`, `'($v, $k) ==> $v + $k'`, `'($v, $k) ==> { return $v + $k; }'`).
+* Callback functions can be specified as arrow functions (like `fn($v) => $v`) closures (like `function ($v) { return $v; }`), PHP "function pointers" (either strings like `'strnatcmp'` or arrays like `array($object, 'methodName')`), string "lambdas" using various syntaxes (`'"$k = $v"'`, `'$v ==> $v+1'`, `'($v, $k) ==> $v + $k'`, `'($v, $k) ==> { return $v + $k; }'`).
 * Keys are as important as values. Most callback functions receive both values and the keys; transformations can be applied to both values and the keys; keys are never lost during transformations, if possible.
 * SPL interfaces `Iterator`, `IteratorAggregate` etc. are used throughout the code and can be used interchangeably with Enumerable.
 * Redundant collection classes are avoided, native PHP arrays are used everywhere.
@@ -71,6 +67,24 @@ $categories = array(
 // Put products with non-zero quantity into matching categories;
 // sort categories by name;
 // sort products within categories by quantity descending, then by name.
+
+// Arrow function syntax
+$result3 = from($categories)
+    ->orderBy(fn($cat) => $cat['name'])
+    ->groupJoin(
+        from($products)
+            ->where(fn($prod) => $prod["quantity"] > 0)
+            ->orderByDescending(fn($prod) => $prod["quantity"])
+            ->thenBy(fn => $prod["name"]),
+        fn($cat) => $cat["id"],
+        fn($prod) => $prod["catId"],
+        fn($cat, $prods) => [
+            "name" => $cat["name"],
+            "products" => $prods
+        ]
+    );
+
+// String lambda syntax
 $result = from($categories)
     ->orderBy('$cat ==> $cat["name"]')
     ->groupJoin(
@@ -85,7 +99,7 @@ $result = from($categories)
         )'
     );
 
-// Alternative shorter syntax using default variable names
+// String lambda syntax with default variable names
 $result2 = from($categories)
     ->orderBy('$v["name"]')
     ->groupJoin(
@@ -100,7 +114,7 @@ $result2 = from($categories)
         )'
     );
 
-// Closure syntax, maximum support in IDEs, but verbose and hard to read
+// Closure syntax
 $result3 = from($categories)
     ->orderBy(function ($cat) { return $cat['name']; })
     ->groupJoin(
@@ -181,7 +195,7 @@ License
 
 #### Simplified BSD License
 
-Copyright © 2012–2016, Alexander Prokhorov
+Copyright © 2012–2023, Alexander Prokhorov
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
