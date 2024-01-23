@@ -47,6 +47,7 @@ class Enumerable implements \IteratorAggregate
      * {@inheritdoc}
      * @return \Iterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator ()
     {
         return $this->iterator;
