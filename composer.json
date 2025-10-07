@@ -40,8 +40,5 @@
         "branch-alias": {
             "dev-master": "2.x-dev"
         }
-    },
-    "conflict": {
-        "phpunit/php-timer": ">=2"
     }
 }
