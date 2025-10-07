@@ -137,10 +137,10 @@ Versions
 | **2.x** (2014) |
 | ​    2.0−2.4    | legacy      | 5.5−7.4 | • Rewrite using PHP 5.5 generators<br>• Causes deprecation warnings in PHP 7.2+ due to use of `create_function` |
 | ​    2.5+       | maintenance | 5.5+    | • Switched from `create_function` to `eval` for string lambdas<br>• May cause security analysis warnings due to use of `eval` |
-| **3.x** (2025) |
-| ​    3.0        | abandoned   | 7.0−7.4 | • Abandoned rewrite with perfomance improvements<br>• Released with performance-related changes dropped. |
-| **4.x**        |
-| ​    4.0        | planned     | 8.0+ (?)| • PHP 8.0 support, strong types everywhere, string lambdas nuked from existence. |
+| **3.x** (2018) |
+| ​    3.0        | abandoned   | 7.0−7.4 | • Abandoned rewrite with perfomance improvements<br>• Released 7 years later with performance-related changes dropped |
+| **4.x** (2025) |
+| ​    4.0        | planned     | 8.0+ (?)| • PHP 8.0 support, strong types everywhere, string lambdas nuked from existence |
 
 Usage
 =====
