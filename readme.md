@@ -3,10 +3,7 @@
 [![Travis CI Status](https://img.shields.io/travis/Athari/YaLinqo.svg)](https://travis-ci.org/Athari/YaLinqo)
 [![Coveralls Coverage](https://img.shields.io/coveralls/Athari/YaLinqo/master.svg)](https://coveralls.io/r/Athari/YaLinqo)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Athari/YaLinqo.svg)](https://scrutinizer-ci.com/g/Athari/YaLinqo)
-[![SensioLabs Insight Check](https://img.shields.io/sensiolabs/i/d1273f86-85e3-4076-a037-a40062906329.svg)](https://insight.sensiolabs.com/projects/d1273f86-85e3-4076-a037-a40062906329)
-[![VersionEye Dependencies](https://www.versioneye.com/php/athari:yalinqo/badge.svg)](https://www.versioneye.com/php/athari:yalinqo)<br>
 [![Packagist Downloads](https://img.shields.io/packagist/dt/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
-[![VersionEye References](https://www.versioneye.com/php/athari:yalinqo/reference_badge.svg)](https://www.versioneye.com/php/athari:yalinqo/references)
 [![Packagist Version](https://img.shields.io/packagist/v/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)
 [![GitHub License](https://img.shields.io/github/license/Athari/YaLinqo.svg)](license.md)
 
@@ -21,9 +18,9 @@ Features
 * [Detailed PHPDoc and online reference](http://athari.github.io/YaLinqo) based on PHPDoc for all methods. Articles are adapted from original LINQ documentation from MSDN.
 * 100% unit test coverage.
 * Best performance among full-featured LINQ ports (YaLinqo, Ginq, Pinq), at least 2x faster than the closest competitor, see [performance tests](https://github.com/Athari/YaLinqoPerf).
-* Callback functions can be specified as closures (like `function ($v) { return $v; }`), PHP "function pointers" (either strings like `'strnatcmp'` or arrays like `array($object, 'methodName')`), string "lambdas" using various syntaxes (`'"$k = $v"'`, `'$v ==> $v+1'`, `'($v, $k) ==> $v + $k'`, `'($v, $k) ==> { return $v + $k; }'`).
+* Callback functions can be specified as arrow functions (`fn($v) => $v`), first-class callables (`strnatcmp(...)`) or any other [PHP callables](https://www.php.net/manual/language.types.callable.php).
 * Keys are as important as values. Most callback functions receive both values and the keys; transformations can be applied to both values and the keys; keys are never lost during transformations, if possible.
-* SPL interfaces `Iterator`, `IteratorAggregate` etc. are used throughout the code and can be used interchangeably with Enumerable.
+* SPL interfaces `Iterator`, `IteratorAggregate` etc. are used throughout the code and can be used interchangeably with `Enumerable`.
 * Redundant collection classes are avoided, native PHP arrays are used everywhere.
 * Composer support ([package](https://packagist.org/packages/athari/yalinqo) on Packagist).
 * No external dependencies.
@@ -52,70 +49,54 @@ Example
 
 ```php
 // Data
-$products = array(
-    array('name' => 'Keyboard',    'catId' => 'hw', 'quantity' =>  10, 'id' => 1),
-    array('name' => 'Mouse',       'catId' => 'hw', 'quantity' =>  20, 'id' => 2),
-    array('name' => 'Monitor',     'catId' => 'hw', 'quantity' =>   0, 'id' => 3),
-    array('name' => 'Joystick',    'catId' => 'hw', 'quantity' =>  15, 'id' => 4),
-    array('name' => 'CPU',         'catId' => 'hw', 'quantity' =>  15, 'id' => 5),
-    array('name' => 'Motherboard', 'catId' => 'hw', 'quantity' =>  11, 'id' => 6),
-    array('name' => 'Windows',     'catId' => 'os', 'quantity' => 666, 'id' => 7),
-    array('name' => 'Linux',       'catId' => 'os', 'quantity' => 666, 'id' => 8),
-    array('name' => 'Mac',         'catId' => 'os', 'quantity' => 666, 'id' => 9),
-);
-$categories = array(
-    array('name' => 'Hardware',          'id' => 'hw'),
-    array('name' => 'Operating systems', 'id' => 'os'),
-);
+$products = [
+    ['name' => 'Keyboard', 'catId' => 'hw', 'quantity' => 10, 'id' => 1],
+    ['name' => 'Mouse', 'catId' => 'hw', 'quantity' => 20, 'id' => 2],
+    ['name' => 'Monitor', 'catId' => 'hw', 'quantity' => 0, 'id' => 3],
+    ['name' => 'Joystick', 'catId' => 'hw', 'quantity' => 15, 'id' => 4],
+    ['name' => 'CPU', 'catId' => 'hw', 'quantity' => 15, 'id' => 5],
+    ['name' => 'Motherboard', 'catId' => 'hw', 'quantity' => 11, 'id' => 6],
+    ['name' => 'Windows', 'catId' => 'os', 'quantity' => 666, 'id' => 7],
+    ['name' => 'Linux', 'catId' => 'os', 'quantity' => 666, 'id' => 8],
+    ['name' => 'Mac', 'catId' => 'os', 'quantity' => 666, 'id' => 9],
+];
+$categories = [
+    ['name' => 'Hardware', 'id' => 'hw'],
+    ['name' => 'Operating systems', 'id' => 'os'],
+];
 
 // Put products with non-zero quantity into matching categories;
 // sort categories by name;
 // sort products within categories by quantity descending, then by name.
 $result = from($categories)
-    ->orderBy('$cat ==> $cat["name"]')
+    ->orderBy(fn($cat) => $cat['name'])
     ->groupJoin(
         from($products)
-            ->where('$prod ==> $prod["quantity"] > 0')
-            ->orderByDescending('$prod ==> $prod["quantity"]')
-            ->thenBy('$prod ==> $prod["name"]'),
-        '$cat ==> $cat["id"]', '$prod ==> $prod["catId"]',
-        '($cat, $prods) ==> array(
-            "name" => $cat["name"],
-            "products" => $prods
-        )'
+            ->where(fn($prod) => $prod['quantity'] > 0)
+            ->orderByDescending(fn($prod) => $prod['quantity'])
+            ->thenBy(fn($prod) => $prod['name'], 'strnatcasecmp'),
+        fn($cat) => $cat['id'],
+        fn($prod) => $prod['catId'],
+        fn($cat, $prods) => [
+            'name' => $cat['name'],
+            'products' => $prods
+        ]
     );
 
-// Alternative shorter syntax using default variable names
-$result2 = from($categories)
-    ->orderBy('$v["name"]')
+// More verbose syntax with argument names:
+$result = Enumerable::from($categories)
+    ->orderBy(keySelector: fn($cat) => $cat['name'])
     ->groupJoin(
-        from($products)
-            ->where('$v["quantity"] > 0')
-            ->orderByDescending('$v["quantity"]')
-            ->thenBy('$v["name"]'),
-        '$v["id"]', '$v["catId"]',
-        'array(
-            "name" => $v["name"],
-            "products" => $e
-        )'
-    );
-
-// Closure syntax, maximum support in IDEs, but verbose and hard to read
-$result3 = from($categories)
-    ->orderBy(function ($cat) { return $cat['name']; })
-    ->groupJoin(
-        from($products)
-            ->where(function ($prod) { return $prod["quantity"] > 0; })
-            ->orderByDescending(function ($prod) { return $prod["quantity"]; })
-            ->thenBy(function ($prod) { return $prod["name"]; }),
-        function ($cat) { return $cat["id"]; },
-        function ($prod) { return $prod["catId"]; },
-        function ($cat, $prods) {
-            return array(
-                "name" => $cat["name"],
-                "products" => $prods
-            );
-        }
+        inner: from($products)
+            ->where(predicate: fn($prod) => $prod['quantity'] > 0)
+            ->orderByDescending(keySelector: fn($prod) => $prod['quantity'])
+            ->thenBy(keySelector: fn($prod) => $prod['name'], comparer: strnatcasecmp(...)),
+        outerKeySelector: fn($cat) => $cat['id'],
+        innerKeySelector: fn($prod) => $prod['catId'],
+        resultSelectorValue: fn($cat, $prods) => [
+            'name' => $cat['name'],
+            'products' => $prods
+        ]
     );
 
 print_r($result->toArrayDeep());
@@ -146,12 +127,20 @@ Array (
 )
 ```
 
-Requirements
-============
+Versions
+========
 
-* Version 1 (stable): PHP 5.3 or higher.
-* Version 2 (stable): PHP 5.5 or higher.
-* Version 3 (pre-alpha): PHP 7.0 or higher.
+| Version        | Status      | PHP     | Notes |
+|----------------|-------------|---------|-------|
+| **1.x** (2012) |
+| ​    1.0−1.1    | legacy      | 5.3−7.4 | • Manually implemented iterators |
+| **2.x** (2014) |
+| ​    2.0−2.4    | legacy      | 5.5−7.4 | • Rewrite using PHP 5.5 generators<br>• Causes deprecation warnings in PHP 7.2+ due to use of `create_function` |
+| ​    2.5+       | maintenance | 5.5+    | • Switched from `create_function` to `eval` for string lambdas<br>• May cause security analysis warnings due to use of `eval` |
+| **3.x** (2025) |
+| ​    3.0        | abandoned   | 7.0−7.4 | • Abandoned rewrite with perfomance improvements<br>• Released with performance-related changes dropped. |
+| **4.x**        |
+| ​    4.0        | planned     | 8.0+ (?)| • PHP 8.0 support, strong types everywhere, string lambdas nuked from existence. |
 
 Usage
 =====
@@ -173,16 +162,40 @@ require_once 'vendor/autoloader.php';
 use \YaLinqo\Enumerable;
 
 // 'from' can be called as a static method or via a global function shortcut
-Enumerable::from(array(1, 2, 3));
-from(array(1, 2, 3));
+Enumerable::from([1, 2, 3]);
+from([1, 2, 3]);
 ```
+
+Legacy information
+==================
+
+Legacy features
+---------------
+
+* (**Versions 1.0−2.5**) Callback functions can be specified as "string lambdas" using various syntaxes:
+    * `'"$k = $v"'` (implicit `$v` and `$k` arguments, implicit return)
+    * `'$v ==> $v + 1'` (like a modern arrow function, but without `fn` and with a longer arrow)
+    * `'($v, $k) ==> $v + $k'` (explicit arguments, implicit return)
+    * `'($v, $k) ==> { return $v + $k; }'` (explicit arguments, explicit return within a block)
+
+> [!NOTE]
+>
+> Before arrow functions were added in PHP 7.4, the choice was between the ridiculously verbose anonymous function syntax (`function ($value) { return $value['key']; }`) and rolling your own lambda syntax (like `$v ==> $v["key"]`). This is why "string lambdas" were a necessity at the time.
+
+> [!CAUTION]
+>
+> When using legacy versions of YaLinqo and PHP, you:
+>
+> 1. **MUST NOT** use user-provided strings to construct string lambdas;
+> 2. **SHOULD NOT** dynamically construct string lambdas in general.
+>
+> When all your string lambdas are *single-quoted string constants*, there's no security risk in using them. If you're still paranoid about `eval`, just never use string lambdas.
 
 License
 =======
 
-[**Simplified BSD License**](license.md)  
-Copyright © 2012–2018, Alexander Prokhorov  
-All rights reserved.
+[**Simplified BSD License**](license.md)<br>
+Copyright © 2012–2025, Alexander Prokhorov
 
 Links
 =====
@@ -199,7 +212,7 @@ Links
   * [LINQ for PHP: speed matters](http://habrahabr.ru/post/259155/) — performance comparison of full-featured LINQ ports (YaLinqo, Ginq, Pinq).
 
 * **Other** *(English):*
-  * Tute Wall: [How to use Linq in PHP](http://tutewall.com/how-to-use-linq-in-php-part-01/) by *Mr. X* — a series of posts covering basic usage of YaLinqo. 
+  * Tute Wall: [How to use Linq in PHP](http://tutewall.com/how-to-use-linq-in-php-part-01/) by *Mr. X* — a series of posts covering basic usage of YaLinqo.
 
 ### Related projects
 
@@ -208,3 +221,11 @@ Links
 * [**Underscore.php**](http://brianhaveri.github.com/Underscore.php/) — port of Underscore.js to PHP.
 * [**RxPHP**](https://github.com/ReactiveX/RxPHP) — reactive (push) counterpart of the active (pull) LINQ, port of Rx.NET.
 * [**YaLinqoPerf**](https://github.com/Athari/YaLinqoPerf) — collection of performance tests comparing raw PHP, array functions, YaLinqo, YaLinqo with string lambdas, Ginq, Ginq with property accessors, Pinq.
+
+### PHP
+
+* Dead PHP RFCs:
+  * [Short Closures 2.0](https://wiki.php.net/rfc/auto-capture-closure) — support for multi-statement arrow functions declined, 2 votes short.
+  * [Add `array_group` function](https://wiki.php.net/rfc/array_column_results_grouping) — grouping won't be optimized by using a built-in function.
+  * [Partial function application](https://wiki.php.net/rfc/partial_function_application) — imagine pipe operator being actually useful... nah, not happening.
+  * [Pipe operator v3](https://wiki.php.net/rfc/pipe-operator-v3) ([v2](https://wiki.php.net/rfc/pipe-operator-v2), [v1](https://wiki.php.net/rfc/pipe-operator)) — took 3 RFCs and 10 years, but we've finally arrived at... the least useful and the most verbose pipe syntax on the planet... yay?

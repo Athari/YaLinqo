@@ -96,13 +96,14 @@ trait EnumerableGeneration
      * @param mixed $seedKey Initial state of the generator loop ofr keys. Default: 0.
      * @return Enumerable
      * @package YaLinqo\Generation
+     * @suppress php0420
      */
     public static function generate($funcValue, $seedValue = null, $funcKey = null, $seedKey = null): Enumerable
     {
         $funcValue = Utils::createLambda($funcValue, 'v,k');
         $funcKey = Utils::createLambda($funcKey, 'v,k', false);
 
-        return new self(function() use ($funcValue, $funcKey, $seedValue, $seedKey) {
+        return new self(function() use ($funcValue, $funcKey, $seedValue, $seedKey) { // phpcs:ignore php0420
             $key = $seedKey === null ? ($funcKey ? $funcKey($seedValue, $seedKey) : 0) : $seedKey;
             $value = $seedValue === null ? $funcValue($seedValue, $seedKey) : $seedValue;
             yield $key => $value;
@@ -123,6 +124,7 @@ trait EnumerableGeneration
      * @param int $step The difference between adjacent integers. Default: 1.
      * @return Enumerable
      * @package YaLinqo\Generation
+     * @suppress php0420
      */
     public static function toInfinity(int $start = 0, int $step = 1): Enumerable
     {

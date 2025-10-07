@@ -325,14 +325,16 @@ trait EnumerablePagination
     public function indexOf($value)
     {
         $array = $this->tryGetArrayCopy();
-        if ($array !== null)
-            return array_search($value, $array, true);
+        if ($array !== null) {
+            $keys = array_keys($array, $value, true);
+            return count($keys) > 0 ? $keys[0] : null;
+        }
         else {
             foreach ($this as $k => $v) {
                 if ($v === $value)
                     return $k;
             }
-            return false;
+            return null;
         }
     }
 

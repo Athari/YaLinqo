@@ -1,6 +1,6 @@
 ## BSD 2-Clause "Simplified" License
 
-Copyright (c) 2012–2016, Alexander Prokhorov
+Copyright (c) 2012–2025, Alexander Prokhorov
 *All rights reserved.*
 
 Redistribution and use in source and binary forms, with or without

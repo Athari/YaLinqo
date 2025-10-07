@@ -1140,7 +1140,7 @@ class Enumerable implements \IteratorAggregate
      * Output all the sequence values, with a new line after each element.
      * <p><b>Syntax</b>: writeLine ([selector])
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @return string
+     * @return void
      * @see echo, PHP_EOL
      * @package YaLinqo\Actions
      */
