@@ -15,15 +15,15 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testCycle()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 1, 1 ],
             E::cycle([ 1 ]),
             3);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 1, 2 ],
             E::cycle([ 1, 2, 3 ]),
             5);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 1, 2 ],
             E::cycle([ 'a' => 1, 'b' => 2 ]),
             4);
@@ -43,7 +43,7 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testEmptyEnum()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::emptyEnum());
     }
@@ -53,16 +53,16 @@ class EnumerableTest extends TestCaseEnumerable
     function testFrom_array()
     {
         // from (array)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 'a' => 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 'a' => 2, '3', true ],
             E::from([ 1, 'a' => 2, '3', true ]));
 
@@ -78,10 +78,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testFrom_enumerable()
     {
         // from (Enumerable)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from(E::emptyEnum()));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from(E::cycle([ 1, 2 ])),
             2);
@@ -92,10 +92,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testFrom_iterator()
     {
         // from (Iterator)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from(new \EmptyIterator));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from(new \ArrayIterator([ 1, 2 ])));
 
@@ -113,10 +113,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testFrom_iteratorAggregate()
     {
         // from (IteratorAggregate)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from(new AggregateIteratorWrapper(new \EmptyIterator)));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from(new AggregateIteratorWrapper(new \ArrayIterator([ 1, 2 ]))));
 
@@ -134,10 +134,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testFrom_SimpleXMLElement()
     {
         // from (SimpleXMLElement)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from(new \SimpleXMLElement('<r></r>')));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 'h', 'h', 'g' ],
             E::from(new \SimpleXMLElement('<r><h/><h/><g/></r>'))->select('$k'));
     }
@@ -172,35 +172,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testGenerate()
     {
         // generate (funcValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 0, 0, 0 ],
             E::generate('$v==>0'),
             4);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2, 4, 6, 8 ],
             E::generate('$v+2'),
             4);
 
         // generate (funcValue, seedValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 2, 4, 6 ],
             E::generate('$v+2', 0),
             4);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 4, 8 ],
             E::generate('$v*2', 1),
             4);
 
         // generate (funcValue, seedValue, funcKey, seedKey)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4 ],
             E::generate('$k+2', 1, null, 0),
             4);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => 2, 6 => 4, 9 => 6 ],
             E::generate('$v+2', null, '$k+3', null),
             3);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 1, 5 => 3, 8 => 5 ],
             E::generate('$v+2', 1, '$k+3', 2),
             3);
@@ -211,17 +211,17 @@ class EnumerableTest extends TestCaseEnumerable
     function testGenerate_meaningful()
     {
         // Partial sums
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 1, 3, 6, 10, 15 ],
             E::generate('$k+$v', 0, null, 0)->skip(1)->toValues(),
             6);
         // Fibonacci
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 1, 2, 3, 5, 8 ],
             E::generate('[ $v[1], $v[0]+$v[1] ]', [ 0, 1 ])->select('$v[1]'),
             6);
         // Fibonacci
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 1, 2, 3, 5, 8 ],
             E::generate('$k+$v', 1, '$v', 1)->toKeys(),
             6);
@@ -232,23 +232,23 @@ class EnumerableTest extends TestCaseEnumerable
     function testToInfinity()
     {
         // toInfinity ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 1, 2, 3 ],
             E::toInfinity(),
             4);
 
         // toInfinity (start)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 4, 5, 6 ],
             E::toInfinity(3),
             4);
 
         // toInfinity (start, step)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 5, 7, 9 ],
             E::toInfinity(3, 2),
             4);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 1, -1, -3 ],
             E::toInfinity(3, -2),
             4);
@@ -259,19 +259,19 @@ class EnumerableTest extends TestCaseEnumerable
     function testMatches()
     {
         // without matches
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::matches('abc def', '#\d+#'));
         // with matches, without groups
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ '123' ], [ '22' ] ],
             E::matches('a123 22', '#\d+#'));
         // with matches, with groups
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ '123', '1' ], [ '22', '2' ] ],
             E::matches('a123 22', '#(\d)\d*#'));
         // with matches, with groups, pattern order
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ '123', '22' ], [ '1', '2' ] ],
             E::matches('a123 22', '#(\d)\d*#', PREG_PATTERN_ORDER));
     }
@@ -281,23 +281,23 @@ class EnumerableTest extends TestCaseEnumerable
     function testToNegativeInfinity()
     {
         // toNegativeInfinity ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, -1, -2, -3 ],
             E::toNegativeInfinity(),
             4);
 
         // toNegativeInfinity (start)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -4, -5, -6 ],
             E::toNegativeInfinity(-3),
             4);
 
         // toNegativeInfinity (start, step)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -5, -7, -9 ],
             E::toNegativeInfinity(-3, 2),
             4);
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -1, 1, 3 ],
             E::toNegativeInfinity(-3, -2),
             4);
@@ -307,13 +307,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testReturnEnum()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 ],
             E::returnEnum(1));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ true ],
             E::returnEnum(true));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ null ],
             E::returnEnum(null));
     }
@@ -323,21 +323,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testRange()
     {
         // range (start, count)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::range(3, 0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::range(3, -1));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 4, 5, 6 ],
             E::range(3, 4));
 
         // range (start, count, step)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 5, 7, 9 ],
             E::range(3, 4, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 1, -1, -3 ],
             E::range(3, 4, -2));
     }
@@ -347,21 +347,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testRangeDown()
     {
         // rangeDown (start, count)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::rangeDown(-3, 0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::rangeDown(-3, -1));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -4, -5, -6 ],
             E::rangeDown(-3, 4));
 
         // rangeDown (start, count, step)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -5, -7, -9 ],
             E::rangeDown(-3, 4, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -1, 1, 3 ],
             E::rangeDown(-3, 4, -2));
     }
@@ -371,21 +371,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testRangeTo()
     {
         // rangeTo (start, end)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::rangeTo(3, 3));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 4, 5, 6 ],
             E::rangeTo(3, 7));
 
         // rangeTo (start, end, step)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 5, 7, 9 ],
             E::rangeTo(3, 10, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -4, -5, -6 ],
             E::rangeTo(-3, -7));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ -3, -5, -7, -9 ],
             E::rangeTo(-3, -10, 2));
     }
@@ -411,19 +411,19 @@ class EnumerableTest extends TestCaseEnumerable
     function testRepeat()
     {
         // repeat (element)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 3, 3, 3 ],
             E::repeat(3),
             4);
 
         // repeat (element, count)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 3, 3, 3 ],
             E::repeat(3, 4));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ true, true ],
             E::repeat(true, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::repeat(3, 0));
     }
@@ -441,19 +441,19 @@ class EnumerableTest extends TestCaseEnumerable
     function testSplit()
     {
         // without empty
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '123 4 44' ],
             E::split('123 4 44', '#, ?#'));
         // with empty
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '123', '4', '44', '' ],
             E::split('123,4, 44,', '#, ?#'));
         // with empty, empty skipped
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '123', '4', '44' ],
             E::split('123,4, 44,', '#, ?#', PREG_SPLIT_NO_EMPTY));
         // with empty, empty skipped, no results
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::split(',', '#, ?#', PREG_SPLIT_NO_EMPTY));
     }
@@ -477,38 +477,38 @@ class EnumerableTest extends TestCaseEnumerable
         };
 
         // cast (empty)
-        $this->assertEnumValuesEquals([], E::from([])->cast('array'));
+        $this->assertEnumValuesSame([], E::from([])->cast('array'));
 
         // cast (array)
         $sourceArrays = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c ];
         $expectedArrays = [ [], [ 1 ], [ 1.2 ], [ '1.3' ], [ 'abc' ], [ true ], [ false ], [], [ 1 => 2 ], [ 'a' => 'b' ], [ 'c' => 'd' ] ];
-        $this->assertEnumValuesEquals($expectedArrays, from($sourceArrays)->cast('array'));
+        $this->assertEnumValuesSame($expectedArrays, from($sourceArrays)->cast('array'));
 
         // cast (int)
         $sourceInts = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ] ];
         $expectedInts = [ 0, 1, 1, 1, 0, 1, 0, 0, 1, 1 ];
-        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('int'));
-        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('integer'));
-        $this->assertEnumValuesEquals($expectedInts, from($sourceInts)->cast('long'));
+        $this->assertEnumValuesSame($expectedInts, from($sourceInts)->cast('int'));
+        $this->assertEnumValuesSame($expectedInts, from($sourceInts)->cast('integer'));
+        $this->assertEnumValuesSame($expectedInts, from($sourceInts)->cast('long'));
 
         // cast (float)
         $sourceFloats = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ] ];
-        $expectedFloats = [ 0, 1, 1.2, 1.3, 0, 1, 0, 0, 1, 1 ];
-        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('float'));
-        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('real'));
-        $this->assertEnumValuesEquals($expectedFloats, from($sourceFloats)->cast('double'));
+        $expectedFloats = [ 0.0, 1.0, 1.2, 1.3, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0 ];
+        $this->assertEnumValuesSame($expectedFloats, from($sourceFloats)->cast('float'));
+        $this->assertEnumValuesSame($expectedFloats, from($sourceFloats)->cast('real'));
+        $this->assertEnumValuesSame($expectedFloats, from($sourceFloats)->cast('double'));
 
         // cast (null)
         $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
         $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
-        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
-        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
+        $this->assertEnumValuesSame($expectedNulls, from($sourceNulls)->cast('null'));
+        $this->assertEnumValuesSame($expectedNulls, from($sourceNulls)->cast('unset'));
 
         // cast (null)
         $sourceNulls = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
         $expectedNulls = [ null, null, null, null, null, null, null, null, null, null, null, null ];
-        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('null'));
-        $this->assertEnumValuesEquals($expectedNulls, from($sourceNulls)->cast('unset'));
+        $this->assertEnumValuesSame($expectedNulls, from($sourceNulls)->cast('null'));
+        $this->assertEnumValuesSame($expectedNulls, from($sourceNulls)->cast('unset'));
 
         // cast (object)
         $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, [], [ 1 => 2 ], [ 'a' => 'b' ], $c, $e ];
@@ -518,7 +518,7 @@ class EnumerableTest extends TestCaseEnumerable
         // cast (string)
         $sourceObjects = [ null, 1, 1.2, '1.3', 'abc', true, false, $e ];
         $expectedObjects = [ '', '1', '1.2', '1.3', 'abc', '1', '', (string)$e ];
-        $this->assertEnumValuesEquals($expectedObjects, from($sourceObjects)->cast('string'));
+        $this->assertEnumValuesSame($expectedObjects, from($sourceObjects)->cast('string'));
     }
 
     /** @covers \YaLinqo\Enumerable::cast
@@ -539,62 +539,62 @@ class EnumerableTest extends TestCaseEnumerable
         ]);
 
         // ofType (empty)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->ofType('array'));
 
         // ofType (array)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ [ 2 ], [] ],
             $a->ofType('array'));
 
         // ofType (int)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 3 ],
             $a->ofType('int'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 3 ],
             $a->ofType('integer'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 3 ],
             $a->ofType('long'));
 
         // ofType (callable)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ $f ],
             $a->ofType('callable'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ $f ],
             $a->ofType('callback'));
 
         // ofType (float)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1.2, 4.5 ],
             $a->ofType('float'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1.2, 4.5 ],
             $a->ofType('real'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1.2, 4.5 ],
             $a->ofType('double'));
 
         // ofType (string)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ '6', 'ab' ],
             $a->ofType('string'));
 
         // ofType (null)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ null ],
             $a->ofType('null'));
 
         // ofType (numeric)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, '6', 1.2, 3, 4.5 ],
             $a->ofType('numeric'));
 
         // ofType (scalar)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, '6', 1.2, 3, 4.5, 'ab' ],
             $a->ofType('scalar'));
 
@@ -614,21 +614,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testSelect()
     {
         // select (selectorValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->select('$v+1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4, 5, 6 ],
             E::from([ 3, 4, 5 ])->select('$v+1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3, 5, 7 ],
             E::from([ 3, 4, 5 ])->select('$v+$k'));
 
         // select (selectorValue, selectorKey)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 => 3, 2 => 4, 3 => 5 ],
             E::from([ 3, 4, 5 ])->select('$v', '$k+1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => 3, 5 => 3, 7 => 3 ],
             E::from([ 3, 4, 5 ])->select('$v-$k', '$v+$k'));
     }
@@ -638,38 +638,38 @@ class EnumerableTest extends TestCaseEnumerable
     function testSelectMany()
     {
         // selectMany (collectionSelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4 ],
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ [ 1 ], [ 2 ], [ 3 ] ])->selectMany('$v'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from([ [], [], [ 1, 2 ] ])->selectMany('$v'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from([ [ 1, 2 ], [], [] ])->selectMany('$v'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ [], [] ])->selectMany('$v'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->selectMany('$v'));
 
         // selectMany (collectionSelector, resultSelectorValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 0, 1, 1 ],
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v', '$k1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 3, 3, 5 ],
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v', '$v+$k2'));
 
         // selectMany (collectionSelector, resultSelectorValue, resultSelectorKey)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '00' => 1, '01' => 2, '10' => 3, '11' => 4 ],
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v', null, '"$k1$k2"'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '00' => 1, '01' => 2, '10' => 4, '11' => 5 ],
             E::from([ [ 1, 2 ], [ 3, 4 ] ])->selectMany('$v', '$v+$k1', '"$k1$k2"'));
     }
@@ -679,22 +679,22 @@ class EnumerableTest extends TestCaseEnumerable
     function testWhere()
     {
         // where (predicate)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->where(Functions::$true));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->where(Functions::$false));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4 ],
             E::from([ 1, 2, 3, 4 ])->where(Functions::$true));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4 ])->where(Functions::$false));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 3, 3 => 4 ],
             E::from([ 1, 2, 3, 4 ])->where('$v>2'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => '1', 1 => '2' ],
             E::from([ '1', '2', '3', '4' ])->where('$k<2'));
     }
@@ -709,35 +709,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testOrderByDir_asc()
     {
         // orderByDir (false)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderByDir(false));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(false));
 
         // orderByDir (false, keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(false, '-$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 3, 1 ],
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(false, '$k'));
 
         // orderByDir (false, keySelector, comparer)
         $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 33, 111, 4444 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDir(false, null, $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 33, 30, 999, 4444 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDir(false, '$v-33', $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 3, 9, 4 ],
             E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDir(false, '$k', $compareLen));
 
         // both keys and values sorted
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 0, 3 ], [ 2, 4 ], [ 1, 5 ] ],
             E::from([ 3, 5, 4 ])->orderByDir(false));
     }
@@ -748,35 +748,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testOrderByDir_desc()
     {
         // orderByDir (true)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderByDir(true));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(true));
 
         // orderByDir (true, keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDir(true, '-$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 3, 2 ],
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDir(true, '$k'));
 
         // orderByDir (true, keySelector, comparer)
         $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4444, 111, 33, 2 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDir(true, null, $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4444, 999, 30, 33 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDir(true, '$v-33', $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4, 9, 3, 2 ],
             E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDir(true, '$k', $compareLen));
 
         // both keys and values sorted
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 1, 5 ], [ 2, 4 ], [ 0, 3 ] ],
             from([ 3, 5, 4 ])->orderByDir(true));
     }
@@ -787,35 +787,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testOrderBy()
     {
         // orderBy ()
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderBy());
 
         // orderBy (keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderBy('-$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 3, 1 ],
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderBy('$k'));
 
         // orderBy (keySelector, comparer)
         $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 33, 111, 4444 ],
             E::from([ 111, 2, 33, 4444 ])->orderBy(null, $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 33, 30, 999, 4444 ],
             E::from([ 999, 30, 33, 4444 ])->orderBy('$v-33', $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 2, 3, 9, 4 ],
             E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderBy('$k', $compareLen));
 
         // both keys and values sorted
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 0, 3 ], [ 2, 4 ], [ 1, 5 ] ],
             E::from([ 3, 5, 4 ])->orderBy());
     }
@@ -826,35 +826,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testOrderByDescending()
     {
         // orderByDescending ()
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderByDescending());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 6, 5, 4, 3 ],
             E::from([ 4, 6, 5, 3 ])->orderByDescending());
 
         // orderByDescending (keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDescending('-$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 3, 2 ],
             E::from([ 'c' => 1, 'a' => 2, 'b' => 3 ])->orderByDescending('$k'));
 
         // orderByDescending (keySelector, comparer)
         $compareLen = function($a, $b) { return strlen($a) - strlen($b); };
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4444, 111, 33, 2 ],
             E::from([ 111, 2, 33, 4444 ])->orderByDescending(null, $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4444, 999, 30, 33 ],
             E::from([ 999, 30, 33, 4444 ])->orderByDescending('$v-33', $compareLen));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 4, 9, 3, 2 ],
             E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderByDescending('$k', $compareLen));
 
         // both keys and values sorted
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 1, 5 ], [ 2, 4 ], [ 0, 3 ] ],
             E::from([ 3, 5, 4 ])->orderByDescending());
     }
@@ -865,13 +865,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testOrderBy_onlyLastConsidered()
     {
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderBy('-$v')->orderBy('$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderBy('-$v')->orderByDescending('-$v'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 3, 4, 5, 6 ],
             E::from([ 4, 6, 5, 3 ])->orderByDescending('$v')->orderByDescending('-$v'));
     }
@@ -885,51 +885,51 @@ class EnumerableTest extends TestCaseEnumerable
     function testGroupJoin()
     {
         // groupJoin (inner)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->groupJoin([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->groupJoin([ 6, 7, 8 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, [] ], [ 4, [] ], [ 5, [] ] ],
             E::from([ 3, 4, 5 ])->groupJoin([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, [ 6 ] ], [ 4, [ 7 ] ], [ 5, [ 8 ] ] ],
             E::from([ 3, 4, 5 ])->groupJoin([ 6, 7, 8 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'a' => [ 3, [ 6 ] ], 'b' => [ 4, [ 7 ] ], 'c' => [ 5, [ 8 ] ] ],
             E::from([ 'a' => 3, 'b' => 4, 'c' => 5 ])->groupJoin([ 'a' => 6, 'b' => 7, 'c' => 8 ]));
 
         // groupJoin (inner, outerKeySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => [ [ 3, 4 ], [ 6 ] ], 6 => [ [ 5, 6 ], [ 7 ] ], 9 => [ [ 7, 8 ], [ 8 ] ] ],
             E::from([ [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ])->groupJoin([ 3 => 6, 6 => 7, 9 => 8 ], '$v[0]+$k'));
 
         // groupJoin (inner, outerKeySelector, innerKeySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4 => [ 1, [ 3 ] ], 6 => [ 2, [ 4 ] ], 8 => [ 3, [ 5 ] ] ],
             E::from([ 4 => 1, 6 => 2, 8 => 3 ])->groupJoin([ 1 => 3, 2 => 4, 3 => 5 ], null, '$v+$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4 => [ 4, [ 3 ] ], 6 => [ 6, [ 4 ] ], 8 => [ 8, [ 5 ] ] ],
             E::from([ 3 => 4, 5 => 6, 7 => 8 ])->groupJoin([ 1 => 3, 2 => 4, 3 => 5 ], '$v', '$v+$k'));
 
         // groupJoin (inner, outerKeySelector, innerKeySelector, resultSelectorValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, [ 6 ] ], [ 5, [ 7 ] ], [ 7, [ 8 ] ] ],
             E::from([ 3, 4, 5 ])->groupJoin([ 6, 7, 8 ], null, null, '[ $v+$k, $e ]'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 => [ [ 6 ], 3 ], 2 => [ [ 7 ], 4 ], 3 => [ [ 8 ], 5 ] ],
             E::from([ 'a1' => 3, 'a2' => 4, 'a3' => 5 ])->groupJoin(
                 [ '1b' => 6, '2b' => 7, '3b' => 8 ], '$k[1]', 'intval($k)', '[ $e, $v ]'));
 
         // groupJoin (inner, outerKeySelector, innerKeySelector, resultSelectorValue, resultSelectorKey)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 6 => [ 'a' ], 7 => [ 'b', 'c' ], 8 => [] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->groupJoin(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
                 '$v[0]', '$v[0]', '$e->select("\$v[1]")', '$v[1]'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 6, [ 'a' ] ], [ 7, [ 'b', 'c' ] ], [ 8, [] ] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->groupJoin(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
@@ -941,51 +941,51 @@ class EnumerableTest extends TestCaseEnumerable
     function testJoin()
     {
         // join (inner)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->join([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->join([ 6, 7, 8 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 3, 4, 5 ])->join([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, 6 ], [ 4, 7 ], [ 5, 8 ] ],
             E::from([ 3, 4, 5 ])->join([ 6, 7, 8 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'a' => [ 3, 6 ], 'b' => [ 4, 7 ], 'c' => [ 5, 8 ] ],
             E::from([ 'a' => 3, 'b' => 4, 'c' => 5 ])->join([ 'a' => 6, 'b' => 7, 'c' => 8 ]));
 
         // join (inner, outerKeySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => [ [ 3, 4 ], 6 ], 6 => [ [ 5, 6 ], 7 ], 9 => [ [ 7, 8 ], 8 ] ],
             E::from([ [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ])->join([ 3 => 6, 6 => 7, 9 => 8 ], '$v[0]+$k'));
 
         // join (inner, outerKeySelector, innerKeySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4 => [ 1, 3 ], 6 => [ 2, 4 ], 8 => [ 3, 5 ] ],
             E::from([ 4 => 1, 6 => 2, 8 => 3 ])->join([ 1 => 3, 2 => 4, 3 => 5 ], null, '$v+$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4 => [ 4, 3 ], 6 => [ 6, 4 ], 8 => [ 8, 5 ] ],
             E::from([ 3 => 4, 5 => 6, 7 => 8 ])->join([ 1 => 3, 2 => 4, 3 => 5 ], '$v', '$v+$k'));
 
         // join (inner, outerKeySelector, innerKeySelector, resultSelectorValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, 6 ], [ 5, 7 ], [ 7, 8 ] ],
             E::from([ 3, 4, 5 ])->join([ 6, 7, 8 ], null, null, '[ $v1+$k, $v2 ]'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 => [ 6, 3 ], 2 => [ 7, 4 ], 3 => [ 8, 5 ] ],
             E::from([ 'a1' => 3, 'a2' => 4, 'a3' => 5 ])->join(
                 [ '1b' => 6, '2b' => 7, '3b' => 8 ], '$k[1]', 'intval($k)', '[ $v2, $v1 ]'));
 
         // join (inner, outerKeySelector, innerKeySelector, resultSelectorValue, resultSelectorKey)
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 6, 'a' ], [ 7, 'b' ], [ 7, 'c' ] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->join(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
                 '$v[0]', '$v[0]', '$v2[1]', '$v1[1]'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 6, 'a' ], [ 7, 'b' ], [ 7, 'c' ] ],
             E::from([ [ 1, 6 ], [ 2, 7 ], [ 3, 8 ] ])->join(
                 [ [ 1, 'a' ], [ 2, 'b' ], [ 2, 'c' ], [ 4, 'd' ] ],
@@ -997,55 +997,55 @@ class EnumerableTest extends TestCaseEnumerable
     function testGroupBy()
     {
         // groupBy ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->groupBy());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3 ], [ 4 ], [ 5 ] ],
             E::from([ 3, 4, 5 ])->groupBy());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'a' => [ 3 ], 'b' => [ 4 ], 'c' => [ 5 ] ],
             E::from([ 'a' => 3, 'b' => 4, 'c' => 5 ])->groupBy());
 
         // groupBy (keySelector)
-        $this->assertEnumEquals(
-            [ 0 => [ 4, 6, 8 ], 1 => [ 3, 5, 7 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 5, 7 ], 0 => [ 4, 6, 8 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1'));
-        $this->assertEnumEquals(
-            [ 0 => [ 4, 6, 8 ], 1 => [ 3, 5, 7 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 5, 7 ], 0 => [ 4, 6, 8 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('!($k%2)'));
 
         // groupBy (keySelector, valueSelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3 ], [ 5 ], [ 7 ], [ 9 ], [ 11 ], [ 13 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy(null, '$v+$k'));
-        $this->assertEnumEquals(
-            [ 0 => [ 5, 9, 13 ], 1 => [ 3, 7, 11 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 7, 11 ], 0 => [ 5, 9, 13 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1', '$v+$k'));
-        $this->assertEnumEquals(
-            [ 0 => [ 3, 3, 5 ], 1 => [ 3, 3, 4 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 3, 4 ], 0 => [ 3, 3, 5 ] ],
             E::from([ 3, 4, 5, 6, 8, 10 ])->groupBy('!($k%2)', '$v-$k'));
 
         // groupBy (keySelector, valueSelector, resultSelectorValue)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, 0 ], [ 4, 1 ], [ 5, 2 ], [ 6, 3 ], [ 7, 4 ], [ 8, 5 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy(null, null, '$e+[ 1=>$k ]'));
-        $this->assertEnumEquals(
-            [ 0 => [ 4, 6, 8, 'k' => 0 ], 1 => [ 3, 5, 7, 'k' => 1 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 5, 7, 'k' => 1 ], 0 => [ 4, 6, 8, 'k' => 0 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1', null, '$e+[ "k"=>$k ]'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ [ 3, 0 ], [ 5, 1 ], [ 7, 2 ], [ 9, 3 ], [ 11, 4 ], [ 13, 5 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy(null, '$v+$k', '$e+[ 1=>$k ]'));
-        $this->assertEnumEquals(
-            [ 0 => [ 5, 9, 13, 'k' => 0 ], 1 => [ 3, 7, 11, 'k' => 1 ] ],
+        $this->assertEnumSame(
+            [ 1 => [ 3, 7, 11, 'k' => 1 ], 0 => [ 5, 9, 13, 'k' => 0 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1', '$v+$k', '$e+[ "k"=>$k ]'));
 
         // groupBy (keySelector, valueSelector, resultSelectorValue, resultSelectorKey)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => [ 3 ], 5 => [ 4 ], 7 => [ 5 ], 9 => [ 6 ], 11 => [ 7 ], 13 => [ 8 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy(null, null, null, '$e[0]+$k'));
-        $this->assertEnumEquals(
-            [ 5 => [ 5, 9, 13, 'k' => 0 ], 4 => [ 3, 7, 11, 'k' => 1 ] ],
+        $this->assertEnumSame(
+            [ 4 => [ 3, 7, 11, 'k' => 1 ], 5 => [ 5, 9, 13, 'k' => 0 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->groupBy('$v&1', '$v+$k', '$e+[ "k"=>$k ]', '$e[0]+$k'));
     }
 
@@ -1054,21 +1054,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testAggregate()
     {
         // aggregate (func)
-        $this->assertEquals(
+        $this->assertSame(
             12,
             E::from([ 3, 4, 5 ])->aggregate('$a+$v'));
-        $this->assertEquals(
+        $this->assertSame(
             9, // callback is not called on 1st element, just value is used
             E::from([ 3 => 3, 2 => 4, 1 => 5 ])->aggregate('$a+$v-$k'));
 
         // aggregate (func, seed)
-        $this->assertEquals(
+        $this->assertSame(
             10,
             E::from([])->aggregate('$a+$v', 10));
-        $this->assertEquals(
+        $this->assertSame(
             22,
             E::from([ 3, 4, 5 ])->aggregate('$a+$v', 10));
-        $this->assertEquals(
+        $this->assertSame(
             6,
             E::from([ 3 => 3, 2 => 4, 1 => 5 ])->aggregate('$a+$v-$k', 0));
     }
@@ -1086,32 +1086,32 @@ class EnumerableTest extends TestCaseEnumerable
     function testAggregateOrDefault()
     {
         // aggregate (func)
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->aggregateOrDefault('$a+$v'));
-        $this->assertEquals(
+        $this->assertSame(
             12,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v'));
-        $this->assertEquals(
+        $this->assertSame(
             9, // callback is not called on 1st element, just value is used
             E::from([ 3 => 3, 2 => 4, 1 => 5 ])->aggregateOrDefault('$a+$v-$k'));
 
         // aggregate (func, seed)
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->aggregateOrDefault('$a+$v', 10));
-        $this->assertEquals(
+        $this->assertSame(
             22,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v', 10));
-        $this->assertEquals(
+        $this->assertSame(
             6,
             E::from([ 3 => 3, 2 => 4, 1 => 5 ])->aggregateOrDefault('$a+$v-$k', 0));
 
         // aggregate (func, seed, default)
-        $this->assertEquals(
+        $this->assertSame(
             'empty',
             E::from([])->aggregateOrDefault('$a+$v', 10, 'empty'));
-        $this->assertEquals(
+        $this->assertSame(
             22,
             E::from([ 3, 4, 5 ])->aggregateOrDefault('$a+$v', 10, 'empty'));
     }
@@ -1121,18 +1121,18 @@ class EnumerableTest extends TestCaseEnumerable
     function testAverage()
     {
         // average ()
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ 3, 4, 5 ])->average());
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3, '4', '5', 0 ])->average());
 
         // average (selector)
-        $this->assertEquals(
+        $this->assertSame(
             (3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2) / 3,
             E::from([ 3, 4, 5 ])->average('$v*2+$k'));
-        $this->assertEquals(
+        $this->assertSame(
             (3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3) / 4,
             E::from([ 3, '4', '5', 0 ])->average('$v*2+$k'));
     }
@@ -1150,21 +1150,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testCount()
     {
         // count ()
-        $this->assertEquals(
+        $this->assertSame(
             0,
             E::from([])->count());
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3, 4, 5 ])->count());
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ 3, '4', '5', 0 ])->count());
 
         // count (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 3, 4, 5 ])->count('$v*2+$k<10'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3, '4', '5', 0 ])->count('$v*2+$k<10'));
     }
@@ -1174,15 +1174,15 @@ class EnumerableTest extends TestCaseEnumerable
     function testMax()
     {
         // max ()
-        $this->assertEquals(
+        $this->assertSame(
             5,
             E::from([ 3, 5, 4 ])->max());
 
         // max (selector)
-        $this->assertEquals(
+        $this->assertSame(
             5,
             E::from([ 3, 5, 4 ])->max('$v-$k*3+2')); // 5 4 0
-        $this->assertEquals(
+        $this->assertSame(
             5,
             E::from([ 3, '5', '4', 0 ])->max('$v-$k*3+2')); // 5 4 0 -7
     }
@@ -1202,15 +1202,15 @@ class EnumerableTest extends TestCaseEnumerable
         $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
 
         // max ()
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 2, 3, 5, 4 ])->maxBy($compare));
 
         // max (selector)
-        $this->assertEquals(
+        $this->assertSame(
             8,
             E::from([ 2, 0, 3, 5, 6 ])->maxBy($compare, '$v+$k')); // 2 1 5 8 10
-        $this->assertEquals(
+        $this->assertSame(
             7,
             E::from([ '5', 3, false, '4' ])->maxBy($compare, '$v+$k')); // 5 4 2 7
     }
@@ -1229,15 +1229,15 @@ class EnumerableTest extends TestCaseEnumerable
     function testMin()
     {
         // min ()
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3, 5, 4 ])->min());
 
         // min (selector)
-        $this->assertEquals(
+        $this->assertSame(
             0,
             E::from([ 3, 5, 4 ])->min('$v-$k*3+2')); // 5 4 0
-        $this->assertEquals(
+        $this->assertSame(
             -7,
             E::from([ 3, '5', '4', false ])->min('$v-$k*3+2')); // 5 4 0 -7
     }
@@ -1257,15 +1257,15 @@ class EnumerableTest extends TestCaseEnumerable
         $compare = function($a, $b) { return strcmp($a * $a, $b * $b); };
 
         // min ()
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ 2, 3, 5, 4 ])->minBy($compare));
 
         // min (selector)
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 2, 0, 3, 5, 6 ])->minBy($compare, '$v+$k')); // 2 1 5 8 10
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ '5', 3, 0, '4' ])->minBy($compare, '$v+$k')); // 5 4 2 7
     }
@@ -1284,21 +1284,21 @@ class EnumerableTest extends TestCaseEnumerable
     function testSum()
     {
         // sum ()
-        $this->assertEquals(
+        $this->assertSame(
             0,
             E::from([])->sum());
-        $this->assertEquals(
+        $this->assertSame(
             12,
             E::from([ 3, 4, 5 ])->sum());
-        $this->assertEquals(
+        $this->assertSame(
             12,
             E::from([ 3, '4', '5', false ])->sum());
 
         // sum (selector)
-        $this->assertEquals(
+        $this->assertSame(
             3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2,
             E::from([ 3, 4, 5 ])->sum('$v*2+$k'));
-        $this->assertEquals(
+        $this->assertSame(
             3 * 2 + 0 + 4 * 2 + 1 + 5 * 2 + 2 + 0 * 2 + 3,
             E::from([ 3, '4', '5', null ])->sum('$v*2+$k'));
     }
@@ -1308,16 +1308,16 @@ class EnumerableTest extends TestCaseEnumerable
     function testAll()
     {
         // all (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([])->all('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->all('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([ 1, -2, 3 ])->all('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([ -1, -2, -3 ])->all('$v>0'));
     }
@@ -1327,24 +1327,24 @@ class EnumerableTest extends TestCaseEnumerable
     function testAny_array()
     {
         // any ()
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([])->any());
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->any());
 
         // any (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([])->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, -2, 3 ])->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([ -1, -2, -3 ])->any('$v>0'));
     }
@@ -1354,24 +1354,24 @@ class EnumerableTest extends TestCaseEnumerable
     function testAny_fromEnumerable()
     {
         // any ()
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([])->select('$v')->any());
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->select('$v')->any());
 
         // any (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([])->select('$v')->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->select('$v')->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, -2, 3 ])->select('$v')->any('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([ -1, -2, -3 ])->select('$v')->any('$v>0'));
     }
@@ -1381,18 +1381,18 @@ class EnumerableTest extends TestCaseEnumerable
     function testAppend()
     {
         // append (value)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ null => 9 ],
             E::from([])->append(9));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 1 => 3, null => 9 ],
             E::from([ 1, 3 ])->append(9));
 
         // append (value, key)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 9 ],
             E::from([])->append(9, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 1 => 3, 8 => 9 ],
             E::from([ 1, 3 ])->append(9, 8));
     }
@@ -1402,16 +1402,16 @@ class EnumerableTest extends TestCaseEnumerable
     function testConcat()
     {
         // concat ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->concat([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->concat([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 3 ],
             E::from([])->concat([ 1, 2, 3, 3 ]));
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 0, 1 ], [ 1, 2 ], [ 2, 2 ], [ 0, 1 ], [ 1, 3 ] ],
             E::from([ 1, 2, 2 ])->concat([ 1, 3 ]));
     }
@@ -1421,13 +1421,13 @@ class EnumerableTest extends TestCaseEnumerable
     function testContains()
     {
         // contains (value)
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([])->contains(2));
-        $this->assertEquals(
+        $this->assertSame(
             true,
             E::from([ 1, 2, 3 ])->contains(2));
-        $this->assertEquals(
+        $this->assertSame(
             false,
             E::from([ 1, 2, 3 ])->contains(4));
     }
@@ -1437,24 +1437,24 @@ class EnumerableTest extends TestCaseEnumerable
     function testDistinct()
     {
         // distinct ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->distinct());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->distinct());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3, 1, 2 ])->distinct());
 
         // distinct (keySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->distinct('$v*$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => 1, 2 => 2, 1 => 5 ],
             E::from([ 3 => 1, 2 => 2, 1 => 5 ])->distinct('$v*$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 4 => 1, 1 => 3 ],
             E::from([ 4 => 1, 2 => 2, 1 => 3 ])->distinct('$v*$k'));
     }
@@ -1464,54 +1464,54 @@ class EnumerableTest extends TestCaseEnumerable
     function testExcept()
     {
         // except ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->except([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->except([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->except([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3 ])->except([ '1', '2', '3' ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ '1', '2', '3' ])->except([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, '2', 3 ])->except([ '1', 2, '3' ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 => 2, 3 => 4 ],
             E::from([ 1, 2, 3, 4 ])->except([ 1, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1 => 2, 3 => 4 ],
             E::from([ 1, 2, 3, 4 ])->except([ 1, 3, 5, 7 ]));
 
         // except (keySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->except([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->except([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->except([ 1, 2, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3 ])->except([ 1, 2, 3 ], '$k'));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 3, 3 => 4 ],
             E::from([ 1, 2, 3, 4 ])->except([ 1, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 3 => 4 ],
             E::from([ 1, 2, 3, 4 ])->except([ 1, 3, 5 ], '$k'));
     }
@@ -1521,54 +1521,54 @@ class EnumerableTest extends TestCaseEnumerable
     function testIntersect()
     {
         // intersect ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->intersect([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3 ])->intersect([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->intersect([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->intersect([ '1', '2', '3' ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '1', '2', '3' ],
             E::from([ '1', '2', '3' ])->intersect([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, '2', 3 ],
             E::from([ 1, '2', 3 ])->intersect([ '1', 2, '3' ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 2 => 3 ],
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 2 => 3 ],
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5, 7 ]));
 
         // intersect (keySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->intersect([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3 ])->intersect([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->intersect([ 1, 2, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->intersect([ 1, 2, 3 ], '$k'));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 1 => 2 ],
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0 => 1, 1 => 2, 2 => 3 ],
             E::from([ 1, 2, 3, 4 ])->intersect([ 1, 3, 5 ], '$k'));
     }
@@ -1578,18 +1578,18 @@ class EnumerableTest extends TestCaseEnumerable
     function testPrepend()
     {
         // prepend (value)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ null => 9 ],
             E::from([])->prepend(9));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ null => 9, 0 => 1, 1 => 3 ],
             E::from([ 1, 3 ])->prepend(9));
 
         // prepend (value, key)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 9 ],
             E::from([])->prepend(9, 2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 8 => 9, 0 => 1, 1 => 3 ],
             E::from([ 1, 3 ])->prepend(9, 8));
     }
@@ -1599,54 +1599,54 @@ class EnumerableTest extends TestCaseEnumerable
     function testUnion()
     {
         // union ()
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->union([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([])->union([ 1, 2, 3, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3, 3 ])->union([ 1, 2, 3 ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([ '1', '2', '3' ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ '1', '2', '3' ],
             E::from([ '1', '2', '3' ])->union([ 1, 2, 3 ]));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, '2', 3 ],
             E::from([ 1, '2', 3 ])->union([ '1', 2, '3' ]));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([ 1, 3 ]));
-        $this->assertEnumOrderEquals(
+        $this->assertEnumOrderSame(
             [ [ 0, 1 ], [ 1, 2 ], [ 2, 3 ], [ 2, 5 ] ],
             E::from([ 1, 2, 3 ])->union([ 1, 3, 5 ]));
 
         // union (keySelector)
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->union([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([])->union([ 1, 2, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([ 1, 2, 3 ], '$k'));
 
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->union([ 1, 3 ], '$k'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 7 ],
             E::from([ 1, 2, 3 ])->union([ 1, 3, 5, 7 ], '$k'));
     }
@@ -1660,10 +1660,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testElementAt_array()
     {
         // elementAt (key)
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, 3 ])->elementAt(1));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 3 => 1, 2, 'a' => 3 ])->elementAt(4));
     }
@@ -1673,10 +1673,10 @@ class EnumerableTest extends TestCaseEnumerable
     function testElementAt_enumerable()
     {
         // elementAt (key)
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, 3 ])->select('$v')->elementAt(1));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 3 => 1, 2, 'a' => 3 ])->select('$v')->elementAt(4));
     }
@@ -1711,19 +1711,19 @@ class EnumerableTest extends TestCaseEnumerable
     function testElementAtOrDefault_array()
     {
         // elementAtOrDefault (key)
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->elementAtOrDefault(1));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, 3 ])->elementAtOrDefault(1));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ 1, 2, 3 ])->elementAtOrDefault(4));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 3 => 1, 2, 'a' => 3 ])->elementAtOrDefault(4));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ])->elementAtOrDefault(0));
     }
@@ -1733,19 +1733,19 @@ class EnumerableTest extends TestCaseEnumerable
     function testElementAtOrDefault_enumerable()
     {
         // elementAtOrDefault (key)
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->select('$v')->elementAtOrDefault(1));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, 3 ])->select('$v')->elementAtOrDefault(1));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ 1, 2, 3 ])->select('$v')->elementAtOrDefault(4));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 3 => 1, 2, 'a' => 3 ])->select('$v')->elementAtOrDefault(4));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3 ])->select('$v')->elementAtOrDefault(0));
     }
@@ -1755,18 +1755,18 @@ class EnumerableTest extends TestCaseEnumerable
     function testFirst()
     {
         // first ()
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->first());
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 3 => 1, 2, 'a' => 3 ])->first());
 
         // first (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->first('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, 3 ])->first('$v>0'));
     }
@@ -1796,38 +1796,38 @@ class EnumerableTest extends TestCaseEnumerable
     function testFirstOrDefault()
     {
         // firstOrDefault ()
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->firstOrDefault());
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault());
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 3 => 1, 2, 'a' => 3 ])->firstOrDefault());
 
         // firstOrDefault (default)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->firstOrDefault('a'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault('a'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 3 => 1, 2, 'a' => 3 ])->firstOrDefault('a'));
 
         // firstOrDefault (default, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->firstOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->firstOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, 3 ])->firstOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->firstOrDefault('a', '$v>0'));
     }
@@ -1839,27 +1839,27 @@ class EnumerableTest extends TestCaseEnumerable
         $fallback = function() { return 'a'; };
 
         // firstOrFallback (fallback)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->firstOrFallback($fallback));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->firstOrFallback($fallback));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 3 => 1, 2, 'a' => 3 ])->firstOrFallback($fallback));
 
         // firstOrFallback (fallback, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->firstOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->firstOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, 3 ])->firstOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->firstOrFallback($fallback, '$v>0'));
     }
@@ -1869,18 +1869,18 @@ class EnumerableTest extends TestCaseEnumerable
     function testLast()
     {
         // last ()
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->last());
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3 => 1, 2, 'a' => 3 ])->last());
 
         // last (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->last('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, -3 ])->last('$v>0'));
     }
@@ -1910,38 +1910,38 @@ class EnumerableTest extends TestCaseEnumerable
     function testLastOrDefault()
     {
         // lastOrDefault ()
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->lastOrDefault());
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault());
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3 => 1, 2, 'a' => 3 ])->lastOrDefault());
 
         // lastOrDefault (default)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->lastOrDefault('a'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault('a'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3 => 1, 2, 'a' => 3 ])->lastOrDefault('a'));
 
         // lastOrDefault (default, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->lastOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->lastOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, -3 ])->lastOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->lastOrDefault('a', '$v>0'));
     }
@@ -1953,27 +1953,27 @@ class EnumerableTest extends TestCaseEnumerable
         $fallback = function() { return 'a'; };
 
         // lastOrFallback (fallback)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->lastOrFallback($fallback));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->lastOrFallback($fallback));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 3 => 1, 2, 'a' => 3 ])->lastOrFallback($fallback));
 
         // lastOrFallback (fallback, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->lastOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3 ])->lastOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 1, 2, -3 ])->lastOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->lastOrFallback($fallback, '$v>0'));
     }
@@ -1983,12 +1983,12 @@ class EnumerableTest extends TestCaseEnumerable
     function testSingle()
     {
         // single ()
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 2 ])->single());
 
         // single (predicate)
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, -3 ])->single('$v>0'));
     }
@@ -2039,29 +2039,29 @@ class EnumerableTest extends TestCaseEnumerable
     function testSingleOrDefault()
     {
         // singleOrDefault ()
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->singleOrDefault());
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 2 ])->singleOrDefault());
 
         // singleOrDefault (default)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->singleOrDefault('a'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 2 ])->singleOrDefault('a'));
 
         // singleOrDefault (default, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->singleOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, -3 ])->singleOrDefault('a', '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->singleOrDefault('a', '$v>0'));
     }
@@ -2097,21 +2097,21 @@ class EnumerableTest extends TestCaseEnumerable
         $fallback = function() { return 'a'; };
 
         // singleOrFallback (fallback)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->singleOrFallback($fallback));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ 2 ])->singleOrFallback($fallback));
 
         // singleOrFallback (fallback, predicate)
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([])->singleOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, -3 ])->singleOrFallback($fallback, '$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             'a',
             E::from([ -1, -2, -3 ])->singleOrFallback($fallback, '$v>0'));
     }
@@ -2149,36 +2149,36 @@ class EnumerableTest extends TestCaseEnumerable
         $i = function($v) { return $v; };
 
         // array.indexOf (value)
-        $this->assertEquals(
-            false,
+        $this->assertSame(
+            null,
             E::from([])->indexOf('a'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->indexOf(2));
-        $this->assertEquals(
-            false,
+        $this->assertSame(
+            null,
             E::from([ 1, 2, 3 ])->indexOf(4));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3, 2, 1 ])->indexOf(2));
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->indexOf(2));
 
         // iterator.indexOf (value)
-        $this->assertEquals(
-            false,
+        $this->assertSame(
+            null,
             E::from([])->select($i)->indexOf('a'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->select($i)->indexOf(2));
-        $this->assertEquals(
-            false,
+        $this->assertSame(
+            null,
             E::from([ 1, 2, 3 ])->select($i)->indexOf(4));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3, 2, 1 ])->select($i)->indexOf(2));
-        $this->assertEquals(
+        $this->assertSame(
             4,
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->select($i)->indexOf(2));
     }
@@ -2188,16 +2188,16 @@ class EnumerableTest extends TestCaseEnumerable
     function testLastIndexOf()
     {
         // indexOf (value)
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->lastIndexOf('a'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ 1, 2, 3 ])->lastIndexOf(2));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3, 2, 1 ])->lastIndexOf(2));
-        $this->assertEquals(
+        $this->assertSame(
             5,
             E::from([ 3 => 1, 2, 2, 'a' => 3 ])->lastIndexOf(2));
     }
@@ -2206,16 +2206,16 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testFindIndex()
     {
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->findIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             0,
             E::from([ 1, 2, 3, 4 ])->findIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             1,
             E::from([ -1, 2, 3, -4 ])->findIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ -1, -2, -3, -4 ])->findIndex('$v>0'));
     }
@@ -2224,16 +2224,16 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testFindLastIndex()
     {
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([])->findLastIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             3,
             E::from([ 1, 2, 3, 4 ])->findLastIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             2,
             E::from([ -1, 2, 3, -4 ])->findLastIndex('$v>0'));
-        $this->assertEquals(
+        $this->assertSame(
             null,
             E::from([ -1, -2, -3, -4 ])->findLastIndex('$v>0'));
     }
@@ -2242,31 +2242,31 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testSkip()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->skip(-2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->skip(0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->skip(2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skip(-2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skip(0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skip(2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->skip(5));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->skip(6));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'c' => 3, 'd' => 4, 'e' => 5 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->skip(2));
     }
@@ -2275,22 +2275,22 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testSkipWhile()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->skipWhile('$v>2'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v<0'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$k==-1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 2 => 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v+$k<4'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->skipWhile('$v>0'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'c' => 3, 'd' => 4, 'e' => 5 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->skipWhile('$k<"c"'));
     }
@@ -2299,31 +2299,31 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testTake()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->take(-2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->take(0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->take(2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->take(-2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->take(0));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from([ 1, 2, 3, 4, 5 ])->take(2));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->take(5));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->take(6));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'a' => 1, 'b' => 2 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->take(2));
     }
@@ -2332,22 +2332,22 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testTakeWhile()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->takeWhile('$v>2'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$v<0'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$k==-1'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2 ],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$v+$k<4'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3, 4, 5 ],
             E::from([ 1, 2, 3, 4, 5 ])->takeWhile('$v>0'));
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 'a' => 1, 'b' => 2 ],
             E::from([ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ])->takeWhile('$k<"c"'));
     }
@@ -2360,13 +2360,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToArray_array()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toArray());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toArray());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toArray());
     }
@@ -2375,13 +2375,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToArray_enumerable()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->select('$v')->toArray());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->select('$v')->toArray());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->select('$v')->toArray());
     }
@@ -2391,16 +2391,16 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToArrayDeep()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toArrayDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toArrayDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toArrayDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 6 => [ 7 => [ 'a' => 'a' ], [ 8 => 4, 5 ] ] ],
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toArrayDeep());
     }
@@ -2409,13 +2409,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToList_array()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toList());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toList());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toList());
     }
@@ -2424,13 +2424,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToList_enumerable()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->select('$v')->toList());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->select('$v')->toList());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->select('$v')->toList());
     }
@@ -2440,16 +2440,16 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToListDeep()
     {
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toListDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toListDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toListDeep());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, [ [ 'a' ], [ 4, 5 ] ] ],
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toListDeep());
     }
@@ -2459,35 +2459,35 @@ class EnumerableTest extends TestCaseEnumerable
     function testToDictionary()
     {
         // toDictionary ()
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toDictionary());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toDictionary());
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toDictionary());
 
         // toDictionary (keySelector)
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toDictionary('$v'));
-        $this->assertEquals(
+        $this->assertSame(
             [ 1 => 1, 2 => 2, 3 => 3 ],
             E::from([ 1, 2, 3 ])->toDictionary('$v'));
-        $this->assertEquals(
+        $this->assertSame(
             [ 1 => 1, 2 => 2, 3 => 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toDictionary('$v'));
 
         // toDictionary (keySelector, valueSelector)
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toDictionary('$v', '$k'));
-        $this->assertEquals(
+        $this->assertSame(
             [ 1 => 0, 2 => 1, 3 => 2 ],
             E::from([ 1, 2, 3 ])->toDictionary('$v', '$k'));
-        $this->assertEquals(
+        $this->assertSame(
             [ 1 => 0, 2 => 'a', 3 => 1 ],
             E::from([ 1, 'a' => 2, 3 ])->toDictionary('$v', '$k'));
     }
@@ -2496,16 +2496,16 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToJSON()
     {
-        $this->assertEquals(
+        $this->assertSame(
             '[]',
             E::from([])->toJSON());
-        $this->assertEquals(
+        $this->assertSame(
             '[1,2,3]',
             E::from([ 1, 2, 3 ])->toJSON());
-        $this->assertEquals(
+        $this->assertSame(
             '{"0":1,"a":2,"1":3}',
             E::from([ 1, 'a' => 2, 3 ])->toJSON());
-        $this->assertEquals(
+        $this->assertSame(
             '{"0":1,"1":2,"6":{"7":{"a":"a"},"8":{"8":4,"9":5}}}',
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toJSON());
     }
@@ -2515,33 +2515,33 @@ class EnumerableTest extends TestCaseEnumerable
     function testToLookup()
     {
         // toLookup ()
-        $this->assertEquals(
+        $this->assertSame(
             [],
             E::from([])->toLookup());
-        $this->assertEquals(
+        $this->assertSame(
             [ [ 3 ], [ 4 ], [ 5 ] ],
             E::from([ 3, 4, 5 ])->toLookup());
-        $this->assertEquals(
+        $this->assertSame(
             [ 'a' => [ 3 ], 'b' => [ 4 ], 'c' => [ 5 ] ],
             E::from([ 'a' => 3, 'b' => 4, 'c' => 5 ])->toLookup());
 
         // toLookup (keySelector)
-        $this->assertEquals(
-            [ 0 => [ 4, 6, 8 ], 1 => [ 3, 5, 7 ] ],
+        $this->assertSame(
+            [ 1 => [ 3, 5, 7 ], 0 => [ 4, 6, 8 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->toLookup('$v&1'));
-        $this->assertEquals(
-            [ 0 => [ 4, 6, 8 ], 1 => [ 3, 5, 7 ] ],
+        $this->assertSame(
+            [ 1 => [ 3, 5, 7 ], 0 => [ 4, 6, 8 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->toLookup('!($k%2)'));
 
         // toLookup (keySelector, valueSelector)
-        $this->assertEquals(
+        $this->assertSame(
             [ [ 3 ], [ 5 ], [ 7 ], [ 9 ], [ 11 ], [ 13 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->toLookup(null, '$v+$k'));
-        $this->assertEquals(
-            [ 0 => [ 5, 9, 13 ], 1 => [ 3, 7, 11 ] ],
+        $this->assertSame(
+            [ 1 => [ 3, 7, 11 ], 0 => [ 5, 9, 13 ] ],
             E::from([ 3, 4, 5, 6, 7, 8 ])->toLookup('$v&1', '$v+$k'));
-        $this->assertEquals(
-            [ 0 => [ 3, 3, 5 ], 1 => [ 3, 3, 4 ] ],
+        $this->assertSame(
+            [ 1 => [ 3, 3, 4 ], 0 => [ 3, 3, 5 ] ],
             E::from([ 3, 4, 5, 6, 8, 10 ])->toLookup('!($k%2)', '$v-$k'));
     }
 
@@ -2549,13 +2549,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToKeys()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->toKeys());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 1, 2 ],
             E::from([ 1, 2, 3 ])->toKeys());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 0, 'a', 1 ],
             E::from([ 1, 'a' => 2, 3 ])->toKeys());
     }
@@ -2564,13 +2564,13 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testToValues()
     {
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [],
             E::from([])->toValues());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 2, 3 ])->toValues());
-        $this->assertEnumEquals(
+        $this->assertEnumSame(
             [ 1, 2, 3 ],
             E::from([ 1, 'a' => 2, 3 ])->toValues());
     }
@@ -2607,44 +2607,44 @@ class EnumerableTest extends TestCaseEnumerable
     function testToString()
     {
         // toString ()
-        $this->assertEquals(
+        $this->assertSame(
             '',
             E::from([])->toString());
-        $this->assertEquals(
+        $this->assertSame(
             '123',
             E::from([ 1, 2, 3 ])->toString());
-        $this->assertEquals(
+        $this->assertSame(
             '123',
             E::from([ 1, 'a' => 2, 3 ])->toString());
-        $this->assertEquals(
+        $this->assertSame(
             '123',
             E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString());
 
         // toString (separator)
-        $this->assertEquals(
+        $this->assertSame(
             '',
             E::from([])->toString(', '));
-        $this->assertEquals(
+        $this->assertSame(
             '1, 2, 3',
             E::from([ 1, 2, 3 ])->toString(', '));
-        $this->assertEquals(
+        $this->assertSame(
             '1, 2, 3',
             E::from([ 1, 'a' => 2, 3 ])->toString(', '));
-        $this->assertEquals(
+        $this->assertSame(
             '1, 2, 3',
             E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString(', '));
 
         // toString (separator, selector)
-        $this->assertEquals(
+        $this->assertSame(
             '',
             E::from([])->toString(', ', '"$k=$v"'));
-        $this->assertEquals(
+        $this->assertSame(
             '0=1, 1=2, 2=3',
             E::from([ 1, 2, 3 ])->toString(', ', '"$k=$v"'));
-        $this->assertEquals(
+        $this->assertSame(
             '0=1, a=2, 1=3',
             E::from([ 1, 'a' => 2, 3 ])->toString(', ', '"$k=$v"'));
-        $this->assertEquals(
+        $this->assertSame(
             '0=1, 0=2, 1=3',
             E::from([ [ 0, 1 ], [ 0, 2 ], [ 1, 3 ] ])->select('$v[1]', '$v[0]')->toString(', ', '"$k=$v"'));
     }
@@ -2660,22 +2660,22 @@ class EnumerableTest extends TestCaseEnumerable
         // call (action)
         $a = [];
         foreach (E::from([])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
-        $this->assertEquals(
+        $this->assertSame(
             [],
             $a);
         $a = [];
         foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             $a);
         $a = [];
         foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) break;
-        $this->assertEquals(
+        $this->assertSame(
             [ 1 ],
             $a);
         $a = [];
         E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; });
-        $this->assertEquals(
+        $this->assertSame(
             [],
             $a);
     }
@@ -2687,12 +2687,12 @@ class EnumerableTest extends TestCaseEnumerable
         // call (action)
         $a = [];
         E::from([])->each(function($v, $k) use (&$a) { $a[$k] = $v; });
-        $this->assertEquals(
+        $this->assertSame(
             [],
             $a);
         $a = [];
         E::from([ 1, 'a' => 2, 3 ])->each(function($v, $k) use (&$a) { $a[$k] = $v; });
-        $this->assertEquals(
+        $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             $a);
     }

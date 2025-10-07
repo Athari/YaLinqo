@@ -18,18 +18,23 @@ class TestCaseEnumerable extends \PHPUnit\Framework\TestCase
             $this->expectExceptionMessage($message);
     }
 
-    public static function assertEnumEquals(array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    public static function assertEnumSame(array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        self::assertEquals($expected, $actual->take($maxLength)->toArrayDeep());
+        self::assertSame($expected, $actual->take($maxLength)->toArrayDeep());
     }
 
-    public static function assertEnumOrderEquals(array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    public static function assertEnumOrderSame(array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        self::assertEquals($expected, $actual->take($maxLength)->select('[ $k, $v ]', Functions::increment())->toArrayDeep());
+        self::assertSame($expected, $actual->take($maxLength)->select('[ $k, $v ]', Functions::increment())->toArrayDeep());
     }
 
     public static function assertEnumValuesEquals(array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
         self::assertEquals($expected, $actual->take($maxLength)->toValues()->toArrayDeep());
+    }
+
+    public static function assertEnumValuesSame(array $expected, E $actual, $maxLength = PHP_INT_MAX)
+    {
+        self::assertSame($expected, $actual->take($maxLength)->toValues()->toArrayDeep());
     }
 }

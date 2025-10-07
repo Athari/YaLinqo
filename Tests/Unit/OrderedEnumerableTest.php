@@ -12,29 +12,29 @@ class OrderedEnumerableTest extends TestCaseEnumerable
     function testThenByDir_asc()
     {
         // thenByDir (false)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(false));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 11, 2, 22, 22, 333, 444 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(false));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 444, 333, 2, 22, 22, 1, 11 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, '-strncmp($a,$b,1)')->thenByDir(false));
 
         // thenByDir (false, keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy()->thenByDir(false, '$v-$k'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ [ 0, 4 ], [ 1 ], [ 1, 0, 0, 2 ], [ 1, 0, 3 ] ],
             E::from([ [ 1 ], [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ] ])->orderBy('$v[0]')->thenByDir(false, '$v[$k]'));
 
         // thenByDir (false, keySelector, comparer)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(false, null, 'strncmp($a,$b,1)'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 22, 2, 444, 11, 22, 1, 333 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])
                 ->orderBy('(int)(-$k/2)')->thenByDir(false, null, 'strncmp($a,$b,1)'));
@@ -43,29 +43,29 @@ class OrderedEnumerableTest extends TestCaseEnumerable
     function testThenByDir_desc()
     {
         // thenByDir (true)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(true));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 11, 1, 22, 22, 2, 333, 444 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(true));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 444, 333, 22, 22, 2, 11, 1 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, '-strncmp($a,$b,1)')->thenByDir(true));
 
         // thenByDir (true, keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy()->thenByDir(true, '$v-$k'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ], [ 1 ] ],
             E::from([ [ 1 ], [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ] ])->orderBy('$v[0]')->thenByDir(true, '$v[$k]'));
 
         // thenByDir (true, keySelector, comparer)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDir(true, null, 'strncmp($a,$b,1)'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 333, 1, 22, 11, 444, 2, 22 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])
                 ->orderBy('(int)($k/2)')->thenByDir(true, null, 'strncmp($a,$b,1)'));
@@ -74,29 +74,29 @@ class OrderedEnumerableTest extends TestCaseEnumerable
     function testThenBy()
     {
         // thenBy ()
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenBy());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 1, 11, 2, 22, 22, 333, 444 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, 'strncmp($a,$b,1)')->thenBy());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 444, 333, 2, 22, 22, 1, 11 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, '-strncmp($a,$b,1)')->thenBy());
 
         // thenBy (keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy()->thenBy('$v-$k'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ [ 0, 4 ], [ 1 ], [ 1, 0, 0, 2 ], [ 1, 0, 3 ] ],
             E::from([ [ 1 ], [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ] ])->orderBy('$v[0]')->thenBy('$v[$k]'));
 
         // thenBy (keySelector, comparer)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenBy(null, 'strncmp($a,$b,1)'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 22, 2, 444, 11, 22, 1, 333 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])
                 ->orderBy('(int)(-$k/2)')->thenBy(null, 'strncmp($a,$b,1)'));
@@ -105,29 +105,29 @@ class OrderedEnumerableTest extends TestCaseEnumerable
     function testThenByDescending()
     {
         // thenByDescending ()
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDescending());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 11, 1, 22, 22, 2, 333, 444 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, 'strncmp($a,$b,1)')->thenByDescending());
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 444, 333, 22, 22, 2, 11, 1 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])->orderBy(null, '-strncmp($a,$b,1)')->thenByDescending());
 
         // thenByDescending (keySelector)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy()->thenByDescending('$v-$k'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ], [ 1 ] ],
             E::from([ [ 1 ], [ 0, 4 ], [ 1, 0, 3 ], [ 1, 0, 0, 2 ] ])->orderBy('$v[0]')->thenByDescending('$v[$k]'));
 
         // thenByDescending (keySelector, comparer)
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [],
             E::from([])->orderBy(null, 'strncmp($a,$b,1)')->thenByDescending(null, 'strncmp($a,$b,1)'));
-        $this->assertEnumValuesEquals(
+        $this->assertEnumValuesSame(
             [ 333, 1, 22, 11, 444, 2, 22 ],
             E::from([ 333, 1, 11, 22, 2, 444, 22 ])
                 ->orderBy('(int)($k/2)')->thenByDescending(null, 'strncmp($a,$b,1)'));
