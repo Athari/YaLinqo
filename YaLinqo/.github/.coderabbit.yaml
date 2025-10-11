@@ -1,0 +1,210 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit Configuration Template
+# Complete reference: https://docs.coderabbit.ai/reference/configuration
+
+language: "en-US" # Set the language for reviews by using the corresponding ISO language code.
+tone_instructions: "" # Set the tone of reviews and chat. Example: 'You must use talk like Mr. T. I pity the fool who doesn't!' # Default: ""
+early_access: false # Enable early-access features. # Default: false
+enable_free_tier: true # Enable free tier features for users not on a paid plan. # Default: true
+
+# =============================================================================
+# REVIEWS
+# =============================================================================
+reviews:
+  profile: "assertive" # Set the profile for reviews. Assertive profile yields more feedback, that may be considered nitpicky. # Options: chill, assertive # Default: "chill"
+  request_changes_workflow: false # Approve the review once CodeRabbit’s comments are resolved and no pre-merge checks are in an error state. Note: In GitLab, all discussions must be resolved. # Default: false
+  high_level_summary: true # Generate a high level summary of the changes in the PR/MR description. # Default: true
+  high_level_summary_placeholder: "@coderabbitai summary" # Placeholder in the PR/MR description that gets replaced with the high level summary. # Default: "@coderabbitai summary"
+  high_level_summary_in_walkthrough: false # Include the high level summary in the walkthrough comment. # Default: false
+  auto_title_placeholder: "@coderabbitai" # Add this keyword in the PR/MR title to auto-generate the title. # Default: "@coderabbitai"
+  auto_title_instructions: "" # Auto Title Instructions - Custom instructions for auto-generating the PR/MR title. # Default: ""
+  review_status: true # Post review details on each review. Additionally, post a review status when a review is skipped in certain cases. # Default: true
+  commit_status: true # Set the commit status to 'pending' when the review is in progress and 'success' when it is complete. # Default: true
+  fail_commit_status: false # Set the commit status to 'failure' when the PR cannot be reviewed by CodeRabbit for any reason. # Default: false
+  collapse_walkthrough: false # Generate walkthrough in a markdown collapsible section. # Default: false
+  changed_files_summary: true # Generate a summary of the changed files in the walkthrough. # Default: true
+  sequence_diagrams: true # Generate sequence diagrams in the walkthrough. # Default: true
+  estimate_code_review_effort: true # Estimate the code review effort in the walkthrough. # Default: true
+  assess_linked_issues: true # Generate an assessment of how well the changes address the linked issues in the walkthrough. # Default: true
+  related_issues: true # Include possibly related issues in the walkthrough. # Default: true
+  related_prs: true # Related PRs - Include possibly related pull requests in the walkthrough. # Default: true
+  suggested_labels: true # Suggest labels based on the changes in the pull request in the walkthrough. # Default: true
+  auto_apply_labels: false # Automatically apply the suggested labels to the PR/MR. # Default: false
+  suggested_reviewers: true # Suggest reviewers based on the changes in the pull request in the walkthrough. # Default: true
+  auto_assign_reviewers: false # Automatically assign suggested reviewers to the pull request # Default: false
+  in_progress_fortune: true # Post an in-progress fortune message while the review is in progress. # Default: true
+  poem: true # Generate a poem in the walkthrough comment. # Default: true
+  labeling_instructions: [] # Labeling Instructions - Provide guidelines for suggesting labels for the PR/MR. When specific labels or instructions are provided, only those labels are considered, though previous examples are still used to inform the suggestions. If no such labels are provided, suggestions are based solely on previous PR/MRs. # Default: []
+  path_filters: [] # Specify file patterns to include or exclude in a review using glob patterns (e.g., !dist/**, src/**). These patterns also apply to 'git sparse-checkout', including specified patterns and ignoring excluded ones (starting with '!') when cloning the repository. # Default: []
+  path_instructions: [] # Path Instructions - Provide specific additional guidelines for code review based on file paths. # Default: []
+  abort_on_close: true # Abort the in-progress review if the pull request is closed or merged. # Default: true
+  disable_cache: false # Disable caching of code and dependencies. This will force CodeRabbit to download the code and dependencies fresh from the repository each time. # Default: false
+  auto_review:
+    enabled: true # Automatic Review - Automatic code review # Default: true
+    auto_incremental_review: true # Automatic Incremental Review - Automatic incremental code review on each push # Default: true
+    ignore_title_keywords: [] # Ignore reviewing if the title of the pull request contains any of these keywords (case-insensitive). # Default: []
+    labels: [] # List of labels to control which PRs/MRs to review. Labels starting with '!' are negative matches. Examples: ['bug', 'feature'] - reviews PRs with 'bug' OR 'feature' label. ['!wip'] - reviews all PRs except those with 'wip' label. ['bug', '!wip'] - reviews PRs with 'bug' label but not if they have 'wip' label. # Default: []
+    drafts: false # Review draft PRs/MRs. # Default: false
+    base_branches: [ '.*' ] # Base branches (other than the default branch) to review. Accepts regex patterns. Use '.*' to match all branches. # Default: []
+    ignore_usernames: [] # Ignore reviewing pull requests by these usernames. These should match the Git platform usernames exactly, not the email addresses. # Default: []
+  finishing_touches:
+    docstrings:
+      enabled: true # Docstrings - Allow CodeRabbit to generate docstrings for PRs/MRs. # Default: true
+    unit_tests:
+      enabled: true # Unit Tests - Allow CodeRabbit to generate unit tests for PRs/MRs. # Default: true
+  pre_merge_checks:
+    docstrings:
+      mode: "warning" # Mode - Determines how strictly the docstring coverage check is enforced. Warning will only generate a warning and does not require the user to resolve the check. Error requires the user to resolve issues before merging the pull request. If set to error and the request changes workflow is enabled, the pull request will be blocked until the issues are resolved. # Options: off, warning, error # Default: "warning"
+      threshold: 80 # Percentage threshold for docstring coverage check. # Default: 80
+    title:
+      mode: "warning" # Mode - Determines how strictly the title check is enforced. Warning will only generate a warning and does not require the user to resolve the check. Error requires the user to resolve issues before merging the pull request. If set to error and the request changes workflow is enabled, the pull request will be blocked until the issues are resolved. # Options: off, warning, error # Default: "warning"
+      requirements: "" # Requirements - Requirements for the pull request title. Example: 'Title should be concise and descriptive, ideally under 50 characters.' # Default: ""
+    description:
+      mode: "warning" # Mode - Determines how strictly the description check is enforced. Warning will only generate a warning and does not require the user to resolve the check. Error requires the user to resolve issues before merging the pull request. If set to error and the request changes workflow is enabled, the pull request will be blocked until the issues are resolved. # Options: off, warning, error # Default: "warning"
+    issue_assessment:
+      mode: "warning" # Mode - Determines how strictly the issue assessment check is enforced. Warning will only generate a warning and does not require the user to resolve the check. Error requires the user to resolve issues before merging the pull request. If set to error and the request changes workflow is enabled, the pull request will be blocked until the issues are resolved. # Options: off, warning, error # Default: "warning"
+    custom_checks: [] # Custom Pre-merge Checks - Add unique checks to enforce your team's standards before merging a pull request. Each check must have a unique name (up to 50 characters) and clear instructions (up to 10000 characters). Use these to automatically verify coding, security, documentation, or business rules and maintain code quality. # Default: []
+  tools:
+    ast-grep:
+      rule_dirs: [] # List of rules directories. # Default: []
+      util_dirs: [] # List of utils directories. # Default: []
+      essential_rules: true # Use ast-grep essentials package. # Default: true
+      packages: [] # Predefined packages to be used. # Default: []
+    shellcheck:
+      enabled: true # Enable ShellCheck - ShellCheck is a static analysis tool that finds bugs in your shell. - Enable ShellCheck integration. - v0.11.0 # Default: true
+    ruff:
+      enabled: true # Enable Ruff - Ruff is a Python linter and code formatter. - Enable Ruff integration. - v0.13.3 # Default: true
+    markdownlint:
+      enabled: true # Enable markdownlint - markdownlint-cli2 is a static analysis tool to enforce standards and consistency for Markdown files. - Enable markdownlint integration. - v0.18.1 # Default: true
+    github-checks:
+      enabled: true # Enable GitHub Checks - Enable integration, defaults to true - Enable GitHub Checks integration. # Default: true
+      timeout_ms: 90000 # Time in milliseconds to wait for all GitHub Checks to conclude. Default 90 seconds, max 15 minutes (900000ms). # Default: 90000
+    languagetool:
+      enabled: true # Enable LanguageTool - Enable LanguageTool integration. # Default: true
+      enabled_rules: [] # IDs of rules to be enabled. The rule won't run unless 'level' is set to a level that activates the rule. # Default: []
+      disabled_rules: [] # IDs of rules to be disabled. Note: EN_UNPAIRED_BRACKETS, and EN_UNPAIRED_QUOTES are always disabled. # Default: []
+      enabled_categories: [] # IDs of categories to be enabled. # Default: []
+      disabled_categories: [] # IDs of categories to be disabled. Note: TYPOS, TYPOGRAPHY, and CASING are always disabled. # Default: []
+      enabled_only: false # Only the rules and categories whose IDs are specified with 'enabledRules' or 'enabledCategories' are enabled. # Default: false
+      level: "default" # If set to 'picky', additional rules will be activated, i.e. rules that you might only find useful when checking formal text. # Options: default, picky # Default: "default"
+    biome:
+      enabled: true # Enable Biome - Biome is a fast formatter, linter, and analyzer for web projects. - Enable Biome integration. - v2.1.2 # Default: true
+    hadolint:
+      enabled: true # Enable Hadolint - Hadolint is a Dockerfile linter. - Enable Hadolint integration. - v2.14.0 # Default: true
+    swiftlint:
+      enabled: true # Enable SwiftLint - SwiftLint is a Swift linter. - Enable SwiftLint integration. - v0.57.0 # Default: true
+      config_file: "example-value" # Optional path to the SwiftLint configuration file relative to the repository. This is useful when the configuration file is named differently than the default '.swiftlint.yml' or '.swiftlint.yaml'.
+    phpstan:
+      enabled: true # Enable PHPStan - PHPStan requires config file in your repository root. Please ensure that this file contains the `paths:` parameter. - v2.1.30 # Default: true
+      level: "default" # Level - Specify the rule level to run. This setting is ignored if your configuration file already has a `level:` parameter. # Options: default, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, max # Default: "default"
+    phpmd:
+      enabled: true # Enable PHPMD - PHPMD is a tool to find potential problems in PHP code. - v2.15.0 # Default: true
+    phpcs:
+      enabled: true # Enable PHP CodeSniffer - PHP CodeSniffer is a PHP linter and coding standard checker. - v3.7.2 # Default: true
+    golangci-lint:
+      enabled: true # Enable golangci-lint - golangci-lint is a fast linters runner for Go. - Enable golangci-lint integration. - v2.5.0 # Default: true
+      config_file: "example-value" # Optional path to the golangci-lint configuration file relative to the repository. Useful when the configuration file is named differently than the default '.golangci.yml', '.golangci.yaml', '.golangci.toml', '.golangci.json'.
+    yamllint:
+      enabled: true # Enable YAMLlint - YAMLlint is a linter for YAML files. - Enable YAMLlint integration. - v1.37.1 # Default: true
+    gitleaks:
+      enabled: true # Enable Gitleaks - Gitleaks is a secret scanner. - Enable Gitleaks integration. - v8.28.0 # Default: true
+    checkov:
+      enabled: true # Enable Checkov - Checkov is a static code analysis tool for infrastructure-as-code files. - v3.2.334 # Default: true
+    detekt:
+      enabled: true # Enable detekt - detekt is a static code analysis tool for Kotlin files. - v1.23.8 # Default: true
+      config_file: "example-value" # Optional path to the detekt configuration file relative to the repository.
+    eslint:
+      enabled: true # Enable ESLint - ESLint is a static code analysis tool for JavaScript files. # Default: true
+    flake8:
+      enabled: true # Enable Flake8 - Flake8 is a Python linter that wraps PyFlakes, pycodestyle and Ned Batchelder's McCabe script. - v7.3.0 # Default: true
+    rubocop:
+      enabled: true # Enable RuboCop - RuboCop is a Ruby static code analyzer (a.k.a. linter ) and code formatter. - v1.81.1 # Default: true
+    buf:
+      enabled: true # Enable Buf - Buf offers linting for Protobuf files. - v1.57.2 # Default: true
+    regal:
+      enabled: true # Enable Regal - Regal is a linter and language server for Rego. - v0.36.1 # Default: true
+    actionlint:
+      enabled: true # Enable actionlint - is a static checker for GitHub Actions workflow files. - v1.7.7 # Default: true
+    pmd:
+      enabled: true # Enable PMD - PMD is an extensible multilanguage static code analyzer. It’s mainly concerned with Java. - v7.17.0 # Default: true
+      config_file: "example-value" # Optional path to the PMD configuration file relative to the repository.
+    cppcheck:
+      enabled: true # Enable Cppcheck - Cppcheck is a static code analysis tool for the C and C++ programming languages. - v2.18.0 # Default: true
+    semgrep:
+      enabled: true # Enable Semgrep - Semgrep is a static analysis tool designed to scan code for security vulnerabilities and code quality issues. - Enable Semgrep integration. - v1.139.0 # Default: true
+      config_file: "example-value" # Optional path to the Semgrep configuration file relative to the repository.
+    circleci:
+      enabled: true # Enable CircleCI - CircleCI tool is a static checker for CircleCI config files. - v0.1.33494 # Default: true
+    clippy:
+      enabled: true # Enable Clippy - Clippy is a collection of lints to catch common mistakes and improve your Rust code. - Enable Clippy integration. # Default: true
+    sqlfluff:
+      enabled: true # Enable SQLFluff - SQLFluff is an open source, dialect-flexible and configurable SQL linter. - v3.4.2 # Default: true
+    prismaLint:
+      enabled: true # Enable Prisma Schema linting - Prisma Schema linting helps maintain consistent and error-free schema files - v0.10.2 # Default: true
+    pylint:
+      enabled: true # Enable Pylint - Pylint is a Python static code analysis tool. - v3.3.9 # Default: true
+    oxc:
+      enabled: true # Enable Oxlint - Oxlint is a JavaScript/TypeScript linter for OXC written in Rust. - v1.19.0 # Default: true
+    shopifyThemeCheck:
+      enabled: true # Enable Shopify Theme Check - A linter for Shopify themes that helps you follow Shopify theme & Liquid best practices - cli 3.84.2 - theme 3.58.2 # Default: true
+    luacheck:
+      enabled: true # Enable Lua code linting - Luacheck helps maintain consistent and error-free Lua code - v1.2.0 # Default: true
+    brakeman:
+      enabled: true # Enable Brakeman - Brakeman is a static analysis security vulnerability scanner for Ruby on Rails applications. - v7.1.0 # Default: true
+    dotenvLint:
+      enabled: true # Enable dotenv-linter - dotenv-linter is a tool for checking and fixing .env files for problems and best practices - v3.3.0 # Default: true
+    htmlhint:
+      enabled: true # Enable HTMLHint - HTMLHint is a static code analysis tool for HTML files. - Enable HTMLHint integration. - v1.7.1 # Default: true
+    checkmake:
+      enabled: true # Enable checkmake - checkmake is a linter for Makefiles. - v0.2.2 # Default: true
+    osvScanner:
+      enabled: true # Enable OSV Scanner - OSV Scanner is a tool for vulnerability package scanning - v2.2.3 # Default: true
+
+# =============================================================================
+# CHAT
+# =============================================================================
+chat:
+  art: true # Generate art in response to chat messages. CodeRabbit expresses emotions as either ASCII or Emoji art. # Default: true
+  auto_reply: true # Enable the bot to reply automatically without requiring the user to tag it. # Default: true
+  integrations:
+    jira:
+      usage: "auto" # Jira - Enable the Jira integration for opening issues, etc. 'auto' disables the integration for public repositories. # Options: auto, enabled, disabled # Default: "auto"
+    linear:
+      usage: "auto" # Linear - Enable the Linear integration for opening issues, etc. 'auto' disables the integration for public repositories. # Options: auto, enabled, disabled # Default: "auto"
+
+# =============================================================================
+# KNOWLEDGE BASE
+# =============================================================================
+knowledge_base:
+  opt_out: false # Opt Out - Disable all knowledge base features that require data retention. If you opt out after opting in, all of your existing knowledge base data will be removed from the system. # Default: false
+  web_search:
+    enabled: true # Web Search - Enable the web search integration. # Default: true
+  code_guidelines:
+    enabled: true # Enabled - Enable CodeRabbit to enforce your organization's coding standards during reviews. # Default: true
+    filePatterns: [] # File Patterns - Specify files for your coding guideline documents in this section. CodeRabbit will scan these files to understand your team's standards and apply them during code reviews. Multiple files supported. File names are case-sensitive. Common files like: (**/.cursorrules, .github/copilot-instructions.md, .github/instructions/*.instructions.md, **/CLAUDE.md, **/GEMINI.md, **/.cursor/rules/*, **/.windsurfrules, **/.clinerules/*, **/.rules/*, **/AGENT.md, **/AGENTS.md) are included by default. # Default: []
+  learnings:
+    scope: "auto" # Learnings - Specify the scope of learnings to use for the knowledge base. 'local' uses the repository's learnings, 'global' uses the organization's learnings, and 'auto' uses repository's learnings for public repositories and organization's learnings for private repositories. # Options: local, global, auto # Default: "auto"
+  issues:
+    scope: "auto" # Issues - Specify the scope of git platform (GitHub/GitLab) issues to use for the knowledge base. 'local' uses the repository's issues, 'global' uses the organization's issues, and 'auto' uses repository's issues for public repositories and organization's issues for private repositories. # Options: local, global, auto # Default: "auto"
+  jira:
+    usage: "auto" # Jira - Enable the Jira knowledge base integration. 'auto' disables the integration for public repositories. # Options: auto, enabled, disabled # Default: "auto"
+    project_keys: [] # Jira Project Keys - Specify the Jira project keys to use for the knowledge base. # Default: []
+  linear:
+    usage: "auto" # Linear - Enable the Linear knowledge base integration. 'auto' disables the integration for public repositories. # Options: auto, enabled, disabled # Default: "auto"
+    team_keys: [] # Linear Team Keys - Specify the Linear team keys (identifiers) to use for the knowledge base. E.g. 'ENG' # Default: []
+  pull_requests:
+    scope: "auto" # Pull Requests - Specify the scope of pull requests to use for the knowledge base. 'local' uses the repository's pull requests, 'global' uses the organization's pull requests, and 'auto' uses repository's pull requests for public repositories and organization's pull requests for private repositories. # Options: local, global, auto # Default: "auto"
+  mcp:
+    usage: "auto" # MCP - Enable the MCP knowledge base integration. 'auto' disables the integration for public repositories. # Options: auto, enabled, disabled # Default: "auto"
+    disabled_servers: [] # MCP Disabled Servers - Specify MCP server labels to disable (case-insensitive). These servers will be excluded from reviews and knowledge base queries. # Default: []
+
+# =============================================================================
+# CODE GENERATION
+# =============================================================================
+code_generation:
+  docstrings:
+    language: "en-US" # Set the language for docstrings by using the corresponding ISO language code. # Default: "en-US"
+    path_instructions: [] # Path Instructions - Provide additional guidelines for docstring generation based on file paths. # Default: []
+  unit_tests:
+    path_instructions: [] # Unit Test Generation - Provide additional guidelines for unit test generation based on file paths. # Default: []
