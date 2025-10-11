@@ -35,7 +35,7 @@ class OrderedEnumerable extends Enumerable
     /**
      * @internal
      * @param Enumerable $source
-     * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_DESC for ascending (by increasing value), true or SORT_ASC for descending (by decreasing value).
+     * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_ASC for ascending (by increasing value), true or SORT_DESC for descending (by decreasing value).
      * @param int $sortFlags Sort flags for array_multisort.
      * @param bool $isReversed Whether comparer result needs to be negated (used in usort).
      * @param callable $keySelector {(v, k) ==> key} A function to extract a key from an element.
@@ -67,9 +67,9 @@ class OrderedEnumerable extends Enumerable
      * <p>Three methods are defined to extend the type OrderedEnumerable, which is the return type of this method. These three methods, namely {@link thenBy}, {@link thenByDescending} and {@link thenByDir}, enable you to specify additional sort criteria to sort a sequence. These methods also return an OrderedEnumerable, which means any number of consecutive calls to thenBy, thenByDescending or thenByDir can be made.
      * <p>Because OrderedEnumerable inherits from {@link Enumerable}, you can call {@link Enumerable::orderBy orderBy}, {@link Enumerable::orderByDescending orderByDescending} or {@link Enumerable::orderByDir orderByDir} on the results of a call to orderBy, orderByDescending, orderByDir, thenBy, thenByDescending or thenByDir. Doing this introduces a new primary ordering that ignores the previously established ordering.
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
-     * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_DESC for ascending (by increasing value), true or SORT_ASC for descending (by decreasing value).
-     * @param callable|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
-     * @param callable|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
+     * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_ASC for ascending (by increasing value), true or SORT_DESC for descending (by decreasing value).
+     * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
+     * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
      * @return \YaLinqo\OrderedEnumerable
      */
     public function thenByDir ($sortOrder, $keySelector = null, $comparer = null)
@@ -138,7 +138,7 @@ class OrderedEnumerable extends Enumerable
                 arsort($array, $this->sortFlags);
         }
         elseif ($this->keySelector === Functions::$key) {
-            if ($canMultisort)
+            if (!$canMultisort)
                 uksort($array, $this->getSingleComparer());
             elseif ($this->sortOrder == SORT_ASC)
                 ksort($array, $this->sortFlags);

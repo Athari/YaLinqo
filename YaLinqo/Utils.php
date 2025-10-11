@@ -28,10 +28,10 @@ class Utils
     private static $compareFunctionToSortFlags = [
         null => SORT_REGULAR,
         'strcmp' => SORT_STRING,
-        'strcasecmp' => 10 /*SORT_STRING | SORT_FLAG_CASE*/,
+        'strcasecmp' => SORT_STRING | SORT_FLAG_CASE,
         'strcoll' => SORT_LOCALE_STRING,
         'strnatcmp' => SORT_NATURAL,
-        'strnatcasecmp' => 14 /*SORT_NATURAL | SORT_FLAG_CASE*/,
+        'strnatcasecmp' => SORT_NATURAL | SORT_FLAG_CASE,
     ];
 
     /** @internal */
