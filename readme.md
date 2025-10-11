@@ -49,7 +49,7 @@ Add to `composer.json`:
 ```json
 {
     "require": {
-        "athari/yalinqo": "^2.0"
+        "athari/yalinqo": "^3.0"
     }
 }
 ```
@@ -196,7 +196,7 @@ Versions
 
 <tr>
 <td valign=top>3.0
-<td valign=top>abandoned
+<td valign=top>maintenance
 <td valign=top>7.0+
 <td><ul>
     <li>Abandoned rewrite with perfomance improvements
