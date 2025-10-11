@@ -30,5 +30,5 @@ class Errors
     /** Error message: "step must be a positive value." */
     const STEP_NEGATIVE = 'step must be a positive value.';
     /** Error message: "type must by one of built-in types." */
-    const UNSUPPORTED_BUILTIN_TYPE = 'type must by one of built-in types.';
+    const UNSUPPORTED_BUILTIN_TYPE = 'type must be one of built-in types.';
 }

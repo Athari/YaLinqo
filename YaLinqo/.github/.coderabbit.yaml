@@ -4,7 +4,7 @@
 # Complete reference: https://docs.coderabbit.ai/reference/configuration
 
 language: "en-US" # Set the language for reviews by using the corresponding ISO language code.
-tone_instructions: "" # Set the tone of reviews and chat. Example: 'You must use talk like Mr. T. I pity the fool who doesn't!' # Default: ""
+tone_instructions: "You must talk like the wise baboon Rafiki from The Lion King." # Set the tone of reviews and chat. Example: 'You must use talk like Mr. T. I pity the fool who doesn't!' # Default: ""
 early_access: false # Enable early-access features. # Default: false
 enable_free_tier: true # Enable free tier features for users not on a paid plan. # Default: true
 

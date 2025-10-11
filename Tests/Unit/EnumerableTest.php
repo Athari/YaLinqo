@@ -1180,6 +1180,12 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertSame(
             5,
             E::from([ 3, 5, 4 ])->max());
+        $this->assertSame(
+            -1e100,
+            E::from([ -1e100 ])->max());
+        $this->assertSame(
+            -PHP_INT_MAX,
+            E::from([ -INF, -PHP_INT_MAX, -PHP_FLOAT_MAX ])->max());
 
         // max (selector)
         $this->assertSame(
@@ -1235,6 +1241,12 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertSame(
             3,
             E::from([ 3, 5, 4 ])->min());
+        $this->assertSame(
+            1e100,
+            E::from([ 1e100 ])->min());
+        $this->assertSame(
+            PHP_INT_MAX,
+            E::from([ INF, PHP_INT_MAX, PHP_FLOAT_MAX ])->min());
 
         // min (selector)
         $this->assertSame(

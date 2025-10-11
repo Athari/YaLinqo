@@ -152,7 +152,7 @@ class Utils
             if (strlen($code) > 0 && $code[0] != '{')
                 $code = "return {$code};";
             $fun = eval("return function($args) { $code };");
-            if (!$fun)
+            if (!is_callable($fun))
                 throw new \InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA);
             self::$lambdaCache[$closure][$closureArgs] = $fun;
             return $fun;

@@ -507,7 +507,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
-        $max = -PHP_INT_MAX;
+        $max = -INF;
         $assigned = false;
         foreach ($this as $k => $v) {
             $max = max($max, $selector($v, $k));
@@ -555,7 +555,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $selector = Utils::createLambda($selector, 'v,k', Functions::$value);
 
-        $min = PHP_INT_MAX;
+        $min = INF;
         $assigned = false;
         foreach ($this as $k => $v) {
             $min = min($min, $selector($v, $k));
@@ -995,12 +995,16 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>This function only works with UTF-8 encoded data.
      * @param int $options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_UNESCAPED_UNICODE. Default: 0.
      * @return string A JSON encoded string on success or false on failure.
+     * @throws \UnexpectedValueException If json_encode fails.
      * @see json_encode
      * @package YaLinqo\Conversion
      */
     public function toJSON(int $options = 0): string
     {
-        return json_encode($this->toArrayDeep(), $options);
+        $result = json_encode($this->toArrayDeep(), $options);
+        if ($result === false)
+            throw new \UnexpectedValueException(json_last_error_msg());
+        return $result;
     }
 
     /**
