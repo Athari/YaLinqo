@@ -3,7 +3,7 @@
     "description": "YaLinqo, a LINQ-to-objects library for PHP",
     "license": "BSD-2-Clause",
     "homepage": "http://athari.github.io/YaLinqo",
-    "keywords": ["linq", "linqo", "query", "statistic"],
+    "keywords": ["linq", "collection", "generator", "iterator", "array", "yield", "query"],
     "authors": [
         {
             "name": "Alexander Prokhorov",
@@ -38,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.x-dev"
+            "dev-master": "3.x-dev"
         }
     }
 }
