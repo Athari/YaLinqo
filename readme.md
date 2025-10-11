@@ -1,6 +1,5 @@
 # *YaLinqo: Yet Another LINQ to Objects for PHP*
 
-[![Travis CI Status](https://img.shields.io/travis/Athari/YaLinqo.svg)](https://travis-ci.org/Athari/YaLinqo)
 [![Coveralls Coverage](https://img.shields.io/coveralls/Athari/YaLinqo/master.svg)](https://coveralls.io/r/Athari/YaLinqo)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Athari/YaLinqo.svg)](https://scrutinizer-ci.com/g/Athari/YaLinqo)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/athari/yalinqo.svg)](https://packagist.org/packages/athari/yalinqo)

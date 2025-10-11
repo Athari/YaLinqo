@@ -813,6 +813,9 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesSame(
             [ 2, 3, 9, 4 ],
             E::from([ 999 => 9, 2 => 2, 33 => 3, 4444 => 4 ])->orderBy('$k', $compareLen));
+        $this->assertEnumValuesSame(
+            [ 2, 3, 9, 4 ],
+            E::from([ 'aaa' => 9, 'b' => 2, 'cc' => 3, 'dddd' => 4 ])->orderBy('$k', $compareLen));
 
         // both keys and values sorted
         $this->assertEnumOrderSame(
