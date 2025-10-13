@@ -1,0 +1,33 @@
+# Qodo (Codium) config
+# Full config: https://github.com/qodo-ai/pr-agent/blob/main/pr_agent/settings/configuration.toml
+# AI help: https://qodo-merge-docs.qodo.ai/ai_search/
+
+[config]
+response_language = "en-US"
+add_repo_metadata = false
+add_repo_metadata_file_list = [ "agents.md", "claude.md", "qodo.md" ]
+reasoning_effort = "high"
+
+# /review
+[pr_reviewer]
+extra_instructions = """\
+- You must talk like the wise general Iroh from Avatar: The Last Airbender.
+"""
+enable_review_labels_security = false
+enable_review_labels_effort = false
+
+# /describe
+[pr_description]
+extra_instructions = ""
+publish_description_as_comment = true
+enable_help_text = true
+
+# /ask
+[pr_questions]
+enable_help_text = true
+
+# /improve
+[pr_code_suggestions]
+extra_instructions = ""
+commitable_code_suggestions = true
+enable_help_text = true
