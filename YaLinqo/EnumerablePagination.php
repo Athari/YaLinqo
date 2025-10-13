@@ -327,7 +327,7 @@ trait EnumerablePagination
         $array = $this->tryGetArrayCopy();
         if ($array !== null) {
             $keys = array_keys($array, $value, true);
-            return count($keys) > 0 ? $keys[0] : null;
+            return empty($keys) ? null : $keys[0];
         }
         else {
             foreach ($this as $k => $v) {
