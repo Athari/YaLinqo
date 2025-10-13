@@ -1,6 +1,8 @@
+%YAML 1.2
+---
 name: CI
 
-'on':
+on:
   pull_request:
   push:
     branches:
