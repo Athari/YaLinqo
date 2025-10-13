@@ -1,32 +1,73 @@
 name: CI
 
 on:
-  pull_request:
+  workflow_dispatch:
+    inputs: {}
   push:
     branches:
       - master
       - main
+      - feature/**
+      - v*
+  pull_request:
+    branches:
+      - master
+      - main
+      - v*
+
+env:
+  # options
+  composer_version: 2
+
+defaults:
+  run:
+    shell: pwsh
 
 jobs:
   test:
     name: PHP ${{ matrix.php-version }}
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.php-future == true }}
 
     strategy:
       fail-fast: false
       matrix:
         php-version:
+          - '7.0'
+          - '7.1'
           - '7.2'
           - '7.3'
           - '7.4'
+          - '8.0'
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
+          - '8.5'
+          - '8.6'
+        include:
+          - php-version: '7.0'
+            composer-version: '2.2'
+          - php-version: '7.1'
+            composer-version: '2.2'
+          - php-version: '8.5'
+            php-future: true
+          - php-version: '8.6'
+            php-future: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer:v${{ matrix.composer-version || env.composer_version }}
+
+      # - name: Install Composer 2.2 LTS for PHP < 7.2
+      #   if: matrix.composer-legacy == true
+      #   run: composer self-update --2.2
 
       - name: Validate composer.json
         run: composer validate --strict

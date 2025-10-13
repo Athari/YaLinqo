@@ -4,13 +4,27 @@ namespace YaLinqo\Tests\Testing;
 
 use YaLinqo\Enumerable as E, YaLinqo\Functions;
 
-class TestCaseEnumerable extends \PHPUnit\Framework\TestCase
-{
-    protected function setUp()
-    {
-        $this->setOutputCallback(function($str) { return str_replace("\r\n", "\n", $str); });
-    }
+// HACK: PHP 7.0 testing compatibility. Remove in YaLinqo 4.0 which drops support for ancient PHP versions.
 
+if (PHP_VERSION_ID < 70100) {
+    class TestCaseEnumerableBase extends \PHPUnit\Framework\TestCase {
+        protected function setUp() // phpcs:ignore 2439
+        {
+            $this->setOutputCallback(function($str) { return str_replace("\r\n", "\n", $str); });
+        }
+    }
+}
+else {
+    class TestCaseEnumerableBase extends \PHPUnit\Framework\TestCase {
+        protected function setUp(): void // phpcs:ignore 0405 0413 6402
+        {
+            $this->setOutputCallback(function($str) { return str_replace("\r\n", "\n", $str); });
+        }
+    }
+}
+
+class TestCaseEnumerable extends TestCaseEnumerableBase
+{
     public function setExpectedException($exception, $message = null)
     {
         $this->expectException($exception);
