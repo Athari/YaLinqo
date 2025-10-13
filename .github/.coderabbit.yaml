@@ -94,7 +94,7 @@ reviews:
       enabled: true # Enable Hadolint - Hadolint is a Dockerfile linter. - Enable Hadolint integration. - v2.14.0 # Default: true
     swiftlint:
       enabled: true # Enable SwiftLint - SwiftLint is a Swift linter. - Enable SwiftLint integration. - v0.57.0 # Default: true
-      config_file: "example-value" # Optional path to the SwiftLint configuration file relative to the repository. This is useful when the configuration file is named differently than the default '.swiftlint.yml' or '.swiftlint.yaml'.
+      config_file: "" # Optional path to the SwiftLint configuration file relative to the repository. This is useful when the configuration file is named differently than the default '.swiftlint.yml' or '.swiftlint.yaml'.
     phpstan:
       enabled: true # Enable PHPStan - PHPStan requires config file in your repository root. Please ensure that this file contains the `paths:` parameter. - v2.1.30 # Default: true
       level: "default" # Level - Specify the rule level to run. This setting is ignored if your configuration file already has a `level:` parameter. # Options: default, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, max # Default: "default"
@@ -104,7 +104,7 @@ reviews:
       enabled: true # Enable PHP CodeSniffer - PHP CodeSniffer is a PHP linter and coding standard checker. - v3.7.2 # Default: true
     golangci-lint:
       enabled: true # Enable golangci-lint - golangci-lint is a fast linters runner for Go. - Enable golangci-lint integration. - v2.5.0 # Default: true
-      config_file: "example-value" # Optional path to the golangci-lint configuration file relative to the repository. Useful when the configuration file is named differently than the default '.golangci.yml', '.golangci.yaml', '.golangci.toml', '.golangci.json'.
+      config_file: "" # Optional path to the golangci-lint configuration file relative to the repository. Useful when the configuration file is named differently than the default '.golangci.yml', '.golangci.yaml', '.golangci.toml', '.golangci.json'.
     yamllint:
       enabled: true # Enable YAMLlint - YAMLlint is a linter for YAML files. - Enable YAMLlint integration. - v1.37.1 # Default: true
     gitleaks:
@@ -113,7 +113,7 @@ reviews:
       enabled: true # Enable Checkov - Checkov is a static code analysis tool for infrastructure-as-code files. - v3.2.334 # Default: true
     detekt:
       enabled: true # Enable detekt - detekt is a static code analysis tool for Kotlin files. - v1.23.8 # Default: true
-      config_file: "example-value" # Optional path to the detekt configuration file relative to the repository.
+      config_file: "" # Optional path to the detekt configuration file relative to the repository.
     eslint:
       enabled: true # Enable ESLint - ESLint is a static code analysis tool for JavaScript files. # Default: true
     flake8:
@@ -128,12 +128,12 @@ reviews:
       enabled: true # Enable actionlint - is a static checker for GitHub Actions workflow files. - v1.7.7 # Default: true
     pmd:
       enabled: true # Enable PMD - PMD is an extensible multilanguage static code analyzer. It’s mainly concerned with Java. - v7.17.0 # Default: true
-      config_file: "example-value" # Optional path to the PMD configuration file relative to the repository.
+      config_file: "" # Optional path to the PMD configuration file relative to the repository.
     cppcheck:
       enabled: true # Enable Cppcheck - Cppcheck is a static code analysis tool for the C and C++ programming languages. - v2.18.0 # Default: true
     semgrep:
       enabled: true # Enable Semgrep - Semgrep is a static analysis tool designed to scan code for security vulnerabilities and code quality issues. - Enable Semgrep integration. - v1.139.0 # Default: true
-      config_file: "example-value" # Optional path to the Semgrep configuration file relative to the repository.
+      config_file: "" # Optional path to the Semgrep configuration file relative to the repository.
     circleci:
       enabled: true # Enable CircleCI - CircleCI tool is a static checker for CircleCI config files. - v0.1.33494 # Default: true
     clippy:
