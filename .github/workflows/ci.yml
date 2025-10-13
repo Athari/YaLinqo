@@ -27,7 +27,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          coverage: xdebug
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -37,9 +36,3 @@ jobs:
 
       - name: Run tests
         run: vendor/bin/phpunit
-
-      - name: Upload coverage to Coveralls
-        if: matrix.php-version == '7.4'
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run: vendor/bin/php-coveralls -v
