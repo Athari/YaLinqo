@@ -915,7 +915,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $array = [];
         foreach ($enum as $k => $v)
-            $array[$k] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
+            $array[$k ?? ''] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
         return $array;
     }
 

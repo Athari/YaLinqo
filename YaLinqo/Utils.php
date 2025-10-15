@@ -24,7 +24,7 @@ class Utils
     private static $lambdaCache;
     /** Map from comparison functions names to sort flags. Used in lambdaToSortFlagsAndOrder.  @var array */
     private static $compareFunctionToSortFlags = [
-        null => SORT_REGULAR,
+        '' => SORT_REGULAR,
         'strcmp' => SORT_STRING,
         'strcasecmp' => SORT_STRING | SORT_FLAG_CASE,
         'strcoll' => SORT_LOCALE_STRING,
@@ -116,11 +116,13 @@ class Utils
      */
     public static function lambdaToSortFlagsAndOrder($closure, &$sortOrder)
     {
+        if ($closure === null)
+            $closure = '';
         if ($sortOrder !== SORT_ASC && $sortOrder !== SORT_DESC)
             $sortOrder = $sortOrder ? SORT_DESC : SORT_ASC;
         if (is_int($closure))
             return $closure;
-        elseif (($closure === null || is_string($closure)) && isset(self::$compareFunctionToSortFlags[$closure]))
+        elseif (is_string($closure) && isset(self::$compareFunctionToSortFlags[$closure]))
             return self::$compareFunctionToSortFlags[$closure];
         else
             return null;
