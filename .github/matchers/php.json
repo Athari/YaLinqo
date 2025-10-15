@@ -1,0 +1,68 @@
+{
+  "$schema": "https://www.schemastore.org/task.json",
+  "problemMatcher": [
+    {
+      "#": "Based on https://github.com/shivammathur/setup-php/blob/main/src/configs/pm/php.json",
+      "owner": "php-native-error",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^(.*error):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "code": 1, "message": 2, "file": 3, "line": 4
+        }
+      ]
+    },
+    {
+      "owner": "php-native-warning",
+      "severity": "warning",
+      "pattern": [
+        {
+          "regexp": "^(.*Warning):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "code": 1, "message": 2, "file": 3, "line": 4
+        }
+      ]
+    },
+    {
+      "owner": "php-native-info",
+      "severity": "info",
+      "pattern": [
+        {
+          "regexp": "^(.*Deprecated|.*Notice):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "code": 1, "message": 2, "file": 3, "line": 4
+        }
+      ]
+    },
+    {
+      "owner": "composer-abandoned",
+      "severity": "info",
+      "pattern": [
+        {
+          "regexp": "(Package .+ is abandoned, you should avoid using it. .+)",
+          "message": 1
+        }
+      ]
+    },
+    {
+      "#": "Based on https://github.com/shivammathur/setup-php/blob/main/src/configs/pm/phpunit.json",
+      "owner": "phpunit-native",
+      "severity": "error",
+      "pattern": [
+        { "regexp": "^\\d+\\)\\s.*$" },
+        { "regexp": "^(.*Failed\\sasserting\\sthat.*)$", "message": 1 },
+        { "regexp": "^\\s*$" },
+        { "regexp": "^(.*):(\\d+)$", "file": 1, "line": 2 }
+      ]
+    },
+    {
+      "#": "Based on https://github.com/mheap/phpunit-matcher-action/blob/main/index.js",
+      "owner": "phpunit-teamcity",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "##teamcity\\[testFailed.+message='(.+)'\\s+details='(?:\\s|\\|[rn])*(\\S+):(\\d+)[^']+'",
+          "message": 1, "file": 2, "line": 3
+        }
+      ]
+    }
+  ]
+}

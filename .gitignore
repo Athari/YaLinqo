@@ -1,6 +1,7 @@
 /vendor/
 /phpdocs/
 /build/
+/tmp/
 composer.lock
 tmp.php
 

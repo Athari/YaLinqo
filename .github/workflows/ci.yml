@@ -45,6 +45,9 @@ jobs:
           - '8.4'
           - '8.5'
           - '8.6'
+          - 'latest'
+          - 'nightly'
+          - 'master'
         include:
           - php-version: '7.0'
             composer-version: '2.2'
@@ -53,6 +56,10 @@ jobs:
           - php-version: '8.5'
             php-future: true
           - php-version: '8.6'
+            php-future: true
+          - php-version: 'nightly'
+            php-future: true
+          - php-version: 'master'
             php-future: true
 
     steps:
@@ -63,11 +70,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: composer:v${{ matrix.composer-version || env.composer_version }}
+          ini-file: development
+          extensions: curl, mbstring, openssl, zip
+          coverage: xdebug
+          tools: >-
+            phpdoc,
+            composer:v${{ matrix.composer-version || env.composer_version }}
 
-      # - name: Install Composer 2.2 LTS for PHP < 7.2
-      #   if: matrix.composer-legacy == true
-      #   run: composer self-update --2.2
+      - name: Setup problem matchers
+        run: gci *.json -lp .github/matchers | foreach { echo "::add-matcher::$($_.FullName)" }
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -76,4 +87,4 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run tests
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --teamcity
