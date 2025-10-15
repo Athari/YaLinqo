@@ -17,24 +17,14 @@
       "severity": "warning",
       "pattern": [
         {
-          "regexp": "^(.*Warning):\\s+\\s+(.+) in (.+) on line (\\d+)$",
-          "code": 1, "message": 2, "file": 3, "line": 4
-        }
-      ]
-    },
-    {
-      "owner": "php-native-info",
-      "severity": "info",
-      "pattern": [
-        {
-          "regexp": "^(.*Deprecated|.*Notice):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "regexp": "^(.*Warning|.*Deprecated|.*Notice):\\s+\\s+(.+) in (.+) on line (\\d+)$",
           "code": 1, "message": 2, "file": 3, "line": 4
         }
       ]
     },
     {
       "owner": "composer-abandoned",
-      "severity": "info",
+      "severity": "warning",
       "pattern": [
         {
           "regexp": "(Package .+ is abandoned, you should avoid using it. .+)",
