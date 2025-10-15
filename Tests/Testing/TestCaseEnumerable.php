@@ -2,7 +2,7 @@
 
 namespace YaLinqo\Tests\Testing;
 
-use YaLinqo\Enumerable as E, YaLinqo\Functions;
+use YaLinqo\{Enumerable as E, Functions as F};
 
 // HACK: PHP 7.0 testing compatibility. Remove in YaLinqo 4.0 which drops support for ancient PHP versions.
 
@@ -39,7 +39,7 @@ class TestCaseEnumerable extends TestCaseEnumerableBase
 
     public static function assertEnumOrderSame(array $expected, E $actual, $maxLength = PHP_INT_MAX)
     {
-        self::assertSame($expected, $actual->take($maxLength)->select('[ $k, $v ]', Functions::increment())->toArrayDeep());
+        self::assertSame($expected, $actual->take($maxLength)->select('[ $k, $v ]', F::increment())->toArrayDeep());
     }
 
     public static function assertEnumValuesEquals(array $expected, E $actual, $maxLength = PHP_INT_MAX)

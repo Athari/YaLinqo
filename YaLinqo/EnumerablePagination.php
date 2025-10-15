@@ -9,7 +9,7 @@
 
 namespace YaLinqo;
 
-use Iterator, EmptyIterator, ArrayAccess;
+use Iterator, EmptyIterator, ArrayAccess, Traversable;
 use Exception, UnexpectedValueException;
 
 /**
@@ -496,7 +496,7 @@ trait EnumerablePagination
 
     /**
      * Retrieve an external iterator.
-     * @return Iterator
+     * @return Traversable
      */
-    public abstract function getIterator(): Iterator;
+    public abstract function getIterator(): Traversable;
 }

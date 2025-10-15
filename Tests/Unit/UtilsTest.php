@@ -2,8 +2,9 @@
 
 namespace YaLinqo\Tests\Unit;
 
-use YaLinqo\Utils as U, YaLinqo\Functions as F;
-use YaLinqo\Tests\Stubs\Temp, YaLinqo\Tests\Testing\TestCaseEnumerable;
+use Closure;
+use YaLinqo\{Utils as U, Functions as F};
+use YaLinqo\Tests\{Stubs\Temp, Testing\TestCaseEnumerable};
 
 class UtilsTest extends TestCaseEnumerable
 {
@@ -12,8 +13,8 @@ class UtilsTest extends TestCaseEnumerable
     function testInit()
     {
         U::init();
-        $this->assertInstanceOf(\Closure::class, U::createLambda('$v', 'v,k'));
-        $this->assertInstanceOf(\Closure::class, U::createLambda('$k', 'v,k'));
+        $this->assertInstanceOf(Closure::class, U::createLambda('$v', 'v,k'));
+        $this->assertInstanceOf(Closure::class, U::createLambda('$k', 'v,k'));
     }
 
     /** @covers \YaLinqo\Utils::createLambda

@@ -2,21 +2,23 @@
 
 namespace YaLinqo\Tests\Stubs;
 
+use Iterator, IteratorAggregate, Traversable;
+
 // @codeCoverageIgnoreStart
 
-class AggregateIteratorWrapper implements \IteratorAggregate
+class AggregateIteratorWrapper implements IteratorAggregate
 {
     private $iterator;
 
     /**
-     * @param \Iterator $iterator
+     * @param Iterator $iterator
      */
     public function __construct($iterator)
     {
         $this->iterator = $iterator;
     }
 
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
         return $this->iterator;
     }

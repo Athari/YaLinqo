@@ -1,9 +1,15 @@
 <?php
 
+/**
+ * @noinspection PhpUnhandledExceptionInspection
+ */
+
 namespace YaLinqo\Tests\Unit;
 
-use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions, YaLinqo\Errors;
-use YaLinqo\Tests\Stubs\AggregateIteratorWrapper, YaLinqo\Tests\Testing\TestCaseEnumerable;
+use ArrayIterator, EmptyIterator, Exception, stdClass;
+use SimpleXMLElement;
+use YaLinqo\{Enumerable as E, Functions, Errors};
+use YaLinqo\Tests\{Stubs\AggregateIteratorWrapper, Testing\TestCaseEnumerable};
 
 /** @covers \YaLinqo\Enumerable
  */
@@ -94,17 +100,17 @@ class EnumerableTest extends TestCaseEnumerable
         // from (Iterator)
         $this->assertEnumSame(
             [],
-            E::from(new \EmptyIterator));
+            E::from(new EmptyIterator));
         $this->assertEnumSame(
             [ 1, 2 ],
-            E::from(new \ArrayIterator([ 1, 2 ])));
+            E::from(new ArrayIterator([ 1, 2 ])));
 
         // iterators must be the iterators passed
         $this->assertSame(
-            $i = new \EmptyIterator,
+            $i = new EmptyIterator,
             E::from($i)->getIterator());
         $this->assertSame(
-            $i = new \ArrayIterator([ 1, 2 ]),
+            $i = new ArrayIterator([ 1, 2 ]),
             E::from($i)->getIterator());
     }
 
@@ -115,17 +121,17 @@ class EnumerableTest extends TestCaseEnumerable
         // from (IteratorAggregate)
         $this->assertEnumSame(
             [],
-            E::from(new AggregateIteratorWrapper(new \EmptyIterator)));
+            E::from(new AggregateIteratorWrapper(new EmptyIterator)));
         $this->assertEnumSame(
             [ 1, 2 ],
-            E::from(new AggregateIteratorWrapper(new \ArrayIterator([ 1, 2 ]))));
+            E::from(new AggregateIteratorWrapper(new ArrayIterator([ 1, 2 ]))));
 
         // iterators must be the iterators passed
         $this->assertSame(
-            $i = new \EmptyIterator,
+            $i = new EmptyIterator,
             E::from(new AggregateIteratorWrapper($i))->getIterator());
         $this->assertSame(
-            $i = new \ArrayIterator([ 1, 2 ]),
+            $i = new ArrayIterator([ 1, 2 ]),
             E::from(new AggregateIteratorWrapper($i))->getIterator());
     }
 
@@ -136,10 +142,10 @@ class EnumerableTest extends TestCaseEnumerable
         // from (SimpleXMLElement)
         $this->assertEnumSame(
             [],
-            E::from(new \SimpleXMLElement('<r></r>')));
+            E::from(new SimpleXMLElement('<r></r>')));
         $this->assertEnumValuesSame(
             [ 'h', 'h', 'g' ],
-            E::from(new \SimpleXMLElement('<r><h/><h/><g/></r>'))->select('$k'));
+            E::from(new SimpleXMLElement('<r><h/><h/><g/></r>'))->select('$k'));
     }
 
     /** @covers \YaLinqo\Enumerable::from
@@ -163,7 +169,7 @@ class EnumerableTest extends TestCaseEnumerable
             [ true ],
             [ null ],
             [ function() { } ],
-            [ new \stdClass ],
+            [ new stdClass ],
         ];
     }
 
@@ -466,12 +472,12 @@ class EnumerableTest extends TestCaseEnumerable
      */
     function testCast()
     {
-        $c = new \stdClass;
+        $c = new stdClass;
         $c->c = 'd';
-        $o = new \stdClass;
-        $e = new \Exception;
+        $o = new stdClass;
+        $e = new Exception;
         $v = function($v) {
-            $r = new \stdClass;
+            $r = new stdClass;
             $r->scalar = $v;
             return $r;
         };
@@ -535,7 +541,7 @@ class EnumerableTest extends TestCaseEnumerable
     {
         $f = function() { };
         $a = from([
-            1, [ 2 ], '6', $f, 1.2, null, new \stdClass, 3, 4.5, 'ab', [], new \Exception
+            1, [ 2 ], '6', $f, 1.2, null, new stdClass, 3, 4.5, 'ab', [], new Exception
         ]);
 
         // ofType (empty)
@@ -600,12 +606,12 @@ class EnumerableTest extends TestCaseEnumerable
 
         // ofType (object)
         $this->assertEnumValuesEquals(
-            [ $f, new \stdClass, new \Exception ],
+            [ $f, new stdClass, new Exception ],
             $a->ofType('object'));
 
         // ofType (Exception)
         $this->assertEnumValuesEquals(
-            [ new \Exception ],
+            [ new Exception ],
             $a->ofType('Exception'));
     }
 
@@ -2653,7 +2659,7 @@ class EnumerableTest extends TestCaseEnumerable
     {
         // toObject
         $this->assertEquals(
-            new \stdClass,
+            new stdClass,
             E::from([])->toObject());
         $this->assertEquals(
             (object)[ 'a' => 1, 'b' => true, 'c' => 'd' ],

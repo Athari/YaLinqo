@@ -263,7 +263,7 @@ Links
 ### Documentation
 
 * [Reference documentation](http://athari.github.io/YaLinqo) — generated from source. Includes MSDN-tier explanation of what every method does.
-* [How to use Linq in PHP](https://web.archive.org/web/2019/http://tutewall.com/how-to-use-linq-in-php-part-01/) (acrhived) by *Mr. X* — a series of posts covering basic usage of YaLinqo.
+* [How to use Linq in PHP](https://web.archive.org/web/2019/http://tutewall.com/how-to-use-linq-in-php-part-01/) (archived) by *Mr. X* — a series of posts covering basic usage of YaLinqo.
 
 > [!TIP]
 > If you’re new to LINQ, you should read the series of articles by Mr. X, as they’re very beginner-friendly.

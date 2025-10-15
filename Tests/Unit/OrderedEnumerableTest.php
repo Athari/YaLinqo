@@ -1,9 +1,13 @@
 <?php
 
+/**
+ * @noinspection PhpUnhandledExceptionInspection
+ */
+
 namespace YaLinqo\Tests\Unit;
 
-use YaLinqo\Enumerable as E, YaLinqo\Utils, YaLinqo\Functions;
-use YaLinqo\Tests\Testing\TestCaseEnumerable;
+use YaLinqo\{Enumerable as E};
+use YaLinqo\Tests\{Testing\TestCaseEnumerable};
 
 /** @covers \YaLinqo\OrderedEnumerable
  */
