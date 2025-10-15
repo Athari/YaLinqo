@@ -27,7 +27,7 @@ Features
 Implemented methods
 ===================
 
-Some methods had to be renamed, because their names are reserved keywords. Original methods names are given in parenthesis.
+Some methods had to be renamed, because their names are reserved keywords. Original methods names are given in parentheses.
 
 * **Generation**: cycle, emptyEnum (empty), from, generate, toInfinity, toNegativeInfinity, matches, returnEnum (return), range, rangeDown, rangeTo, repeat, split;
 * **Projection and filtering**: cast, ofType, select, selectMany, where;
@@ -154,6 +154,7 @@ Array (
 Versions
 ========
 
+<!--suppress HtmlDeprecatedAttribute -->
 <table>
 
 <tr>
@@ -199,7 +200,7 @@ Versions
 <td valign=top>maintenance
 <td valign=top>7.0+
 <td><ul>
-    <li>Abandoned rewrite with perfomance improvements
+    <li>Abandoned rewrite with performance improvements
     <li>Released 7 years later with most of the performance-related changes dropped
     <li>May cause security analysis warnings due to use of <code>eval</code>
 
@@ -236,7 +237,7 @@ Legacy information
 Legacy features
 ---------------
 
-* (**Versions 1.0−2.5**) Callback functions can be specified as "string lambdas" using various syntaxes:
+* (**Versions 1.0−2.5**) Callback functions can be specified as “string lambdas” using various syntaxes:
     * `'"$k = $v"'` (implicit `$v` and `$k` arguments, implicit return)
     * `'$v ==> $v + 1'` (like a modern arrow function, but without `fn` and with a longer arrow)
     * `'($v, $k) ==> $v + $k'` (explicit arguments, implicit return)
@@ -244,7 +245,7 @@ Legacy features
 
 > [!NOTE]
 >
-> Before arrow functions were added in PHP 7.4, the choice was between the ridiculously verbose anonymous function syntax (`function ($value) { return $value['key']; }`) and rolling your own lambda syntax (like `$v ==> $v["key"]`). This is why "string lambdas" were a necessity at the time.
+> Before arrow functions were added in PHP 7.4, the choice was between the ridiculously verbose anonymous function syntax (`function ($value) { return $value['key']; }`) and rolling your own lambda syntax (like `$v ==> $v["key"]`). This is why “string lambdas” were a necessity at the time.
 
 > [!CAUTION]
 >
@@ -254,7 +255,7 @@ Legacy features
 > 2. You **SHOULD NOT**[^1] dynamically construct string lambdas in general, even if it seems convenient. Passing incorrect code to `eval` throws a `ParseError`. An exception to this rule may be constructing a *trivial* lambda from an array of *predefined* values.
 > 3. You **SHOULD**[^1] use full closure syntax instead of string lambdas when you need access to variables in scope.
 >
-> When all your string lambdas are *single-quoted string constants*, there's no security risk in using them. If you're still paranoid about `eval`, just never use string lambdas.
+> When all your string lambdas are *single-quoted string constants*, there’s no security risk in using them. If you’re still paranoid about `eval`, just never use string lambdas.
 
 Links
 =====
@@ -265,7 +266,7 @@ Links
 * [How to use Linq in PHP](https://web.archive.org/web/2019/http://tutewall.com/how-to-use-linq-in-php-part-01/) (acrhived) by *Mr. X* — a series of posts covering basic usage of YaLinqo.
 
 > [!TIP]
-> If you're new to LINQ, you should read the series of articles by Mr. X, as they're very beginner-friednly.
+> If you’re new to LINQ, you should read the series of articles by Mr. X, as they’re very beginner-friendly.
 
 ### Articles
 
@@ -280,7 +281,7 @@ Links
 
 ### Alternatives
 
-Realistically, there're none. This is the only PHP library in existence which implements lazy evaluation, deals with keys in iterators properly, has documentation and actually works (until yet another breaking change in PHP), with everything else failing in 2+ ways. However, some alternatives are worth mentioning.
+Realistically, there’re none. This is the only PHP library in existence which implements lazy evaluation, deals with keys in iterators properly, has documentation and actually works (until yet another breaking change in PHP), with everything else failing in 2+ ways. However, some alternatives are worth mentioning.
 
 * [**Laravel LazyCollection**](https://laravel.com/docs/collections#lazy-collections) (Laravel 6.0+) — The closest you can get to LINQ-to-objects in PHP without YaLinqo. Includes SQL-isms like `where('balance', '>', '100')`, Ruby-isms like `pluck('my.hair')`, random non-pure methods like `forget('name')` and other footguns, but largely functional. Note that lazy evaluation is opt-in: you need to call either `LazyCollection::make($iterable)` or `collect($array)->lazy()`.
 * [**RxPHP**](https://github.com/ReactiveX/RxPHP) — reactive (push) counterpart of the active (pull) LINQ, port of Rx.NET. A faithful implementation of Rx in PHP by people who actually use it. Highly recommended if you need complex transformations over asynchronous operations.
@@ -295,18 +296,18 @@ Realistically, there're none. This is the only PHP library in existence which im
 
 If you want to contribute to the project without writing any code, consider annoying the developers of PHP on GitHub and their mailing list whenever they decline yet another useful feature.
 
-If you're successful and actually get them to implement PFA + Pipe v4 (?), then non-lazy LINQ ports will lose 80% of their users, as PHP array functions will become usable by themselves without turning the code into unreadable spaghetti.
+If you’re successful and actually get them to implement PFA + Pipe v4 (?), then non-lazy LINQ ports will lose 80% of their users, as PHP array functions will become usable by themselves without turning the code into unreadable spaghetti.
 
-And if devs of PHP implement [pipes for iterables](https://wiki.php.net/rfc/pipe-operator-v3#iterable_api), then YaLinqo itself will need a complete rewrite for 20% of cases and become obsolete for 80% of them. I wouldn't hold my breath though, as that thing has been in discussion for like 10 years already.
+And if devs of PHP implement [pipes for iterables](https://wiki.php.net/rfc/pipe-operator-v3#iterable_api), then YaLinqo itself will need a complete rewrite for 20% of cases and become obsolete for 80% of them. I wouldn’t hold my breath though, as that thing has been in discussion for like 10 years already.
 
 * Graveyard of PHP RFCs:
-  * [Partial function application](https://wiki.php.net/rfc/partial_function_application) — imagine pipe operator being actually useful... nah, not happening.
+  * [Partial function application](https://wiki.php.net/rfc/partial_function_application) — imagine pipe operator being actually useful… nah, not happening.
   * [Short Closures 2.0](https://wiki.php.net/rfc/auto-capture-closure) — support for multi-statement arrow functions declined, 2 votes short.
-  * [Add `array_group` function](https://wiki.php.net/rfc/array_column_results_grouping) — grouping won't be optimized by using a built-in function. Not a huge loss, but still a pity.
+  * [Add `array_group` function](https://wiki.php.net/rfc/array_column_results_grouping) — grouping won’t be optimized by using a built-in function. Not a huge loss, but still a pity.
 
 * Too little too late:
-  * [Pipe operator v3](https://wiki.php.net/rfc/pipe-operator-v3) ([v2](https://wiki.php.net/rfc/pipe-operator-v2), [v1](https://wiki.php.net/rfc/pipe-operator)) — took 3 RFCs and 10 years, but we've finally arrived at... the least useful and the most verbose pipe syntax on the planet... yay?
-  * [Arrow functions v2](https://wiki.php.net/rfc/arrow_functions_v2) ([v1](https://wiki.php.net/rfc/arrow_functions), [v0](https://wiki.php.net/rfc/short_closures)) — took 3 RFCs and just 5 years. A notable exception of actually being in a good state. However, *zero* plans from the "future scope" were implemented in the following years.
+  * [Pipe operator v3](https://wiki.php.net/rfc/pipe-operator-v3) ([v2](https://wiki.php.net/rfc/pipe-operator-v2), [v1](https://wiki.php.net/rfc/pipe-operator)) — took 3 RFCs and 10 years, but we’ve finally arrived at… the least useful and the most verbose pipe syntax on the planet… yay?
+  * [Arrow functions v2](https://wiki.php.net/rfc/arrow_functions_v2) ([v1](https://wiki.php.net/rfc/arrow_functions), [v0](https://wiki.php.net/rfc/short_closures)) — took 3 RFCs and just 5 years. A notable exception of actually being in a good state. However, *zero* plans from the “future scope” were implemented in the following years.
 
 License
 =======
@@ -327,4 +328,4 @@ History
 
 [![Contributors](https://contrib.rocks/image?repo=Athari/YaLinqo&columns=12&max=24&anon=0 "Contributors")](https://github.com/Athari/YaLinqo/graphs/contributors)
 
-[^1]: The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+[^1]: The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).

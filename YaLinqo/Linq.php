@@ -7,19 +7,22 @@
  * @link https://github.com/Athari/YaLinqo YaLinqo on GitHub
  */
 
-\YaLinqo\Functions::init();
-\YaLinqo\Utils::init();
+use YaLinqo\Enumerable, YaLinqo\Functions, YaLinqo\Utils;
+
+Functions::init();
+Utils::init();
 
 if (!function_exists('from')) {
     /**
-     * Create Enumerable from an array or any other traversible source.
-     * @param array|\Iterator|\IteratorAggregate|\YaLinqo\Enumerable|iterable $source
-     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
-     * @return \YaLinqo\Enumerable
-     * @see \YaLinqo\Enumerable::from
+     * Create Enumerable from an array or any other traversable source.
+     * @param array|Iterator|IteratorAggregate|Enumerable|iterable $source
+     * @return Enumerable
+     * @throws InvalidArgumentException If source is not array or Traversable or Enumerable.
+     * @throws Exception If source iterator throws.
+     * @see Enumerable::from
      */
-    function from($source): \YaLinqo\Enumerable
+    function from($source): Enumerable
     {
-        return \YaLinqo\Enumerable::from($source);
+        return Enumerable::from($source);
     }
 }

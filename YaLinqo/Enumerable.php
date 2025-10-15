@@ -9,7 +9,11 @@
 
 namespace YaLinqo;
 
-// Differences: preserving keys and toSequental, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregater default seed is null not undefined, call/each, InvalidOperationException => UnexpectedValueException
+// Differences: preserving keys and toSequential, *Enum for keywords, no (el,i) overloads, string lambda args (v,k,a,b,e etc.), toArray/toList/toDictionary, objects as keys, docs copied and may be incorrect, elementAt uses key instead of index, @throws doc incomplete, aggregator default seed is null not undefined, call/each, InvalidOperationException => UnexpectedValueException use ArrayIterator;use Closure;use Countable;use InvalidArgumentException;use Iterator;use IteratorAggregate;use JsonSerializable;use stdClass;use Traversable;use UnexpectedValueException;
+
+use ArrayIterator, Iterator, IteratorAggregate, Countable, Traversable, Closure, stdClass;
+use JsonSerializable;
+use Exception, InvalidArgumentException, UnexpectedValueException;
 
 /**
  * A sequence of values indexed by keys, the primary class of YaLinqo.
@@ -18,23 +22,23 @@ namespace YaLinqo;
  * @see from
  * @package YaLinqo
  */
-class Enumerable implements \IteratorAggregate, \JsonSerializable
+class Enumerable implements IteratorAggregate, JsonSerializable
 {
     use EnumerableGeneration;
     use EnumerablePagination;
 
     /**
      * Wrapped iterator.
-     * @var \Iterator
+     * @var Iterator
      */
     private $iterator;
 
     /**
-     * @internal
-     * @param \Closure|\Iterator $iterator
+     * @param Closure|Iterator $iterator
      * @param bool $isClosure
+     *@internal
      */
-    private function __construct($iterator, $isClosure = true)
+    private function __construct($iterator, bool $isClosure = true)
     {
         $this->iterator = $isClosure ? $iterator() : $iterator;
     }
@@ -42,9 +46,9 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     /**
      * Retrieve an external iterator.
      * {@inheritdoc}
-     * @return \Iterator
+     * @return Iterator
      */
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
         return $this->iterator;
     }
@@ -55,9 +59,9 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      */
     protected function tryGetArrayCopy()
     {
-        /** @var $it \Iterator|\ArrayIterator */
+        /** @var $it Iterator|ArrayIterator */
         $it = $this->iterator;
-        return $it instanceof \ArrayIterator ? $it->getArrayCopy() : null;
+        return $it instanceof ArrayIterator ? $it->getArrayCopy() : null;
     }
 
     #region Projection and filtering
@@ -86,13 +90,13 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
                 return $this->select(function($v) { return (float)$v; });
             case 'null':
             case 'unset':
-                return $this->select(function($v) { return null; });
+                return $this->select(function() { return null; });
             case 'object':
                 return $this->select(function($v) { return (object)$v; });
             case 'string':
                 return $this->select(function($v) { return (string)$v; });
             default:
-                throw new \InvalidArgumentException(Errors::UNSUPPORTED_BUILTIN_TYPE);
+                throw new InvalidArgumentException(Errors::UNSUPPORTED_BUILTIN_TYPE);
         }
     }
 
@@ -270,22 +274,22 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>GroupJoin produces hierarchical results, which means that elements from outer are paired with collections of matching elements from inner. GroupJoin enables you to base your results on a whole set of matches for each element of outer. If there are no correlated elements in inner for a given element of outer, the sequence of matches for that element will be empty but will still appear in the results.
      * <p>The resultSelectorValue and resultSelectorKey functions are called only one time for each outer element together with a collection of all the inner elements that match the outer element. This differs from the {@link join} method, in which the result selector function is invoked on pairs that contain one element from outer and one element from inner. GroupJoin preserves the order of the elements of outer, and for each element of outer, the order of the matching elements from inner.
      * <p>GroupJoin has no direct equivalent in traditional relational database terms. However, this method does implement a superset of inner joins and left outer joins. Both of these operations can be written in terms of a grouped join.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The second (inner) sequence to join to the first (source, outer) sequence.
+     * @param array|Iterator|IteratorAggregate|Enumerable $inner The second (inner) sequence to join to the first (source, outer) sequence.
      * @param callable|string|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the first sequence. Default: key.
      * @param callable|string|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
      * @param callable|string|null $resultSelectorValue {(v, e, k) ==> value} A function to create a result value from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> array(v, e)}.
      * @param callable|string|null $resultSelectorKey {(v, e, k) ==> key} A function to create a result key from an element from the first sequence and a collection of matching elements from the second sequence. Default: {(v, e, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
      * @return Enumerable A sequence that contains elements that are obtained by performing a grouped join on two sequences.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Joining and grouping
+     * @noinspection PhpUnusedParameterInspection
      */
     public function groupJoin($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null): Enumerable
     {
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
-        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v,e,k', function($v, $e, $k) { return [ $v, $e ]; });
-        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v,e,k', function($v, $e, $k) { return $k; });
 
         return new self(function() use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
@@ -304,22 +308,22 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>A join refers to the operation of correlating the elements of two sources of information based on a common key. Join brings the two information sources and the keys by which they are matched together in one method call. This differs from the use of {@link selectMany}, which requires more than one method call to perform the same operation.
      * <p>Join preserves the order of the elements of the source, and for each of these elements, the order of the matching elements of inner.
      * <p>In relational database terms, the Join method implements an inner equijoin. 'Inner' means that only elements that have a match in the other sequence are included in the results. An 'equijoin' is a join in which the keys are compared for equality. A left outer join operation has no dedicated standard query operator, but can be performed by using the {@link groupJoin} method.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $inner The sequence to join to the source sequence.
+     * @param array|Iterator|IteratorAggregate|Enumerable $inner The sequence to join to the source sequence.
      * @param callable|string|null $outerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the source sequence. Default: key.
      * @param callable|string|null $innerKeySelector {(v, k) ==> key} A function to extract the join key from each element of the second sequence. Default: key.
      * @param callable|string|null $resultSelectorValue {(v1, v2, k) ==> result} A function to create a result value from two matching elements. Default: {(v1, v2, k) ==> array(v1, v2)}.
      * @param callable|string|null $resultSelectorKey {(v1, v2, k) ==> result} A function to create a result key from two matching elements. Default: {(v1, v2, k) ==> k} (keys returned by outerKeySelector and innerKeySelector functions).
      * @return Enumerable
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Joining and grouping
+     * @noinspection PhpUnusedParameterInspection
      */
     public function join($inner, $outerKeySelector = null, $innerKeySelector = null, $resultSelectorValue = null, $resultSelectorKey = null): Enumerable
     {
         $inner = self::from($inner);
         $outerKeySelector = Utils::createLambda($outerKeySelector, 'v,k', Functions::$key);
         $innerKeySelector = Utils::createLambda($innerKeySelector, 'v,k', Functions::$key);
-        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorValue = Utils::createLambda($resultSelectorValue, 'v1,v2,k', function($v1, $v2, $k) { return [ $v1, $v2 ]; });
-        /** @noinspection PhpUnusedParameterInspection */
         $resultSelectorKey = Utils::createLambda($resultSelectorKey, 'v1,v2,k', function($v1, $v2, $k) { return $k; });
 
         return new self(function() use ($inner, $outerKeySelector, $innerKeySelector, $resultSelectorValue, $resultSelectorKey) {
@@ -349,6 +353,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * @param callable|string|null $resultSelectorValue {(e, k) ==> value} A function to create a result value from each group.
      * @param callable|string|null $resultSelectorKey {(e, k) ==> key} A function to create a result key from each group.
      * @return Enumerable A sequence of sequences indexed by a key.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Joining and grouping
      */
     public function groupBy($keySelector = null, $valueSelector = null, $resultSelectorValue = null, $resultSelectorKey = null): Enumerable
@@ -373,7 +378,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>To simplify common aggregation operations, the standard query operators also include a general purpose count method, {@link count}, and four numeric aggregation methods, namely {@link min}, {@link max}, {@link sum}, and {@link average}.
      * @param callable $func {(a, v, k) ==> accum} An accumulator function to be invoked on each element.
      * @param mixed $seed If seed is not null, the first element is used as seed. Default: null.
-     * @throws \UnexpectedValueException If seed is null and sequence contains no elements.
+     * @throws UnexpectedValueException If seed is null and sequence contains no elements.
      * @return mixed The final accumulator value.
      * @package YaLinqo\Aggregation
      */
@@ -399,7 +404,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
                 }
             }
             if (!$assigned)
-                throw new \UnexpectedValueException(Errors::NO_ELEMENTS);
+                throw new UnexpectedValueException(Errors::NO_ELEMENTS);
         }
         return $result;
     }
@@ -448,8 +453,8 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p><b>Syntax</b>: average (selector {(v, k) ==> result})
      * <p>Computes the average of a sequence of numeric values that are obtained by invoking a transform function on each element of the input sequence.
      * @param callable|null $selector {(v, k) ==> result} A transform function to apply to each element. Default: value.
-     * @throws \UnexpectedValueException If sequence contains no elements.
-     * @return number The average of the sequence of values.
+     * @throws UnexpectedValueException If sequence contains no elements.
+     * @return float|int The average of the sequence of values.
      * @package YaLinqo\Aggregation
      */
     public function average($selector = null)
@@ -462,7 +467,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
             $count++;
         }
         if ($count === 0)
-            throw new \UnexpectedValueException(Errors::NO_ELEMENTS);
+            throw new UnexpectedValueException(Errors::NO_ELEMENTS);
         return $sum / $count;
     }
 
@@ -474,13 +479,14 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Returns a number that represents how many elements in the specified sequence satisfy a condition.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
      * @return int The number of elements in the input sequence.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Aggregation
      */
     public function count($predicate = null): int
     {
         $it = $this->getIterator();
 
-        if ($it instanceof \Countable && $predicate === null)
+        if ($it instanceof Countable && $predicate === null)
             return count($it);
 
         $predicate = Utils::createLambda($predicate, 'v,k', Functions::$value);
@@ -499,7 +505,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p><b>Syntax</b>: max (selector {(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value.
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \UnexpectedValueException If sequence contains no elements.
+     * @throws UnexpectedValueException If sequence contains no elements.
      * @return number The maximum value in the sequence.
      * @package YaLinqo\Aggregation
      */
@@ -514,7 +520,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
             $assigned = true;
         }
         if (!$assigned)
-            throw new \UnexpectedValueException(Errors::NO_ELEMENTS);
+            throw new UnexpectedValueException(Errors::NO_ELEMENTS);
         return $max;
     }
 
@@ -526,7 +532,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Invokes a transform function on each element of a sequence and returns the maximum value, using specified comparer.
      * @param callable $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \UnexpectedValueException If sequence contains no elements.
+     * @throws UnexpectedValueException If sequence contains no elements.
      * @return number The maximum value in the sequence.
      * @package YaLinqo\Aggregation
      */
@@ -547,7 +553,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p><b>Syntax</b>: min (selector {(v, k) ==> value})
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value.
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \UnexpectedValueException If sequence contains no elements.
+     * @throws UnexpectedValueException If sequence contains no elements.
      * @return number The minimum value in the sequence.
      * @package YaLinqo\Aggregation
      */
@@ -562,7 +568,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
             $assigned = true;
         }
         if (!$assigned)
-            throw new \UnexpectedValueException(Errors::NO_ELEMENTS);
+            throw new UnexpectedValueException(Errors::NO_ELEMENTS);
         return $min;
     }
 
@@ -574,7 +580,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Invokes a transform function on each element of a sequence and returns the minimum value, using specified comparer.
      * @param callable $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
-     * @throws \UnexpectedValueException If sequence contains no elements.
+     * @throws UnexpectedValueException If sequence contains no elements.
      * @return number The minimum value in the sequence.
      * @package YaLinqo\Aggregation
      */
@@ -596,7 +602,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Computes the sum of the sequence of values that are obtained by invoking a transform function on each element of the input sequence.
      * <p>This method returns zero if source contains no elements.
      * @param callable|null $selector {(v, k) ==> result} A transform function to apply to each element.
-     * @return number The sum of the values in the sequence.
+     * @return numeric The sum of the values in the sequence.
      * @package YaLinqo\Aggregation
      */
     public function sum($selector = null)
@@ -640,6 +646,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Determines whether any element of a sequence exists or satisfies a condition. The enumeration of source is stopped as soon as the result can be determined.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: null.
      * @return bool If predicate is null: true if the source sequence contains any elements; otherwise, false. If predicate is not null: true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Sets
      */
     public function any($predicate = null): bool
@@ -655,7 +662,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
         }
         else {
             $it = $this->getIterator();
-            if ($it instanceof \Countable)
+            if ($it instanceof Countable)
                 return count($it) > 0;
             $it->rewind();
             return $it->valid();
@@ -685,8 +692,9 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * Concatenates two sequences.
      * <p>This method differs from the {@link union} method because the concat method returns all the original elements in the input sequences. The union method returns only unique elements.
      * <p><b>Syntax</b>: concat (other)
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other The sequence to concatenate to the source sequence.
+     * @param array|Iterator|IteratorAggregate|Enumerable $other The sequence to concatenate to the source sequence.
      * @return Enumerable A sequence that contains the concatenated elements of the two input sequences.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Sets
      */
     public function concat($other): Enumerable
@@ -750,9 +758,10 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Produces the set difference of two sequences using values as element keys.
      * <p><b>Syntax</b>: distinct (other, keySelector {(v, k) ==> value})
      * <p>Produces the set difference of two sequences using values produced by keySelector as element keys.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose elements that also occur in the source sequence will cause those elements to be removed from the returned sequence.
+     * @param array|Iterator|IteratorAggregate|Enumerable $other A sequence whose elements that also occur in the source sequence will cause those elements to be removed from the returned sequence.
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
      * @return Enumerable A sequence that contains the set difference of the elements of two sequences.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Sets
      */
     public function except($other, $keySelector = null): Enumerable
@@ -783,9 +792,10 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Produces the set intersection of two sequences using values as element keys.
      * <p><b>Syntax</b>: intersect (other, keySelector {(v, k) ==> value})
      * <p>Produces the set intersection of two sequences using values produced by keySelector as element keys.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose distinct elements that also appear in the first sequence will be returned.
+     * @param array|Iterator|IteratorAggregate|Enumerable $other A sequence whose distinct elements that also appear in the first sequence will be returned.
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
      * @return Enumerable A sequence that contains the elements that form the set intersection of two sequences.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Sets
      */
     public function intersect($other, $keySelector = null): Enumerable
@@ -836,9 +846,10 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>Produces the set union of two sequences using values as element keys.
      * <p><b>Syntax</b>: union (other, keySelector {(v, k) ==> value})
      * <p>Produces the set union of two sequences using values produced by keySelector as element keys.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $other A sequence whose distinct elements form the second set for the union.
+     * @param array|Iterator|IteratorAggregate|Enumerable $other A sequence whose distinct elements form the second set for the union.
      * @param callable|null $keySelector {(v, k) ==> key} A function to extract the element key from each element. Default: value.
      * @return Enumerable A sequence that contains the elements from both input sequences, excluding duplicates.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Sets
      */
     public function union($other, $keySelector = null): Enumerable
@@ -876,13 +887,14 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>The toArray method does not traverse into elements of the sequence, only the sequence itself is converted. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will remain as is. To traverse deeply, you can use {@link toArrayDeep} method.
      * <p>Keys from the sequence are preserved. If the source sequence contains multiple values with the same key, the result array will only contain the latter value. To discard keys, you can use {@link toList} method. To preserve all values and keys, you can use {@link toLookup} method.
      * @return array An array that contains the elements from the input sequence.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Conversion
      */
     public function toArray(): array
     {
-        /** @var $it \Iterator|\ArrayIterator */
+        /** @var $it Iterator|ArrayIterator */
         $it = $this->getIterator();
-        if ($it instanceof \ArrayIterator)
+        if ($it instanceof ArrayIterator)
             return $it->getArrayCopy();
 
         $array = [];
@@ -907,7 +919,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
 
     /**
      * Proc for {@link toArrayDeep}.
-     * @param $enum \Traversable Source sequence.
+     * @param $enum Traversable Source sequence.
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
@@ -915,24 +927,25 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $array = [];
         foreach ($enum as $k => $v)
-            $array[$k ?? ''] = $v instanceof \Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
+            $array[$k ?? ''] = $v instanceof Traversable || is_array($v) ? $this->toArrayDeepProc($v) : $v;
         return $array;
     }
 
     /**
-     * Creates an array from a sequence, with sequental integer keys.
+     * Creates an array from a sequence, with sequential integer keys.
      * <p><b>Syntax</b>: toList ()
      * <p>The toList method forces immediate query evaluation and returns an array that contains the query results.
      * <p>The toList method does not traverse into elements of the sequence, only the sequence itself is converted. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will remain as is. To traverse deeply, you can use {@link toListDeep} method.
      * <p>Keys from the sequence are discarded. To preserve keys and lose values with the same keys, you can use {@link toArray} method. To preserve all values and keys, you can use {@link toLookup} method.
      * @return array An array that contains the elements from the input sequence.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Conversion
      */
     public function toList(): array
     {
-        /** @var $it \Iterator|\ArrayIterator */
+        /** @var $it Iterator|ArrayIterator */
         $it = $this->getIterator();
-        if ($it instanceof \ArrayIterator)
+        if ($it instanceof ArrayIterator)
             return array_values($it->getArrayCopy());
 
         $array = [];
@@ -942,7 +955,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     }
 
     /**
-     * Creates an array from a sequence, with sequental integer keys.
+     * Creates an array from a sequence, with sequential integer keys.
      * <p><b>Syntax</b>: toListDeep ()
      * <p>The toListDeep method forces immediate query evaluation and returns an array that contains the query results.
      * <p>The toListDeep method traverses into elements of the sequence. That is, if elements of the sequence are {@link Traversable} or arrays containing Traversable values, they will be converted to arrays too. To convert only the sequence itself, you can use {@link toList} method.
@@ -957,7 +970,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
 
     /**
      * Proc for {@link toListDeep}.
-     * @param $enum \Traversable Source sequence.
+     * @param $enum Traversable Source sequence.
      * @return array An array that contains the elements from the input sequence.
      * @package YaLinqo\Conversion
      */
@@ -965,7 +978,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $array = [];
         foreach ($enum as $v)
-            $array[] = $v instanceof \Traversable || is_array($v) ? $this->toListDeepProc($v) : $v;
+            $array[] = $v instanceof Traversable || is_array($v) ? $this->toListDeepProc($v) : $v;
         return $array;
     }
 
@@ -995,7 +1008,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p>This function only works with UTF-8 encoded data.
      * @param int $options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_UNESCAPED_UNICODE. Default: 0.
      * @return string A JSON encoded string on success or false on failure.
-     * @throws \UnexpectedValueException If json_encode fails.
+     * @throws UnexpectedValueException If json_encode fails.
      * @see json_encode
      * @package YaLinqo\Conversion
      */
@@ -1003,7 +1016,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     {
         $result = json_encode($this->toArrayDeep(), $options);
         if ($result === false)
-            throw new \UnexpectedValueException(json_last_error_msg());
+            throw new UnexpectedValueException(json_last_error_msg());
         return $result;
     }
 
@@ -1030,7 +1043,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     /**
      * Returns a sequence of keys from the source sequence.
      * <p><b>Syntax</b>: toKeys ()
-     * @return Enumerable A sequence with keys from the source sequence as values and sequental integers as keys.
+     * @return Enumerable A sequence with keys from the source sequence as values and sequential integers as keys.
      * @see array_keys
      * @package YaLinqo\Conversion
      */
@@ -1042,7 +1055,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
     /**
      * Returns a sequence of values from the source sequence; keys are discarded.
      * <p><b>Syntax</b>: toValues ()
-     * @return Enumerable A sequence with the same values and sequental integers as keys.
+     * @return Enumerable A sequence with the same values and sequential integers as keys.
      * @see array_values
      * @package YaLinqo\Conversion
      */
@@ -1056,15 +1069,15 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p><b>Syntax</b>: toObject ([propertySelector {(v, k) ==> name} [, valueSelector {(v, k) ==> value}]])
      * @param callable|null $propertySelector {(v, k) ==> name} A function to extract a property name from an element. Must return a valid PHP identifier. Default: key.
      * @param callable|null $valueSelector {(v, k) ==> value} A function to extract a property value from an element. Default: value.
-     * @return \stdClass
+     * @return stdClass
      * @package YaLinqo\Conversion
      */
-    public function toObject($propertySelector = null, $valueSelector = null): \stdClass
+    public function toObject($propertySelector = null, $valueSelector = null): stdClass
     {
         $propertySelector = Utils::createLambda($propertySelector, 'v,k', Functions::$key);
         $valueSelector = Utils::createLambda($valueSelector, 'v,k', Functions::$value);
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         foreach ($this as $k => $v)
             $obj->{$propertySelector($v, $k)} = $valueSelector($v, $k);
         return $obj;
@@ -1076,6 +1089,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * @param string $separator A string separating values in the result string. Default: ''.
      * @param callable|null $valueSelector {(v, k) ==> value} A transform function to apply to each element. Default: value.
      * @return string
+     * @throws Exception If source iterator throws.
      * @see implode
      * @package YaLinqo\Conversion
      */
@@ -1144,6 +1158,7 @@ class Enumerable implements \IteratorAggregate, \JsonSerializable
      * <p><b>Syntax</b>: write ([separator [, selector]])
      * @param string $separator A string separating values in the result string. Default: ''.
      * @param callable|null $selector {(v, k) ==> value} A transform function to apply to each element. Default: value.
+     * @throws Exception If source iterator throws.
      * @see implode, echo
      * @package YaLinqo\Actions
      */

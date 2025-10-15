@@ -9,6 +9,8 @@
 
 namespace YaLinqo;
 
+use ArrayIterator, Traversable, Generator;
+
 /**
  * Subclass of Enumerable supporting ordering by multiple conditions.
  * @package YaLinqo
@@ -17,7 +19,7 @@ class OrderedEnumerable extends Enumerable
 {
     /** Source sequence. @var Enumerable */
     private $source;
-    /** Parent ordered sequence. @var \YaLinqo\OrderedEnumerable */
+    /** Parent ordered sequence. @var OrderedEnumerable */
     private $parent;
     /** Sort order for array_multisort: SORT_DESC or SORT_ASC. @var int|bool */
     private $sortOrder;
@@ -27,18 +29,18 @@ class OrderedEnumerable extends Enumerable
     private $isReversed;
     /** Key selector. @var callable {(v, k) ==> key} */
     private $keySelector;
-    /** Comprarer function. @var callable {(a, b) ==> diff} */
+    /** Comparer function. @var callable {(a, b) ==> diff} */
     private $comparer;
 
     /**
-     * @internal
      * @param Enumerable $source
      * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_ASC for ascending (by increasing value), true or SORT_DESC for descending (by decreasing value).
      * @param int $sortFlags Sort flags for array_multisort.
      * @param bool $isReversed Whether comparer result needs to be negated (used in usort).
      * @param callable $keySelector {(v, k) ==> key} A function to extract a key from an element.
      * @param callable $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b
-     * @param \YaLinqo\OrderedEnumerable $parent
+     * @param OrderedEnumerable $parent
+     * @internal
      */
     public function __construct($source, $sortOrder, $sortFlags, $isReversed, $keySelector, $comparer, $parent = null)
     {
@@ -68,7 +70,7 @@ class OrderedEnumerable extends Enumerable
      * @param int|bool $sortOrder A direction in which to order the elements: false or SORT_ASC for ascending (by increasing value), true or SORT_DESC for descending (by decreasing value).
      * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function thenByDir($sortOrder, $keySelector = null, $comparer = null): OrderedEnumerable
     {
@@ -87,7 +89,7 @@ class OrderedEnumerable extends Enumerable
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function thenBy($keySelector = null, $comparer = null): OrderedEnumerable
     {
@@ -102,7 +104,7 @@ class OrderedEnumerable extends Enumerable
      * <p>This method performs an unstable sort; that is, if the keys of two elements are equal, the order of the elements is not preserved. In contrast, a stable sort preserves the order of elements that have the same key. Internally, {@link usort} is used.
      * @param callable|string|null $keySelector {(v, k) ==> key} A function to extract a key from an element. Default: value.
      * @param callable|string|int|null $comparer {(a, b) ==> diff} Difference between a and b: &lt;0 if a&lt;b; 0 if a==b; &gt;0 if a&gt;b. Can also be a combination of SORT_ flags.
-     * @return \YaLinqo\OrderedEnumerable
+     * @return OrderedEnumerable
      */
     public function thenByDescending($keySelector = null, $comparer = null): OrderedEnumerable
     {
@@ -110,7 +112,7 @@ class OrderedEnumerable extends Enumerable
     }
 
     /** {@inheritdoc} */
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
         $canMultisort = $this->sortFlags !== null;
         $array = $this->source->tryGetArrayCopy();
@@ -146,7 +148,7 @@ class OrderedEnumerable extends Enumerable
         else {
             return null;
         }
-        return new \ArrayIterator($array);
+        return new ArrayIterator($array);
     }
 
     private function sortByMultipleFields($array, bool $canMultisort)
@@ -166,7 +168,7 @@ class OrderedEnumerable extends Enumerable
         return $this->sortIterator($orders, $canMultisort);
     }
 
-    private function sortIterator(array $orders, bool $canMultisort)
+    private function sortIterator(array $orders, bool $canMultisort): Generator
     {
         $enum = [];
         if ($canMultisort)
@@ -199,7 +201,7 @@ class OrderedEnumerable extends Enumerable
 
         call_user_func_array('array_multisort', $args);
 
-        return new \ArrayIterator($array);
+        return new ArrayIterator($array);
     }
 
     private function sortIteratorWithMultisort(&$enum, array $orders)

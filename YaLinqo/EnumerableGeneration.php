@@ -9,6 +9,9 @@
 
 namespace YaLinqo;
 
+use Iterator, IteratorAggregate, ArrayIterator, EmptyIterator, Traversable;
+use Exception, InvalidArgumentException, UnexpectedValueException;
+
 /**
  * Trait of {@link Enumerable} containing generation methods.
  * @package YaLinqo
@@ -19,10 +22,11 @@ trait EnumerableGeneration
      * Cycles through the source sequence.
      * <p><b>Syntax</b>: cycle (source)
      * <p>Source keys are discarded.
-     * @param array|\Iterator|\IteratorAggregate|Enumerable $source Source sequence.
-     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
-     * @throws \UnexpectedValueException If source contains no elements (checked during enumeration).
+     * @param array|Iterator|IteratorAggregate|Enumerable $source Source sequence.
      * @return Enumerable Endless list of items repeating the source sequence.
+     * @throws UnexpectedValueException If source contains no elements (checked during enumeration).
+     * @throws InvalidArgumentException If source is not array or Traversable or Enumerable.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Generation
      */
     public static function cycle($source): Enumerable
@@ -37,7 +41,7 @@ trait EnumerableGeneration
                     $isEmpty = false;
                 }
                 if ($isEmpty)
-                    throw new \UnexpectedValueException(Errors::NO_ELEMENTS);
+                    throw new UnexpectedValueException(Errors::NO_ELEMENTS);
             }
         });
     }
@@ -50,7 +54,7 @@ trait EnumerableGeneration
      */
     public static function emptyEnum(): Enumerable
     {
-        return new self(new \EmptyIterator, false);
+        return new self(new EmptyIterator, false);
     }
 
     /**
@@ -64,9 +68,10 @@ trait EnumerableGeneration
      * <li><b>IteratorAggregate</b>: Enumerable from Iterator returned from getIterator() method;
      * <li><b>Traversable</b>: Enumerable from the result of foreach over source.
      * </ul>
-     * @param array|\Iterator|\IteratorAggregate|\Traversable|Enumerable|iterable $source Value to convert into Enumerable sequence.
-     * @throws \InvalidArgumentException If source is not array or Traversible or Enumerable.
+     * @param array|Iterator|IteratorAggregate|Traversable|Enumerable|iterable $source Value to convert into Enumerable sequence.
      * @return Enumerable
+     * @throws InvalidArgumentException If source is not array or Traversable or Enumerable.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Generation
      */
     public static function from($source): Enumerable
@@ -75,15 +80,15 @@ trait EnumerableGeneration
         if ($source instanceof Enumerable)
             return $source;
         elseif (is_array($source))
-            $it = new \ArrayIterator($source);
-        elseif ($source instanceof \IteratorAggregate)
+            $it = new ArrayIterator($source);
+        elseif ($source instanceof IteratorAggregate)
             $it = $source->getIterator();
-        elseif ($source instanceof \Traversable)
+        elseif ($source instanceof Traversable)
             $it = $source;
         if ($it !== null) {
             return new self($it, false);
         }
-        throw new \InvalidArgumentException('source must be array or Traversable.');
+        throw new InvalidArgumentException('source must be array or Traversable.');
     }
 
     /**
@@ -181,7 +186,7 @@ trait EnumerableGeneration
     /**
      * Generates a sequence of integral numbers, beginning with start and containing count elements.
      * <p><b>Syntax</b>: range (start, count [, step])
-     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Keys in the generated sequence are sequential: 0, 1, 2 etc.
      * <p>Example: range(3, 4, 2) = 3, 5, 7, 9.
      * @param int $start The value of the first integer in the sequence.
      * @param int $count The number of integers to generate.
@@ -203,7 +208,7 @@ trait EnumerableGeneration
     /**
      * Generates a reversed sequence of integral numbers, beginning with start and containing count elements.
      * <p><b>Syntax</b>: rangeDown (start, count [, step])
-     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Keys in the generated sequence are sequential: 0, 1, 2 etc.
      * <p>Example: rangeDown(9, 4, 2) = 9, 7, 5, 3.
      * @param int $start The value of the first integer in the sequence.
      * @param int $count The number of integers to generate.
@@ -219,19 +224,19 @@ trait EnumerableGeneration
     /**
      * Generates a sequence of integral numbers within a specified range from start to end.
      * <p><b>Syntax</b>: rangeTo (start, end [, step])
-     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Keys in the generated sequence are sequential: 0, 1, 2 etc.
      * <p>Example: rangeTo(3, 9, 2) = 3, 5, 7, 9.
      * @param int $start The value of the first integer in the sequence.
      * @param int $end The value of the last integer in the sequence (not included).
      * @param int $step The difference between adjacent integers. Default: 1.
-     * @throws \InvalidArgumentException If step is not a positive number.
+     * @throws InvalidArgumentException If step is not a positive number.
      * @return Enumerable A sequence that contains a range of integral numbers.
      * @package YaLinqo\Generation
      */
     public static function rangeTo(int $start, int $end, $step = 1): Enumerable
     {
         if ($step <= 0)
-            throw new \InvalidArgumentException(Errors::STEP_NEGATIVE);
+            throw new InvalidArgumentException(Errors::STEP_NEGATIVE);
         return new self(function() use ($start, $end, $step) {
             if ($start <= $end) {
                 for ($i = $start; $i < $end; $i += $step)
@@ -250,17 +255,17 @@ trait EnumerableGeneration
      * <p>Generates an endless sequence that contains one repeated value.
      * <p><b>Syntax</b>: repeat (element, count)
      * <p>Generates a sequence of specified length that contains one repeated value.
-     * <p>Keys in the generated sequence are sequental: 0, 1, 2 etc.
+     * <p>Keys in the generated sequence are sequential: 0, 1, 2 etc.
      * @param int $element The value to be repeated.
      * @param int $count The number of times to repeat the value in the generated sequence. Default: null.
-     * @throws \InvalidArgumentException If count is less than 0.
+     * @throws InvalidArgumentException If count is less than 0.
      * @return Enumerable A sequence that contains a repeated value.
      * @package YaLinqo\Generation
      */
     public static function repeat($element, $count = null): Enumerable
     {
         if ($count < 0)
-            throw new \InvalidArgumentException(Errors::COUNT_LESS_THAN_ZERO);
+            throw new InvalidArgumentException(Errors::COUNT_LESS_THAN_ZERO);
         return new self(function() use ($element, $count) {
             for ($i = 0; $i < $count || $count === null; $i++)
                 yield $element;
@@ -280,7 +285,7 @@ trait EnumerableGeneration
     public static function split(string $subject, string $pattern, int $flags = 0): Enumerable
     {
         return new self(
-            new \ArrayIterator(preg_split($pattern, $subject, -1, $flags)),
+            new ArrayIterator(preg_split($pattern, $subject, -1, $flags)),
             false
         );
     }

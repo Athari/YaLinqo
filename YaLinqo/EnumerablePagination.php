@@ -9,6 +9,9 @@
 
 namespace YaLinqo;
 
+use Iterator, EmptyIterator, ArrayAccess;
+use Exception, UnexpectedValueException;
+
 /**
  * Trait of {@link Enumerable} containing pagination methods.
  * @package YaLinqo
@@ -22,18 +25,19 @@ trait EnumerablePagination
      * <p>If the type of source iterator implements {@link ArrayAccess}, that implementation is used to obtain the value at the specified key. Otherwise, this method obtains the specified value.
      * <p>This method throws an exception if key is not found. To instead return a default value when the specified key is not found, use the {@link elementAtOrDefault} method.
      * @param mixed $key The key of the value to retrieve.
-     * @throws \UnexpectedValueException If sequence does not contain value with specified key.
      * @return mixed The value at the key in the source sequence.
+     * @throws UnexpectedValueException If sequence does not contain value with specified key.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Pagination
      */
     public function elementAt($key)
     {
-        /** @var $it \Iterator|\ArrayAccess */
+        /** @var $it Iterator|ArrayAccess */
         $it = $this->getIterator();
 
-        if ($it instanceof \ArrayAccess) {
+        if ($it instanceof ArrayAccess) {
             if (!$it->offsetExists($key))
-                throw new \UnexpectedValueException(Errors::NO_KEY);
+                throw new UnexpectedValueException(Errors::NO_KEY);
             return $it->offsetGet($key);
         }
 
@@ -41,7 +45,7 @@ trait EnumerablePagination
             if ($k === $key)
                 return $v;
         }
-        throw new \UnexpectedValueException(Errors::NO_KEY);
+        throw new UnexpectedValueException(Errors::NO_KEY);
     }
 
     /**
@@ -51,14 +55,15 @@ trait EnumerablePagination
      * @param mixed $key The key of the value to retrieve.
      * @param mixed $default Value to return if sequence does not contain value with specified key. Default: null.
      * @return mixed default value if the key is not found in the source sequence; otherwise, the value at the specified key in the source sequence.
+     * @throws Exception If source iterator throws.
      * @package YaLinqo\Pagination
      */
     public function elementAtOrDefault($key, $default = null)
     {
-        /** @var $it \Iterator|\ArrayAccess */
+        /** @var $it Iterator|ArrayAccess */
         $it = $this->getIterator();
 
-        if ($it instanceof \ArrayAccess)
+        if ($it instanceof ArrayAccess)
             return $it->offsetExists($key) ? $it->offsetGet($key) : $default;
 
         foreach ($it as $k => $v) {
@@ -77,7 +82,7 @@ trait EnumerablePagination
      * <p>Returns the first element in a sequence that satisfies a specified condition.
      * <p>The first method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link firstOrDefault} method.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \UnexpectedValueException If source contains no matching elements.
+     * @throws UnexpectedValueException If source contains no matching elements.
      * @return mixed If predicate is null: the first element in the specified sequence. If predicate is not null: The first element in the sequence that passes the test in the specified predicate function.
      * @package YaLinqo\Pagination
      */
@@ -89,7 +94,7 @@ trait EnumerablePagination
             if ($predicate($v, $k))
                 return $v;
         }
-        throw new \UnexpectedValueException(Errors::NO_MATCHES);
+        throw new UnexpectedValueException(Errors::NO_MATCHES);
     }
 
     /**
@@ -147,7 +152,7 @@ trait EnumerablePagination
      * <p>Returns the last element in a sequence that satisfies a specified condition.
      * <p>The last method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link lastOrDefault} method.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \UnexpectedValueException If source contains no matching elements.
+     * @throws UnexpectedValueException If source contains no matching elements.
      * @return mixed If predicate is null: the last element in the specified sequence. If predicate is not null: The last element in the sequence that passes the test in the specified predicate function.
      * @package YaLinqo\Pagination
      */
@@ -164,7 +169,7 @@ trait EnumerablePagination
             }
         }
         if (!$found)
-            throw new \UnexpectedValueException(Errors::NO_MATCHES);
+            throw new UnexpectedValueException(Errors::NO_MATCHES);
         return $value;
     }
 
@@ -231,26 +236,17 @@ trait EnumerablePagination
      * <p>Returns the only element of a sequence that satisfies a specified condition.
      * <p>The single method throws an exception if no matching element is found in source. To instead return a default value when no matching element is found, use the {@link singleOrDefault} method.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \UnexpectedValueException If source contains no matching elements or more than one matching element.
+     * @throws UnexpectedValueException If source contains no matching elements or more than one matching element.
      * @return mixed If predicate is null: the single element of the input sequence. If predicate is not null: The single element of the sequence that passes the test in the specified predicate function.
      * @package YaLinqo\Pagination
      */
     public function single($predicate = null)
     {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+        $predicate = Utils::createLambda($predicate, 'v,k', false);
 
-        $found = false;
-        $value = null;
-        foreach ($this as $k => $v) {
-            if ($predicate($v, $k)) {
-                if ($found)
-                    throw new \UnexpectedValueException(Errors::MANY_MATCHES);
-                $found = true;
-                $value = $v;
-            }
-        }
+        list($found, $value) = $this->singleInternal($predicate);
         if (!$found)
-            throw new \UnexpectedValueException(Errors::NO_MATCHES);
+            throw new UnexpectedValueException(Errors::NO_MATCHES);
         return $value;
     }
 
@@ -263,24 +259,15 @@ trait EnumerablePagination
      * <p>If obtaining the default value is a costly operation, use {@link singleOrFallback} method to avoid overhead.
      * @param mixed $default A default value.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \UnexpectedValueException If source contains more than one matching element.
      * @return mixed If predicate is null: default value if source is empty; otherwise, the single element of the source. If predicate is not null: default value if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
+     * @throws UnexpectedValueException If source contains more than one matching element.
      * @package YaLinqo\Pagination
      */
     public function singleOrDefault($default = null, $predicate = null)
     {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+        $predicate = Utils::createLambda($predicate, 'v,k', false);
 
-        $found = false;
-        $value = null;
-        foreach ($this as $k => $v) {
-            if ($predicate($v, $k)) {
-                if ($found)
-                    throw new \UnexpectedValueException(Errors::MANY_MATCHES);
-                $found = true;
-                $value = $v;
-            }
-        }
+        list($found, $value) = $this->singleInternal($predicate);
         return $found ? $value : $default;
     }
 
@@ -293,33 +280,53 @@ trait EnumerablePagination
      * <p>The fallback function is not executed if a matching element is found. Use the singleOrFallback method if obtaining the default value is a costly operation to avoid overhead. Otherwise, use {@link singleOrDefault}.
      * @param callable $fallback {() ==> value} A fallback function to return the default element.
      * @param callable|null $predicate {(v, k) ==> result} A function to test each element for a condition. Default: true.
-     * @throws \UnexpectedValueException If source contains more than one matching element.
      * @return mixed If predicate is null: the result of calling a fallback function if source is empty; otherwise, the single element of the source. If predicate is not null: the result of calling a fallback function if source is empty or if no element passes the test specified by predicate; otherwise, the single element of the source that passes the test specified by predicate.
+     * @throws UnexpectedValueException If source contains more than one matching element.
      * @package YaLinqo\Pagination
      */
     public function singleOrFallback($fallback, $predicate = null)
     {
-        $predicate = Utils::createLambda($predicate, 'v,k', Functions::$true);
+        $predicate = Utils::createLambda($predicate, 'v,k', false);
 
+        list($found, $value) = $this->singleInternal($predicate);
+        return $found ? $value : $fallback();
+    }
+
+    /**
+     * @param $predicate
+     * @return array{0: bool, 1: mixed}
+     */
+    private function singleInternal($predicate): array
+    {
         $found = false;
         $value = null;
-        foreach ($this as $k => $v) {
-            if ($predicate($v, $k)) {
+        if ($predicate) {
+            foreach ($this as $k => $v) {
+                if ($predicate($v, $k)) {
+                    if ($found)
+                        throw new UnexpectedValueException(Errors::MANY_MATCHES);
+                    $found = true;
+                    $value = $v;
+                }
+            }
+        }
+        else {
+            foreach ($this as $v) {
                 if ($found)
-                    throw new \UnexpectedValueException(Errors::MANY_MATCHES);
+                    throw new UnexpectedValueException(Errors::MANY_ELEMENTS);
                 $found = true;
                 $value = $v;
             }
         }
-        return $found ? $value : $fallback();
+        return [$found, $value];
     }
 
     /**
      * Searches for the specified value and returns the key of the first occurrence.
      * <p><b>Syntax</b>: indexOf (value)
-     * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
+     * <p>To search for the zero-based index of the first occurrence, call {@link toValues} method first.
      * @param mixed $value The value to locate in the sequence.
-     * @return mixed The key of the first occurrence of value, if found; otherwise, null.
+     * @return int|string|null The key of the first occurrence of value, if found; otherwise, null.
      * @package YaLinqo\Pagination
      */
     public function indexOf($value)
@@ -341,9 +348,9 @@ trait EnumerablePagination
     /**
      * Searches for the specified value and returns the key of the last occurrence.
      * <p><b>Syntax</b>: lastIndexOf (value)
-     * <p>To search for the zero-based index of the last occurence, call {@link toValues} method first.
+     * <p>To search for the zero-based index of the last occurrence, call {@link toValues} method first.
      * @param mixed $value The value to locate in the sequence.
-     * @return mixed The key of the last occurrence of value, if found; otherwise, null.
+     * @return int|string|null The key of the last occurrence of value, if found; otherwise, null.
      * @package YaLinqo\Pagination
      */
     public function lastIndexOf($value)
@@ -359,9 +366,9 @@ trait EnumerablePagination
     /**
      * Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the first occurrence.
      * <p><b>Syntax</b>: findIndex (predicate {(v, k) ==> result})
-     * <p>To search for the zero-based index of the first occurence, call {@link toValues} method first.
+     * <p>To search for the zero-based index of the first occurrence, call {@link toValues} method first.
      * @param callable $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
-     * @return mixed The key of the first occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
+     * @return int|string|null The key of the first occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
      * @package YaLinqo\Pagination
      */
     public function findIndex($predicate)
@@ -378,9 +385,9 @@ trait EnumerablePagination
     /**
      * Searches for an element that matches the conditions defined by the specified predicate, and returns the key of the last occurrence.
      * <p><b>Syntax</b>: findLastIndex (predicate {(v, k) ==> result})
-     * <p>To search for the zero-based index of the last occurence, call {@link toValues} method first.
+     * <p>To search for the zero-based index of the last occurrence, call {@link toValues} method first.
      * @param callable $predicate {(v, k) ==> result} A function that defines the conditions of the element to search for.
-     * @return mixed The key of the last occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
+     * @return int|string|null The key of the last occurrence of an element that matches the conditions defined by predicate, if found; otherwise, null.
      * @package YaLinqo\Pagination
      */
     public function findLastIndex($predicate)
@@ -404,7 +411,7 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the elements that occur after the specified index in the input sequence.
      * @package YaLinqo\Pagination
      */
-    public function skip(int $count)
+    public function skip(int $count): Enumerable
     {
         return new self(function() use ($count) {
             $it = $this->getIterator();
@@ -427,7 +434,7 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the elements from the input sequence starting at the first element in the linear series that does not pass the test specified by predicate.
      * @package YaLinqo\Pagination
      */
-    public function skipWhile($predicate)
+    public function skipWhile($predicate): Enumerable
     {
         $predicate = Utils::createLambda($predicate, 'v,k');
 
@@ -451,10 +458,10 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the specified number of elements from the start of the input sequence.
      * @package YaLinqo\Pagination
      */
-    public function take(int $count)
+    public function take(int $count): Enumerable
     {
         if ($count <= 0)
-            return new self(new \EmptyIterator, false);
+            return new self(new EmptyIterator, false);
 
         return new self(function() use ($count) {
             foreach ($this as $k => $v) {
@@ -474,7 +481,7 @@ trait EnumerablePagination
      * @return Enumerable A sequence that contains the elements from the input sequence that occur before the element at which the test no longer passes.
      * @package YaLinqo\Pagination
      */
-    public function takeWhile($predicate)
+    public function takeWhile($predicate): Enumerable
     {
         $predicate = Utils::createLambda($predicate, 'v,k');
 
@@ -489,7 +496,7 @@ trait EnumerablePagination
 
     /**
      * Retrieve an external iterator.
-     * @return \Iterator
+     * @return Iterator
      */
-    public abstract function getIterator();
+    public abstract function getIterator(): Iterator;
 }

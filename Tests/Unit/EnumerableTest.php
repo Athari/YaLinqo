@@ -1994,6 +1994,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::single
+     * @covers \YaLinqo\Enumerable::singleInternal
      */
     function testSingle()
     {
@@ -2009,6 +2010,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::single
+     * @covers \YaLinqo\Enumerable::singleInternal
      * @dataProvider dataProvider_testSingle_noMatches
      */
     function testSingle_noMatches($source, $predicate)
@@ -2029,6 +2031,26 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::single
+     * @covers \YaLinqo\Enumerable::singleInternal
+     * @dataProvider dataProvider_testSingle_manyElements
+     */
+    function testSingle_manyElements($source)
+    {
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_ELEMENTS);
+        E::from($source)->single();
+    }
+
+    function dataProvider_testSingle_manyElements()
+    {
+        return [
+            // single ()
+            [ [ 1, 2, 3 ] ],
+            [ [ 3 => 1, 2, 'a' => 3 ] ],
+        ];
+    }
+
+    /** @covers \YaLinqo\Enumerable::single
+     * @covers \YaLinqo\Enumerable::singleInternal
      * @dataProvider dataProvider_testSingle_manyMatches
      */
     function testSingle_manyMatches($source, $predicate)
@@ -2040,9 +2062,6 @@ class EnumerableTest extends TestCaseEnumerable
     function dataProvider_testSingle_manyMatches()
     {
         return [
-            // single ()
-            [ [ 1, 2, 3 ], null, null ],
-            [ [ 3 => 1, 2, 'a' => 3 ], null, null ],
             // single (predicate)
             [ [ 1, 2, 3 ], '$v>0' ],
             [ [ 1, 2, -3 ], '$v>0' ],
@@ -2050,6 +2069,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::singleOrDefault
+     * @covers \YaLinqo\Enumerable::singleInternal
      */
     function testSingleOrDefault()
     {
@@ -2082,6 +2102,29 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::singleOrDefault
+     * @covers \YaLinqo\Enumerable::singleInternal
+     * @dataProvider dataProvider_testSingleOrDefault_manyElements
+     */
+    function testSingleOrDefault_manyElements($source, $default)
+    {
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_ELEMENTS);
+        E::from($source)->singleOrDefault($default);
+    }
+
+    function dataProvider_testSingleOrDefault_manyElements()
+    {
+        return [
+            // singleOrDefault ()
+            [ [ 1, 2, 3 ], null ],
+            [ [ 3 => 1, 2, 'a' => 3 ], null ],
+            // singleOrDefault (default)
+            [ [ 1, 2, 3 ], 'a' ],
+            [ [ 3 => 1, 2, 'a' => 3 ], 'a' ],
+        ];
+    }
+
+    /** @covers \YaLinqo\Enumerable::singleOrDefault
+     * @covers \YaLinqo\Enumerable::singleInternal
      * @dataProvider dataProvider_testSingleOrDefault_manyMatches
      */
     function testSingleOrDefault_manyMatches($source, $default, $predicate)
@@ -2093,12 +2136,6 @@ class EnumerableTest extends TestCaseEnumerable
     function dataProvider_testSingleOrDefault_manyMatches()
     {
         return [
-            // singleOrDefault ()
-            [ [ 1, 2, 3 ], null, null ],
-            [ [ 3 => 1, 2, 'a' => 3 ], null, null ],
-            // singleOrDefault (default)
-            [ [ 1, 2, 3 ], 'a', null ],
-            [ [ 3 => 1, 2, 'a' => 3 ], 'a', null ],
             // singleOrDefault (default, predicate)
             [ [ 1, 2, 3 ], 'a', '$v>0' ],
             [ [ 1, 2, -3 ], 'a', '$v>0' ],
@@ -2106,6 +2143,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::singleOrFallback
+     * @covers \YaLinqo\Enumerable::singleInternal
      */
     function testSingleOrFallback()
     {
@@ -2132,6 +2170,31 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::singleOrFallback
+     * @covers \YaLinqo\Enumerable::singleInternal
+     * @dataProvider dataProvider_testSingleOrFallback_manyElements
+     */
+    function testSingleOrFallback_manyElements($source, $fallback)
+    {
+        $this->setExpectedException('UnexpectedValueException', Errors::MANY_ELEMENTS);
+        E::from($source)->singleOrFallback($fallback);
+    }
+
+    function dataProvider_testSingleOrFallback_manyElements()
+    {
+        $fallback = function() { return 'a'; };
+
+        return [
+            // singleOrFallback ()
+            [ [ 1, 2, 3 ], null ],
+            [ [ 3 => 1, 2, 'a' => 3 ], null ],
+            // singleOrFallback (fallback)
+            [ [ 1, 2, 3 ], $fallback ],
+            [ [ 3 => 1, 2, 'a' => 3 ], $fallback ],
+        ];
+    }
+
+    /** @covers \YaLinqo\Enumerable::singleOrFallback
+     * @covers \YaLinqo\Enumerable::singleInternal
      * @dataProvider dataProvider_testSingleOrFallback_manyMatches
      */
     function testSingleOrFallback_manyMatches($source, $fallback, $predicate)
@@ -2145,12 +2208,6 @@ class EnumerableTest extends TestCaseEnumerable
         $fallback = function() { return 'a'; };
 
         return [
-            // singleOrFallback ()
-            [ [ 1, 2, 3 ], null, null ],
-            [ [ 3 => 1, 2, 'a' => 3 ], null, null ],
-            // singleOrFallback (fallback)
-            [ [ 1, 2, 3 ], $fallback, null ],
-            [ [ 3 => 1, 2, 'a' => 3 ], $fallback, null ],
             // singleOrFallback (fallback, predicate)
             [ [ 1, 2, 3 ], $fallback, '$v>0' ],
             [ [ 1, 2, -3 ], $fallback, '$v>0' ],

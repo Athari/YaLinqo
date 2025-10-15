@@ -9,6 +9,7 @@ trim_trailing_whitespace = true
 indent_size = 4
 trim_trailing_whitespace = false
 
+# noinspection EditorConfigKeyCorrectness
 [*.php]
 indent_size = 4
 
@@ -236,3 +237,4 @@ php_format_import_sorting_case_sensitive = false
 php_format_blank_lines_between_use_types = 0
 
 [*.{json,js}]
+indent_size = 4
