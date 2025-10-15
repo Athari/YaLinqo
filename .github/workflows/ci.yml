@@ -47,7 +47,7 @@ jobs:
           - '8.6'
           - 'latest'
           - 'nightly'
-          - 'master'
+          # - 'master'
         include:
           - php-version: '7.0'
             composer-version: '2.2'
@@ -59,8 +59,8 @@ jobs:
             php-future: true
           - php-version: 'nightly'
             php-future: true
-          - php-version: 'master'
-            php-future: true
+          # - php-version: 'master'
+          #   php-future: true
 
     steps:
       - name: Checkout code
