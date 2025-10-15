@@ -314,4 +314,17 @@ License
 [**Simplified BSD License**](license.md)<br>
 Copyright © 2012–2025, Alexander Prokhorov
 
+History
+=======
+
+<a href="https://www.star-history.com/#Athari/YaLinqo&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Athari/YaLinqo&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Athari/YaLinqo&type=date&legend=bottom-right" />
+   <img alt="Star history chart" title="Star history chart" src="https://api.star-history.com/svg?repos=Athari/YaLinqo&type=date&legend=bottom-right" />
+ </picture>
+</a>
+
+[![Contributors](https://contrib.rocks/image?repo=Athari/YaLinqo&columns=12&max=24&anon=0 "Contributors")](https://github.com/Athari/YaLinqo/graphs/contributors)
+
 [^1]: The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
