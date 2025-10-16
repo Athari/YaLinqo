@@ -18,6 +18,7 @@ on:
 env:
   # options
   composer_version: 2
+  coveralls_php_version: 7.4
 
 defaults:
   run:
@@ -80,11 +81,17 @@ jobs:
       - name: Setup problem matchers
         run: gci *.json -lp .github/matchers | foreach { echo "::add-matcher::$($_.FullName)" }
 
-      - name: Validate composer.json
-        run: composer validate --strict
-
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: |
+          composer validate --strict
+          composer install --prefer-dist --no-progress
 
       - name: Run tests
         run: vendor/bin/phpunit --teamcity
+
+      - name: Upload Coveralls report
+        uses: coverallsapp/github-action@v2
+        if: matrix.php-version == env.coveralls_php_version
+        with:
+          files: >-
+            build/logs/clover.xml

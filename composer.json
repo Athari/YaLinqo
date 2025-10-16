@@ -21,9 +21,7 @@
     },
     "require-dev": {
         "ext-simplexml": "*",
-        "phpunit/phpunit": "^6.5 || ^8.5",
-        "phpdocumentor/phpdocumentor": "^2.8",
-        "php-coveralls/php-coveralls": "^2.5"
+        "phpunit/phpunit": "^6.5 || ^8.5"
     },
     "autoload": {
         "psr-4": {
