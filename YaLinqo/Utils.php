@@ -9,6 +9,9 @@
 
 namespace YaLinqo;
 
+use Closure;
+use InvalidArgumentException, ParseError;
+
 /**
  * Functions for creating lambdas.
  * @internal
@@ -48,35 +51,35 @@ class Utils
      * Convert string lambda to callable function. If callable is passed, return as is.
      * @param callable|null $closure
      * @param string $closureArgs
-     * @param \Closure|callable|null $default
-     * @throws \InvalidArgumentException Both closure and default are null.
-     * @throws \InvalidArgumentException Incorrect lambda syntax.
+     * @param Closure|callable|null $default
+     * @throws InvalidArgumentException Both closure and default are null.
+     * @throws InvalidArgumentException Incorrect lambda syntax.
      * @return callable|null
      */
     public static function createLambda($closure, string $closureArgs, $default = null)
     {
         if ($closure === null) {
             if ($default === null)
-                throw new \InvalidArgumentException(self::ERROR_CLOSURE_NULL);
+                throw new InvalidArgumentException(self::ERROR_CLOSURE_NULL);
             return $default;
         }
-        if ($closure instanceof \Closure)
+        if ($closure instanceof Closure)
             return $closure;
         if (is_string($closure) && ($function = self::createLambdaFromString($closure, $closureArgs)))
             return $function;
         if (is_callable($closure))
             return $closure;
-        throw new \InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
+        throw new InvalidArgumentException(self::ERROR_CLOSURE_NOT_CALLABLE);
     }
 
     /**
      * Convert string lambda or SORT_ flags to callable function. Sets isReversed to false if descending is reversed.
      * @param callable|int|null $closure
      * @param int $sortOrder
-     * @param bool $isReversed
+     * @param bool|null $isReversed
      * @return callable|string|null
-     * @throws \InvalidArgumentException Incorrect lambda syntax.
-     * @throws \InvalidArgumentException Incorrect SORT_ flags.
+     * @throws InvalidArgumentException Incorrect lambda syntax.
+     * @throws InvalidArgumentException Incorrect SORT_ flags.
      */
     public static function createComparer($closure, $sortOrder, &$isReversed)
     {
@@ -102,7 +105,7 @@ class Utils
                 case SORT_NATURAL | SORT_FLAG_CASE:
                     return 'strnatcasecmp';
                 default:
-                    throw new \InvalidArgumentException("Unexpected sort flag: {$closure}.");
+                    throw new InvalidArgumentException("Unexpected sort flag: {$closure}.");
             }
         }
         return self::createLambda($closure, 'a,b');
@@ -132,7 +135,7 @@ class Utils
      * Convert string lambda to callable function.
      * @param string $closure
      * @param string $closureArgs
-     * @throws \InvalidArgumentException Incorrect lambda syntax.
+     * @throws InvalidArgumentException Incorrect lambda syntax.
      * @return string|null
      */
     private static function createLambdaFromString(string $closure, string $closureArgs)
@@ -153,9 +156,12 @@ class Utils
             $code = trim($code, " \r\n\t");
             if (strlen($code) > 0 && $code[0] != '{')
                 $code = "return {$code};";
-            $fun = eval("return function($args) { $code };");
-            if (!is_callable($fun))
-                throw new \InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA);
+            try {
+                $fun = eval("return function($args) { $code };");
+            }
+            catch (ParseError $e) {
+                throw new InvalidArgumentException(self::ERROR_CANNOT_PARSE_LAMBDA . " " . $e->getMessage());
+            }
             self::$lambdaCache[$closure][$closureArgs] = $fun;
             return $fun;
         }

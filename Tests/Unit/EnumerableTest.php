@@ -11,6 +11,9 @@ use SimpleXMLElement;
 use YaLinqo\{Enumerable as E, Functions, Errors};
 use YaLinqo\Tests\{Stubs\AggregateIteratorWrapper, Testing\TestCaseEnumerable};
 
+if (!defined('PHP_FLOAT_MAX'))
+    define('PHP_FLOAT_MAX', 1.7976931348623157E+308);
+
 /** @covers \YaLinqo\Enumerable
  */
 class EnumerableTest extends TestCaseEnumerable
@@ -204,7 +207,7 @@ class EnumerableTest extends TestCaseEnumerable
             4);
         $this->assertEnumSame(
             [ 3 => 2, 6 => 4, 9 => 6 ],
-            E::generate('$v+2', null, '$k+3', null),
+            E::generate('$v+2', null, '$k+3'),
             3);
         $this->assertEnumSame(
             [ 2 => 1, 5 => 3, 8 => 5 ],
@@ -469,6 +472,7 @@ class EnumerableTest extends TestCaseEnumerable
     #region Projection and filtering
 
     /** @covers \YaLinqo\Enumerable::cast
+     * @noinspection PhpConditionAlreadyCheckedInspection
      */
     function testCast()
     {
@@ -1126,6 +1130,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::average
+     * @noinspection PhpIdempotentOperationInspection
      */
     function testAverage()
     {
@@ -1301,6 +1306,7 @@ class EnumerableTest extends TestCaseEnumerable
     }
 
     /** @covers \YaLinqo\Enumerable::sum
+     * @noinspection PhpIdempotentOperationInspection
      */
     function testSum()
     {
@@ -2588,6 +2594,14 @@ class EnumerableTest extends TestCaseEnumerable
             E::from([ 1, 2, 6 => E::from([ 7 => [ 'a' => 'a' ], E::from([ 8 => 4, 5 ]) ]) ])->toJSON());
     }
 
+    /** @covers \YaLinqo\Enumerable::toJSON
+     */
+    function testToJSONError()
+    {
+        $this->setExpectedException('UnexpectedValueException');
+        E::from([[[[3]]]])->toJSON(0, 1);
+    }
+
     /** @covers \YaLinqo\Enumerable::toLookup
      */
     function testToLookup()
@@ -2750,22 +2764,23 @@ class EnumerableTest extends TestCaseEnumerable
     #region Actions
 
     /** @covers \YaLinqo\Enumerable::call
+     * @noinspection PhpStatementHasEmptyBodyInspection, PhpLoopNeverIteratesInspection
      */
     function testCall()
     {
         // call (action)
         $a = [];
-        foreach (E::from([])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        foreach (E::from([])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $ignored) ;
         $this->assertSame(
             [],
             $a);
         $a = [];
-        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) ;
+        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $ignored) ;
         $this->assertSame(
             [ 1, 'a' => 2, 3 ],
             $a);
         $a = [];
-        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $_) break;
+        foreach (E::from([ 1, 'a' => 2, 3 ])->call(function($v, $k) use (&$a) { $a[$k] = $v; }) as $ignored) break;
         $this->assertSame(
             [ 1 ],
             $a);

@@ -116,6 +116,15 @@ class UtilsTest extends TestCaseEnumerable
         $this->assertSame(5, $f2(1, 2, 3, 4, 5));
     }
 
+    /** @covers \YaLinqo\Utils::createLambda
+     * @covers \YaLinqo\Utils::createLambdaFromString
+     */
+    function testCreateLambda_lambdaStringInvalid()
+    {
+        $this->setExpectedException('InvalidArgumentException', U::ERROR_CANNOT_PARSE_LAMBDA);
+        U::createLambda('wrong $ syntax', 'v,k');
+    }
+
     /** @covers \YaLinqo\Utils::createComparer
      */
     function testCreateComparer_default()

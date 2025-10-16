@@ -1007,14 +1007,16 @@ class Enumerable implements IteratorAggregate, JsonSerializable
      * <p><b>Syntax</b>: toJSON ([options])
      * <p>This function only works with UTF-8 encoded data.
      * @param int $options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_UNESCAPED_UNICODE. Default: 0.
+     * @param int $depth Maximum JSON depth. Must be greater than zero.
      * @return string A JSON encoded string on success or false on failure.
      * @throws UnexpectedValueException If json_encode fails.
      * @see json_encode
      * @package YaLinqo\Conversion
      */
-    public function toJSON(int $options = 0): string
+    public function toJSON(int $options = 0, int $depth = 512): string
     {
-        $result = json_encode($this->toArrayDeep(), $options);
+        // TODO: Switch to JSON_THROW_ON_ERROR in PHP 8.0+
+        $result = json_encode($this->toArrayDeep(), $options, $depth);
         if ($result === false)
             throw new UnexpectedValueException(json_last_error_msg());
         return $result;
