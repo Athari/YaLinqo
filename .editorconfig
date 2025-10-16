@@ -9,7 +9,6 @@ trim_trailing_whitespace = true
 indent_size = 4
 trim_trailing_whitespace = false
 
-# noinspection EditorConfigKeyCorrectness
 [*.php]
 indent_size = 4
 
