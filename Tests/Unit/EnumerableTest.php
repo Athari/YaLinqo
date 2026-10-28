@@ -617,6 +617,15 @@ class EnumerableTest extends TestCaseEnumerable
         $this->assertEnumValuesEquals(
             [ new Exception ],
             $a->ofType('Exception'));
+
+        // ofType (subclass)
+        $derivedException = new class extends Exception { };
+        $this->assertEnumValuesSame(
+            [ $derivedException ],
+            E::from([ $derivedException ])->ofType(Exception::class));
+        $this->assertEnumValuesSame(
+            [ $derivedException ],
+            E::from([ $derivedException ])->ofType(\Throwable::class));
     }
 
     /** @covers \YaLinqo\Enumerable::select

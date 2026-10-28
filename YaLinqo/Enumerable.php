@@ -104,7 +104,7 @@ class Enumerable implements IteratorAggregate, JsonSerializable
      * Filters the elements of a sequence based on a specified type.
      * <p><b>Syntax</b>: ofType (type)
      * <p>The ofType method returns only elements of the specified type. To instead receive an error if an element cannot be cast, use {@link cast}.
-     * @param string $type The type to filter the elements of the sequence on. Can be either class name or one of the predefined types: array, int (integer, long), callable (callable), float (real, double), null, string, object, numeric, scalar.
+     * @param string $type The type to filter the elements of the sequence on. Can be a class or interface name (including subclasses and implementations) or one of the predefined types: array, int (integer, long), callable (callable), float (real, double), null, string, object, numeric, scalar.
      * @return Enumerable A sequence that contains elements from the input sequence of the specified type.
      * @package YaLinqo\Projection and filtering
      */
@@ -135,7 +135,7 @@ class Enumerable implements IteratorAggregate, JsonSerializable
             case 'string':
                 return $this->where(function($v) { return is_string($v); });
             default:
-                return $this->where(function($v) use ($type) { return is_object($v) && get_class($v) === $type; });
+                return $this->where(function($v) use ($type) { return is_object($v) && $v instanceof $type; });
         }
     }
 
